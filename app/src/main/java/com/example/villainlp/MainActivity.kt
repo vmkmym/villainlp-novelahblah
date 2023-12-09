@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     VillainNavigation()
-                    Text(text ="Hello World!")
+//                    Text(text ="Hello World!")
                 }
             }
         }
