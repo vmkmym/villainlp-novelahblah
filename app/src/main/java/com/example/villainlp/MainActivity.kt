@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.villainlp.model.Screen
 import com.example.villainlp.ui.theme.VillainlpTheme
+import com.example.villainlp.view.ChatBotScreen
 import com.example.villainlp.view.LoginScreen
 import com.example.villainlp.view.HomeScreen
 
@@ -40,12 +41,17 @@ class MainActivity : ComponentActivity() {
 fun VillainNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.Screen1.route) {
+    NavHost(navController = navController, startDestination =
+    Screen.ChatbotScreen.route
+    ) {
         composable(Screen.Screen1.route) {
             LoginScreen(navController)
         }
         composable(Screen.Screen2.route) {
             HomeScreen(navController)
+        }
+        composable(Screen.ChatbotScreen.route) {
+            ChatBotScreen(navController)
         }
     }
 }
