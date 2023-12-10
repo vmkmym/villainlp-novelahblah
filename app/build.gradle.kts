@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -48,6 +50,23 @@ android {
         }
     }
 }
+
+// API 키 읽어오기
+val localPropertiesFile: File = rootProject.file("local.properties")
+val properties = Properties()
+
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use {
+        properties.load(it)
+    }
+}
+
+// API 키 가져오기
+val apiKey: String? = properties.getProperty("api_key")
+
+// 또는 직접 사용할 수 있도록 더 전역적인 변수에 저장
+extra.set("chatGptApiKey", apiKey)
+
 
 dependencies {
 

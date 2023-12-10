@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,7 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.villainlp.model.Screen
 import com.example.villainlp.ui.theme.VillainlpTheme
-import com.example.villainlp.view.ChatBotScreen
+import com.example.villainlp.view.ChatScreen
 import com.example.villainlp.view.LoginScreen
 import com.example.villainlp.view.HomeScreen
 
@@ -51,7 +50,7 @@ fun VillainNavigation() {
             HomeScreen(navController)
         }
         composable(Screen.ChatbotScreen.route) {
-            ChatBotScreen(navController)
+            ChatScreen()
         }
     }
 }
