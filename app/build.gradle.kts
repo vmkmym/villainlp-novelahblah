@@ -69,6 +69,10 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     // Kotlin
     val nav_version = "2.5.3"
+    //noinspection GradleDependency
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+    //noinspection GradleDependency
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+    // okhttp
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 }
