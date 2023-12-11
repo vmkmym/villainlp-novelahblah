@@ -7,19 +7,8 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.villainlp.model.Screen
-import com.example.villainlp.ui.theme.VillainlpTheme
-import com.example.villainlp.view.LoginScreen
-import com.example.villainlp.view.HomeScreen
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -33,28 +22,35 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     private val client = OkHttpClient()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val etQuestion = findViewById<EditText>(R.id.etQuestion)
         val btnSubmit = findViewById<Button>(R.id.btnSubmit)
         val txtResponse = findViewById<TextView>(R.id.txtResponse)
 
         btnSubmit.setOnClickListener {
             val question = etQuestion.text.toString().trim()
+
             if (question.isNotEmpty()) {
                 Toast.makeText(this, question, Toast.LENGTH_SHORT).show()
                 getResponse(question) { response ->
                     runOnUiThread {
-                        txtResponse.text = if (response.isBlank()) "No answer found." else response
+                        if (response.isNotBlank()) {
+                            txtResponse.text = response
+                        } else {
+                            txtResponse.text = "No answer found."
+                        }
                     }
                 }
             }
         }
     }
 
-    fun getResponse(question: String, callback: (String) -> Unit) {
-        val apiKey = "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"
+    private fun getResponse(question: String, callback: (String) -> Unit) {
+        val apiKey = "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"
         val url = "https://api.openai.com/v1/chat/completions"
         val requestBody = """
             {
@@ -78,6 +74,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
+                Log.v("data", "API response code: ${response.code}")
+
                 if (!response.isSuccessful) {
                     Log.e("error", "API error: ${response.code}")
                     callback("")

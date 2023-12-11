@@ -75,4 +75,5 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
     // okhttp
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
+
 }
