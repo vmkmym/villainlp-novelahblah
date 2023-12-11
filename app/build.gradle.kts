@@ -71,4 +71,11 @@ dependencies {
     val nav_version = "2.5.3"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+
+    // import Kotlin API client BOM
+    implementation(platform("com.aallam.openai:openai-client-bom:3.6.1"))
+
+    // define dependencies without versions
+    implementation ("com.aallam.openai:openai-client")
+    runtimeOnly ("io.ktor:ktor-client-okhttp")
 }

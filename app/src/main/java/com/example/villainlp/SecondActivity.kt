@@ -1,5 +1,4 @@
 @file:OptIn(BetaOpenAI::class)
-
 package com.example.villainlp
 
 import android.os.Bundle
@@ -30,7 +29,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aallam.openai.api.BetaOpenAI
-import com.aallam.openai.api.assistant.Assistant
 import com.aallam.openai.api.assistant.AssistantId
 import com.aallam.openai.api.assistant.AssistantRequest
 import com.aallam.openai.api.assistant.AssistantTool
@@ -52,32 +50,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(BetaOpenAI::class)
-class MainActivity : ComponentActivity() {
-    private val token = "여기에 api key를 넣어주세요"
-    private val openAI by lazy { OpenAI(token) }
-    private var assistantId: AssistantId? = null
+class SecondActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        CoroutineScope(Dispatchers.IO).launch {
-            val assistantResponse = openAI.assistant(
-                request = AssistantRequest(
-                    name = "novel writer",
-                    instructions = "You will take turns with the user to write a novel.",
-                    tools = listOf(AssistantTool.CodeInterpreter),
-                    model = ModelId("gpt-3.5-turbo-16k")
-                )
-            )
-            assistantId = assistantResponse.id
-        }
         setContent {
             VillainlpTheme {
+                // Initialize OpenAI instance
+                val token = "여기에 api key를 넣어주세요"
+                Log.d("token", token)
+                val openAI = remember { OpenAI(token) }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    Log.d("MainActivity", "Surface initialized")
                     VillainNavigation(openAI)
-                    UserPrompt(openAI, assistantId)
+                    UserPrompt(openAI)
                 }
             }
         }
@@ -86,7 +74,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
+fun UserPrompt(openAI: OpenAI) {
     val (input, setInput) = remember { mutableStateOf("") }
     val (output, setOutput) = remember { mutableStateOf("") }
 
@@ -121,8 +109,14 @@ fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
 
         Button(
             onClick = {
+                Log.d("UserPrompt", "CoroutineScope launched")
+                // OpenAI로 사용자 입력 및 통신하기 위한 코루틴 실행
                 CoroutineScope(Dispatchers.IO).launch {
+                    Log.d("UserPrompt", "CoroutineScope launched")
+                    // thread 생성
                     val thread = openAI.thread()
+
+                    // user의 message를 assistant에게 전달
                     openAI.message(
                         threadId = thread.id,
                         request = MessageRequest(
@@ -130,25 +124,40 @@ fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
                             content = input
                         )
                     )
+
+                    // 어시스턴트 생성
+                    val assistant = openAI.assistant(
+                        request = AssistantRequest(
+                            name = "novel writer",
+                            instructions = "You will take turns with the user to write a novel.",
+                            tools = listOf(AssistantTool.CodeInterpreter),
+                            model = ModelId("gpt-3.5-turbo-16k")
+                        )
+                    )
+
+                    // 어시스턴트 ID 저장
+                    val assistantId = assistant.id
+
                     val run = openAI.createRun(
                         thread.id,
                         request = RunRequest(
-                            assistantId = assistantId ?: return@launch,
+                            assistantId = assistantId,
                             instructions = "The user wants you to continue writing the novel. Please continue writing the novel.",
                         )
                     )
 
-                    var retrievedRun: Run
-                    do {
-                        delay(150)
-                        retrievedRun = openAI.getRun(
-                            threadId = thread.id,
-                            runId = run.id
-                        )
-                    } while (retrievedRun.status != Status.Completed)
+                    // assistant 작업이 완료될 때까지 주기적으로 작업 상태 확인
+                    var isCompleted = false
+                    while (!isCompleted) {
+                        val retrievedRun = openAI.getRun(threadId = thread.id, runId = run.id)
+                        isCompleted = retrievedRun.status == Status.Completed
+                        delay(100) // 일정 간격으로 작업 상태 확인
+                    }
 
+                    // 메시지를 보내면 input을 비움
                     setInput("")
 
+                    // assistant의 응답을 처리하여 output 업데이트
                     val assistantMessages = openAI.messages(thread.id)
                     val response = assistantMessages.joinToString("\n") { message ->
                         val textContent = message.content.first() as? MessageContent.Text
@@ -161,26 +170,8 @@ fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
         ) {
             Text(text = "Send")
         }
-
         if (output.isNotEmpty()) {
             Text(text = output)
-        }
-    }
-}
-
-
-@Composable
-fun VillainNavigation(openAI: OpenAI) {
-    val navController = rememberNavController()
-
-    NavHost(navController = navController, startDestination = Screen.Screen1.route) {
-        composable(Screen.Screen1.route) {
-            // Pass OpenAI instance to the LoginScreen
-            LoginScreen(navController, openAI)
-        }
-        composable(Screen.Screen2.route) {
-            // Pass OpenAI instance to the HomeScreen
-            HomeScreen(navController, openAI)
         }
     }
 }
