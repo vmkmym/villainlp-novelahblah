@@ -55,9 +55,8 @@ class SecondActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             VillainlpTheme {
-                // Initialize OpenAI instance
-                val token = "여기에 api key를 넣어주세요"
-                Log.d("token", token)
+                // 이 액티비티는..의미없는 액티비티,,그냥 두면 됨
+                val token = "api key 적기"
                 val openAI = remember { OpenAI(token) }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -136,7 +135,9 @@ fun UserPrompt(openAI: OpenAI) {
                     )
 
                     // 어시스턴트 ID 저장
-                    val assistantId = assistant.id
+                    val assistantId08 = openAI.assistant(id = AssistantId("asst_P3Z0inV8Owoh6xPNyUbbLt6Y"))
+                    val assistantId = AssistantId("asst_P3Z0inV8Owoh6xPNyUbbLt6Y")
+
 
                     val run = openAI.createRun(
                         thread.id,

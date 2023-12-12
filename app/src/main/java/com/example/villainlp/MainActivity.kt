@@ -1,4 +1,4 @@
-@file:OptIn(BetaOpenAI::class)
+@file:OptIn(BetaOpenAI::class, BetaOpenAI::class)
 
 package com.example.villainlp
 
@@ -52,11 +52,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
+
 @OptIn(BetaOpenAI::class)
 class MainActivity : ComponentActivity() {
-    private val token = "여기에 api key를 넣어주세요"
+    private val token = "api key 적기"
     private val openAI by lazy { OpenAI(token) }
-    private var assistantId: AssistantId? = null
+    private var assistantId = AssistantId("asst 키 적기")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CoroutineScope(Dispatchers.IO).launch {
@@ -76,6 +78,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    Log.d("MainActivity", "Surface initialized")
                     VillainNavigation(openAI)
                     UserPrompt(openAI, assistantId)
                 }
@@ -98,7 +101,7 @@ fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
         TextField(
             value = input,
             onValueChange = setInput,
-            label = { Text("Enter your message") }
+            label = { Text("소설 내용을 입력하세요") }
         )
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -122,7 +125,9 @@ fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
         Button(
             onClick = {
                 CoroutineScope(Dispatchers.IO).launch {
+                    Log.d("UserPrompt", "CoroutineScope launched")
                     val thread = openAI.thread()
+                    // user의 message를 assistant에게 전달
                     openAI.message(
                         threadId = thread.id,
                         request = MessageRequest(
@@ -130,6 +135,7 @@ fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
                             content = input
                         )
                     )
+                    // assistant가 작성한 novel을 가져옴
                     val run = openAI.createRun(
                         thread.id,
                         request = RunRequest(
@@ -137,8 +143,8 @@ fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
                             instructions = "The user wants you to continue writing the novel. Please continue writing the novel.",
                         )
                     )
-
                     var retrievedRun: Run
+                    // assistant가 작성한 novel이 완성될 때까지 기다림
                     do {
                         delay(150)
                         retrievedRun = openAI.getRun(
@@ -154,6 +160,7 @@ fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
                         val textContent = message.content.first() as? MessageContent.Text
                         textContent?.text?.value ?: ""
                     }
+                    Log.d("UserPrompt", "response: $response")
                     setOutput(response)
                 }
             },
