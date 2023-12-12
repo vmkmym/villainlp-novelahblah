@@ -21,26 +21,25 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aallam.openai.api.BetaOpenAI
-import com.aallam.openai.api.assistant.Assistant
 import com.aallam.openai.api.assistant.AssistantId
-import com.aallam.openai.api.assistant.AssistantRequest
-import com.aallam.openai.api.assistant.AssistantTool
 import com.aallam.openai.api.core.Role
 import com.aallam.openai.api.core.Status
 import com.aallam.openai.api.message.MessageContent
 import com.aallam.openai.api.message.MessageRequest
-import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.api.run.Run
 import com.aallam.openai.api.run.RunRequest
+import com.aallam.openai.api.thread.ThreadId
 import com.aallam.openai.client.OpenAI
 import com.example.villainlp.model.Message
 import com.example.villainlp.model.Screen
@@ -53,25 +52,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-
-@OptIn(BetaOpenAI::class)
 class MainActivity : ComponentActivity() {
-    private val token = "api key 적기"
-    private val openAI by lazy { OpenAI(token) }
-    private var assistantId = AssistantId("asst 키 적기")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        CoroutineScope(Dispatchers.IO).launch {
-            val assistantResponse = openAI.assistant(
-                request = AssistantRequest(
-                    name = "novel writer",
-                    instructions = "You will take turns with the user to write a novel.",
-                    tools = listOf(AssistantTool.CodeInterpreter),
-                    model = ModelId("gpt-3.5-turbo-16k")
-                )
-            )
-            assistantId = assistantResponse.id
-        }
         setContent {
             VillainlpTheme {
                 Surface(
@@ -79,8 +62,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Log.d("MainActivity", "Surface initialized")
-                    VillainNavigation(openAI)
-                    UserPrompt(openAI, assistantId)
+//                    VillainNavigation(openAI)
+                    UserPrompt()
                 }
             }
         }
@@ -89,9 +72,39 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
+fun UserPrompt() {
     val (input, setInput) = remember { mutableStateOf("") }
     val (output, setOutput) = remember { mutableStateOf("") }
+    val token = "Your API Key"
+    val assistantKey = "Your Assistant Key"
+    val openAI by lazy { OpenAI(token) }
+    var assistantId by remember { mutableStateOf<AssistantId?>(null) }
+    var threadId by remember { mutableStateOf<ThreadId?>(null) }
+
+    LaunchedEffect(Unit) {
+        // assistantId 가져와서 사용하기
+        val assistantResponse = openAI.assistant(AssistantId(assistantKey))
+        if (assistantResponse != null) {
+            Log.d(
+                "assistant instructions",
+                "getChatCompletion: ${assistantResponse.instructions}, ${assistantResponse.id}"
+            )
+            assistantId = assistantResponse.id
+        }
+
+        // assistantId 가져와서 설정 바꾸고 사용하기
+//        val assistantResponse = openAI.assistant(
+//            id = AssistantId(assistant_key), request = AssistantRequest(
+//                instructions = "/* TODO : 누링이 주는 instructions를 넣고 실행해 보세요 */",
+//                tools = listOf(AssistantTool.RetrievalTool),
+//                model = ModelId("gpt-3.5-turbo-1106"),
+//            )
+//        )
+//        assistantId = assistantResponse.id
+
+        val thread = openAI.thread()
+        threadId = thread.id
+    }
 
     Column(
         modifier = Modifier
@@ -124,44 +137,46 @@ fun UserPrompt(openAI: OpenAI, assistantId: AssistantId?) {
 
         Button(
             onClick = {
-                CoroutineScope(Dispatchers.IO).launch {
-                    Log.d("UserPrompt", "CoroutineScope launched")
-                    val thread = openAI.thread()
-                    // user의 message를 assistant에게 전달
-                    openAI.message(
-                        threadId = thread.id,
-                        request = MessageRequest(
-                            role = Role.User,
-                            content = input
+                if (threadId != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        Log.d("UserPrompt", "CoroutineScope launched")
+                        // user의 message를 assistant에게 전달
+                        openAI.message(
+                            threadId = threadId!!,
+                            request = MessageRequest(
+                                role = Role.User,
+                                content = input
+                            )
                         )
-                    )
-                    // assistant가 작성한 novel을 가져옴
-                    val run = openAI.createRun(
-                        thread.id,
-                        request = RunRequest(
-                            assistantId = assistantId ?: return@launch,
-                            instructions = "The user wants you to continue writing the novel. Please continue writing the novel.",
+                        Log.d("threadId", "threadId: $threadId")
+                        // assistant가 작성한 novel을 가져옴
+                        val run = openAI.createRun(
+                            threadId!!,
+                            request = RunRequest(
+                                assistantId = assistantId ?: return@launch,
+                                instructions = "The user wants you to continue writing the novel. Please continue writing the novel.",
+                            )
                         )
-                    )
-                    var retrievedRun: Run
-                    // assistant가 작성한 novel이 완성될 때까지 기다림
-                    do {
-                        delay(150)
-                        retrievedRun = openAI.getRun(
-                            threadId = thread.id,
-                            runId = run.id
-                        )
-                    } while (retrievedRun.status != Status.Completed)
+                        var retrievedRun: Run
+                        // assistant가 작성한 novel이 완성될 때까지 기다림
+                        do {
+                            delay(150)
+                            retrievedRun = openAI.getRun(
+                                threadId = threadId!!,
+                                runId = run.id
+                            )
+                        } while (retrievedRun.status != Status.Completed)
 
-                    setInput("")
+                        setInput("")
 
-                    val assistantMessages = openAI.messages(thread.id)
-                    val response = assistantMessages.joinToString("\n") { message ->
-                        val textContent = message.content.first() as? MessageContent.Text
-                        textContent?.text?.value ?: ""
+                        val assistantMessages = openAI.messages(threadId!!)
+                        val response = assistantMessages.joinToString("\n") { message ->
+                            val textContent = message.content.first() as? MessageContent.Text
+                            textContent?.text?.value ?: ""
+                        }
+                        Log.d("UserPrompt", "response: $response")
+                        setOutput(response)
                     }
-                    Log.d("UserPrompt", "response: $response")
-                    setOutput(response)
                 }
             },
             modifier = Modifier.fillMaxWidth()
