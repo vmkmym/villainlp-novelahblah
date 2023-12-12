@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -78,4 +80,10 @@ dependencies {
     // define dependencies without versions
     implementation ("com.aallam.openai:openai-client")
     runtimeOnly ("io.ktor:ktor-client-okhttp")
+
+    // firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+
 }
