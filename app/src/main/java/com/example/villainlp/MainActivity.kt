@@ -1,5 +1,6 @@
 package com.example.villainlp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
@@ -17,8 +19,12 @@ import com.example.villainlp.ui.theme.VillainlpTheme
 import com.example.villainlp.view.ChatScreen
 import com.example.villainlp.view.LoginScreen
 import com.example.villainlp.view.HomeScreen
+import com.example.villainlp.view.main
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -28,6 +34,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+//                    val scope = rememberCoroutineScope()
+//                    scope.launch(Dispatchers.IO) {
+//                        main()
+//
+//                    }
                     VillainNavigation()
 //                    Text(text ="Hello World!")
                 }
@@ -40,8 +51,9 @@ class MainActivity : ComponentActivity() {
 fun VillainNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination =
-    Screen.ChatbotScreen.route
+    NavHost(
+        navController = navController, startDestination =
+        Screen.ChatbotScreen.route
     ) {
         composable(Screen.Screen1.route) {
             LoginScreen(navController)

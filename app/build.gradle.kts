@@ -96,4 +96,11 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
 
+    // import Kotlin API client BOM
+    implementation(platform("com.aallam.openai:openai-client-bom:3.6.1"))
+
+    // define dependencies without versions
+    implementation("com.aallam.openai:openai-client")
+    runtimeOnly("io.ktor:ktor-client-okhttp")
+
 }
