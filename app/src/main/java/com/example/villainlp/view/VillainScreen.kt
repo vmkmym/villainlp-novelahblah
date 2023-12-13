@@ -92,6 +92,8 @@ fun HomeScreen(navController: NavController) {
     var assistantId by remember { mutableStateOf<AssistantId?>(null) }
     var threadId by remember { mutableStateOf<ThreadId?>(null) }
 
+    var assistantInstruction by remember { mutableStateOf("")}
+
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
         val assistantResponse = openAI.assistant(AssistantId(assistantKey))
@@ -112,6 +114,7 @@ fun HomeScreen(navController: NavController) {
 //            )
 //        )
 //        assistantId = assistantResponse.id
+//        assistantInstruction = assistantResponse.instructions?: ""
 
         val thread = openAI.thread()
         threadId = thread.id
@@ -165,7 +168,7 @@ fun HomeScreen(navController: NavController) {
                             threadId!!,
                             request = RunRequest(
                                 assistantId = assistantId ?: return@launch,
-                                instructions = "The user wants you to continue writing the novel. Please continue writing the novel.",
+                                instructions = assistantInstruction,
                             )
                         )
                         var retrievedRun: Run
