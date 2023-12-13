@@ -9,6 +9,7 @@ import com.example.villainlp.view.BookScreen
 import com.example.villainlp.view.HomeScreen
 import com.example.villainlp.view.LoginScreen
 import com.example.villainlp.view.Logout
+import com.example.villainlp.view.MyScaffold
 import com.example.villainlp.view.RatingBar
 import com.example.villainlp.view.RatingScreen
 import com.example.villainlp.view.SavedBooks
@@ -22,7 +23,7 @@ fun VillainNavigation(
     navController: NavHostController
 ) {
     val startDestination = remember { if (user == null) { Screen.Login.route } else { Screen.Home.route } }
-    NavHost(navController = navController, startDestination = "TestScreenRate") {
+    NavHost(navController = navController, startDestination = "Test3") {
         composable(Screen.Login.route) { LoginScreen(signInClicked = { signInClicked() }) }
         composable(Screen.Home.route) { HomeScreen(navController) }
         composable(Screen.Logout.route) { Logout { signOutClicked() } }
@@ -32,6 +33,7 @@ fun VillainNavigation(
         composable(Screen.TestSendBookData.route) { BookScreen(navController, user) }
         composable("TestScreenRate") { RatingScreen(navController) }
         composable("Test2") { RatingScreen(navController) }
+        composable("Test3") { MyScaffold() }
     }
 }
 
