@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -425,6 +426,7 @@ fun ChatItemBubble(
     }
 }
 
+@OptIn(BetaOpenAI::class)
 fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threadId: ThreadId?) {
     val database = Firebase.database
     val chatRef = database.getReference("cute/$title")
@@ -452,6 +454,7 @@ fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threa
 }
 
 // Firebase에서 특정 제목 아래에 채팅 메시지 저장하는 함수
+@OptIn(BetaOpenAI::class)
 fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
     val database = Firebase.database
     val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
@@ -462,6 +465,7 @@ fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?
     newMessageRef.child("threadId").setValue(threadId.toString())
 }
 
+@OptIn(BetaOpenAI::class)
 fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: ThreadId?) {
     val database = Firebase.database
     val chatRef = database.getReference("cute/$title") // title은 채팅방 이름

@@ -24,7 +24,7 @@ fun VillainNavigation(
     firebaseAuth: FirebaseAuth
 ) {
     val startDestination = remember { if (user == null) { Screen.Login.route } else { Screen.Home.route } }
-    NavHost(navController = navController, startDestination = "Test3") {
+    NavHost(navController = navController, startDestination = Screen.Library.route) {
         composable(Screen.Login.route) { LoginScreen(signInClicked = { signInClicked() }) }
         composable(Screen.Home.route) { HomeScreen(navController, firebaseAuth) }
         composable(Screen.Library.route) { LibraryScreen(user, navController) }
