@@ -48,10 +48,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.assistant.AssistantId
 import com.aallam.openai.api.core.Role
@@ -463,5 +465,4 @@ fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: 
     // 해당 대화에 대한 threadId도 저장
     newMessageRef.child("threadId").setValue(threadId.toString())
 }
-
 
