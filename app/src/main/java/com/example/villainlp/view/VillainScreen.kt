@@ -1,3 +1,5 @@
+@file:OptIn(BetaOpenAI::class)
+
 package com.example.villainlp.view
 
 import android.content.Intent
@@ -18,11 +20,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
@@ -106,7 +106,6 @@ fun LoginScreen(signInClicked: () -> Unit) {
 fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
     val context = LocalContext.current
     var (input, setInput) = remember { mutableStateOf("") }
-    var (output, setOutput) = remember { mutableStateOf("") }
     val token = getString(context, R.string.api_key)
     val assistantKey = getString(context, R.string.assistant_key)
     val openAI by lazy { OpenAI(token) }
@@ -116,8 +115,10 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
     val user: FirebaseUser? = firebaseAuth.currentUser
     var sentMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
 
+    val title = ""
+
     // 이전 채팅 메시지 불러오기
-    loadChatMessages { messages -> sentMessages = messages }
+    loadChatMessages({ messages -> sentMessages = messages }, title)
 
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
@@ -173,11 +174,6 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    IconButton(onClick = { /* 더보기 버튼을 누르면 뭐가 나와야 할까 */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "더보기")
-                    }
                     CustomTextField(
                         value = input,
                         onValueChange = { setInput(it) }
@@ -193,8 +189,7 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
                                     userName = user?.displayName,
                                     uploadDate = currentDate
                                 )
-                            saveChatMessage(newChatMessage)
-                            input = ""
+                            saveChatMessage(newChatMessage, title, threadId)
                         }
                         // 챗봇 대답
                         if (threadId != null) {
@@ -218,7 +213,7 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
                                     )
                                 )
                                 var retrievedRun: Run
-                                // assistant가 작성한 novel이 완성될 때까지 기다림
+                                // assistant가 작성한 novel이 완성될 때까지 기다리면서 응답 중 이미지 띄우기
                                 do {
                                     delay(150)
                                     retrievedRun = openAI.getRun(
@@ -229,19 +224,19 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
 
                                 setInput("")
 
+                                // 사용자가 입력한 메시지에 대한 Assistant의 응답을 가져옵니다.
                                 val assistantMessages = openAI.messages(threadId!!)
-                                val response = assistantMessages.joinToString("\n") { message ->
-                                    val textContent =
-                                        message.content.first() as? MessageContent.Text
-                                    textContent?.text?.value ?: ""
+                                val response = assistantMessages.firstOrNull { message ->
+                                    val textContent = message.content.firstOrNull() as? MessageContent.Text
+                                    textContent?.text?.value == input // 입력된 메시지와 일치하는 응답을 찾습니다.
                                 }
                                 Log.d("UserPrompt", "response: $response")
 
-                                val newChatbotMessage =
-                                    ChatbotMessage(
-                                        message = response,
-                                    )
-                                saveChatbotMessage(newChatbotMessage)
+
+                                // 이 부분에서 타입 에러 나서 앱이 튕김
+                                // 그리고 threadId는 왜 메시지마다 다르지?
+                                val newChatbotMessage = ChatbotMessage(message = response)
+                                saveChatbotMessage(newChatbotMessage, title, threadId)
                             }
                         }
                     }
@@ -273,8 +268,8 @@ fun CustomTextField(
 ) {
     Row(
         modifier = Modifier
-            .heightIn(50.dp, 50.dp),
-//            .fillMaxWidth(),
+            .heightIn(50.dp, 50.dp)
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         BasicTextField(
@@ -303,7 +298,7 @@ fun ChatItemBubble(
     userId: String?
 ) {
     val isCurrentUserMessage = userId == message.userId
-    val bubbleColor = if (isCurrentUserMessage) Color(0xFF17C3CE) else Color(0xFF17C3CE)
+    val bubbleColor = if (isCurrentUserMessage) Color(0xFF17C3CE) else Color(0xF5F5F5CE)
     val horizontalArrangement = if (isCurrentUserMessage) Arrangement.End else Arrangement.Start
 
     if (!isCurrentUserMessage) {
@@ -395,11 +390,9 @@ fun ChatItemBubble(
     }
 }
 
-fun loadChatMessages(listener: (List<ChatMessage>) -> Unit) {
-    // Write a message to the database
+fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String) {
     val database = Firebase.database
-    val chatRef = database.getReference("chat")
-    // myRef.setValue("Hello, World!") // 이렇게 하면 Hello, World!가 데이터베이스에 저장됨
+    val chatRef = database.getReference("chats/$title")
 
     // Read from the database
     chatRef.addValueEventListener(object : ValueEventListener {
@@ -421,18 +414,25 @@ fun loadChatMessages(listener: (List<ChatMessage>) -> Unit) {
     })
 }
 
-fun saveChatMessage(chatMessage: ChatMessage) {
+// Firebase에서 특정 제목 아래에 채팅 메시지 저장하는 함수
+fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
     val database = Firebase.database
-    val chatRef = database.getReference("chat")
+    val chatRef = database.getReference("chats/$title") // title은 채팅방 이름
     val newMessageRef = chatRef.push()
     newMessageRef.setValue(chatMessage)
+
+    // 해당 대화에 대한 threadId도 저장
+    newMessageRef.child("threadId").setValue(threadId)
 }
 
-fun saveChatbotMessage(chatbotMessage: ChatbotMessage) {
+fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: ThreadId?) {
     val database = Firebase.database
-    val chatRef = database.getReference("chat")
+    val chatRef = database.getReference("chats/$title") // title은 채팅방 이름
     val newMessageRef = chatRef.push()
     newMessageRef.setValue(chatbotMessage)
+
+    // 해당 대화에 대한 threadId도 저장
+    newMessageRef.child("threadId").setValue(threadId)
 }
 
 
