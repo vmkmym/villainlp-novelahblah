@@ -2,7 +2,6 @@
 
 package com.example.villainlp.view
 
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,6 +26,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,7 +62,6 @@ import com.aallam.openai.api.run.Run
 import com.aallam.openai.api.run.RunRequest
 import com.aallam.openai.api.thread.ThreadId
 import com.aallam.openai.client.OpenAI
-import com.example.villainlp.MainActivity
 import com.example.villainlp.R
 import com.example.villainlp.model.ChatMessage
 import com.example.villainlp.model.ChatbotMessage
@@ -99,13 +98,25 @@ fun LoginScreen(signInClicked: () -> Unit) {
     }
 }
 
-
+@Composable
+fun Logout(signOutClicked: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ){
+        Button(onClick = { signOutClicked() }) {
+            Text(text = "LogOut")
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
 fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
     val context = LocalContext.current
-    var (input, setInput) = remember { mutableStateOf("") }
+    val (input, setInput) = remember { mutableStateOf("") }
     val token = getString(context, R.string.api_key)
     val assistantKey = getString(context, R.string.assistant_key)
     val openAI by lazy { OpenAI(token) }
@@ -117,8 +128,8 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
 
     val title = ""
 
-    // 이전 채팅 메시지 불러오기
-    loadChatMessages({ messages -> sentMessages = messages }, title)
+    // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
+    loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
 
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
@@ -130,11 +141,13 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
             )
             assistantId = assistantResponse.id
         }
-
         val thread = openAI.thread()
         threadId = thread.id
+
+        // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
+        loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
     }
-    Log.d("assID", "assistantId: $assistantId")
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -145,9 +158,8 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
                         fontFamily = FontFamily.SansSerif
                     ) },
                 navigationIcon = {
-                    IconButton(onClick = { /* 메인 액티비티로 이동 */
-                        val intent = Intent(context, MainActivity::class.java)
-                        context.startActivity(intent)
+                    IconButton(onClick = { /* 창작마당으로 이동 */
+                        navController.navigate("CreateGroundScreen")
                     }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -224,18 +236,33 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
 
                                 setInput("")
 
-                                // 사용자가 입력한 메시지에 대한 Assistant의 응답을 가져옵니다.
                                 val assistantMessages = openAI.messages(threadId!!)
-                                val response = assistantMessages.firstOrNull { message ->
-                                    val textContent = message.content.firstOrNull() as? MessageContent.Text
-                                    textContent?.text?.value == input // 입력된 메시지와 일치하는 응답을 찾습니다.
+                                val response = assistantMessages.joinToString("\n") { message ->
+                                    val textContent =
+                                        message.content.first() as? MessageContent.Text
+                                    textContent?.text?.value ?: ""
                                 }
+
+//                                // 사용자가 입력한 메시지에 대한 Assistant의 응답을 가져옵니다.
+//                                val assistantMessages = openAI.messages(threadId!!)
+//                                val response = assistantMessages.firstOrNull { message ->
+//                                    val textContent =
+//                                        message.content.firstOrNull() as? MessageContent.Text
+//                                    textContent?.text?.value == ""
+//                                }
+//                                response?.let {
+//                                    val textContent = it.content.firstOrNull() as? MessageContent.Text
+//                                    val assistantResponse = textContent?.text?.value ?: ""
+//                                    // 여기에 assistantResponse를 사용하여 처리 로직을 추가합니다.
+//                                    // assistantResponse는 사용자 입력에 관련된 Assistant의 응답을 포함합니다.
+//                                }
+
                                 Log.d("UserPrompt", "response: $response")
 
-
-                                // 이 부분에서 타입 에러 나서 앱이 튕김
-                                // 그리고 threadId는 왜 메시지마다 다르지?
-                                val newChatbotMessage = ChatbotMessage(message = response)
+                                val newChatbotMessage =
+                                    ChatbotMessage(
+                                        message = response
+                                    )
                                 saveChatbotMessage(newChatbotMessage, title, threadId)
                             }
                         }
@@ -298,7 +325,7 @@ fun ChatItemBubble(
     userId: String?
 ) {
     val isCurrentUserMessage = userId == message.userId
-    val bubbleColor = if (isCurrentUserMessage) Color(0xFF17C3CE) else Color(0xF5F5F5CE)
+    val bubbleColor = if (isCurrentUserMessage) Color(0xFF17C3CE) else Color(0xFF646E6F)
     val horizontalArrangement = if (isCurrentUserMessage) Arrangement.End else Arrangement.Start
 
     if (!isCurrentUserMessage) {
@@ -390,12 +417,15 @@ fun ChatItemBubble(
     }
 }
 
-fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String) {
+fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threadId: ThreadId?) {
     val database = Firebase.database
-    val chatRef = database.getReference("chats/$title")
+    val chatRef = database.getReference("cute/$title")
 
-    // Read from the database
-    chatRef.addValueEventListener(object : ValueEventListener {
+    // 대화 스레드에 대한 쿼리를 추가하여 해당 스레드의 메시지만 가져옵니다.
+    val query = chatRef.orderByChild("threadId").equalTo(threadId.toString())
+
+    // 쿼리를 이용해서 데이터베이스에서 데이터를 가져오는 로직
+    query.addValueEventListener(object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             val messages = mutableListOf<ChatMessage>()
             for (childSnapshot in snapshot.children) {
@@ -408,8 +438,7 @@ fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String) {
         }
         override fun onCancelled(error: DatabaseError) {
             // Failed to read value
-            Log.w("Load Chat Message", "Failed to read value.", error.toException())
-
+            Log.w("Load Chat Message", "채팅 내용 로드하기 실패!!", error.toException())
         }
     })
 }
@@ -417,22 +446,22 @@ fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String) {
 // Firebase에서 특정 제목 아래에 채팅 메시지 저장하는 함수
 fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
     val database = Firebase.database
-    val chatRef = database.getReference("chats/$title") // title은 채팅방 이름
+    val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
     val newMessageRef = chatRef.push()
     newMessageRef.setValue(chatMessage)
 
     // 해당 대화에 대한 threadId도 저장
-    newMessageRef.child("threadId").setValue(threadId)
+    newMessageRef.child("threadId").setValue(threadId.toString())
 }
 
 fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: ThreadId?) {
     val database = Firebase.database
-    val chatRef = database.getReference("chats/$title") // title은 채팅방 이름
+    val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
     val newMessageRef = chatRef.push()
     newMessageRef.setValue(chatbotMessage)
 
     // 해당 대화에 대한 threadId도 저장
-    newMessageRef.child("threadId").setValue(threadId)
+    newMessageRef.child("threadId").setValue(threadId.toString())
 }
 
 
