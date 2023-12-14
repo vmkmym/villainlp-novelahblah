@@ -18,6 +18,12 @@ data class Message(
     val isBot: Boolean
 )
 
+data class CreativeYard(
+    val title: String,
+    val type: String
+)
+
+
 data class ChatMessage(
     val message: String? = "message error",
     val userId: String? = "UID error",
