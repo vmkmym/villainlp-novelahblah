@@ -42,7 +42,6 @@ import com.aallam.openai.api.thread.ThreadId
 import com.aallam.openai.client.OpenAI
 import com.example.villainlp.R
 import com.example.villainlp.model.Message
-import com.example.villainlp.model.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -67,7 +66,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
 }
 
 @Composable
-fun Logout(signOutClicked: () -> Unit) {
+fun SettingScreen(signOutClicked: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -198,9 +197,9 @@ fun HomeScreen(navController: NavController) {
             Text(text = "Send")
         }
 
-        Button(onClick = { navController.navigate(Screen.Logout.route) }) {
-            Text(text = "logout")
-        }
+//        Button(onClick = { navController.navigate(Screen.Logout.route) }) {
+//            Text(text = "logout")
+//        }
 
         if (output.isNotEmpty()) {
             Text(text = output)
