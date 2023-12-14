@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
                     VillainNavigation(
                         signInClicked = { launcher.launch(googleSignInClient.signInIntent) },
                         signOutClicked = { signOut(navController) },
-                        mAuth.currentUser, navController, mAuth
+                        mAuth.currentUser, navController
                     )
                 }
             }

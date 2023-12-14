@@ -8,8 +8,8 @@ import androidx.compose.ui.Alignment
 import androidx.navigation.NavHostController
 
 @Composable
-fun ReadBookScreen(navController: NavHostController, title: String, discription: String) {
-    MyScaffold(title, navController) {
+fun ReadBookScreen(navController: NavHostController, title: String, discription: String, documentId: String) {
+    MyReadBookScaffold(title, navController, documentId) {
         LazyColumn(
             modifier = it,
             horizontalAlignment = Alignment.CenterHorizontally,

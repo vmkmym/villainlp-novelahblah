@@ -112,7 +112,7 @@ fun SettingScreen(signOutClicked: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
-fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
+fun HomeScreen(navController: NavController, user: FirebaseUser?) {
     val context = LocalContext.current
     val (input, setInput) = remember { mutableStateOf("") }
     val token = getString(context, R.string.api_key)
@@ -121,7 +121,6 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
     var assistantId by remember { mutableStateOf<AssistantId?>(null) }
     var threadId by remember { mutableStateOf<ThreadId?>(null) }
 
-    val user: FirebaseUser? = firebaseAuth.currentUser
     var sentMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
 
     val title = ""

@@ -6,7 +6,6 @@ import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.assistant.AssistantId
 import com.aallam.openai.api.core.Role
 import com.aallam.openai.api.file.FileId
-import com.aallam.openai.api.message.Message
 import com.aallam.openai.api.message.MessageContent
 import com.aallam.openai.api.message.MessageId
 import com.aallam.openai.api.run.RunId

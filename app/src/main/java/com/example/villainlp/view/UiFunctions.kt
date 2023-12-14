@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -68,6 +69,7 @@ fun MyScaffold(
         )
     }
 }
+
 
 @Composable
 fun MyScaffoldBottomBar(navController: NavHostController) {
@@ -103,6 +105,31 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
 }
 
 @Composable
+fun MyScaffoldTopBar(title: String) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = title,
+                style = TextStyle(
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight(500),
+                    color = Color(0xFF212121),
+                )
+            )
+        }
+        Divider(color = Color(0xFF9E9E9E))
+    }
+}
+
+
+@Composable
 fun CustomIconButton(imageId: Int, iconText: String, onClicked: () -> Unit) {
     IconButton(onClick = { onClicked() }) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -128,32 +155,9 @@ fun CustomIconButton(imageId: Int, iconText: String, onClicked: () -> Unit) {
     }
 }
 
-@Composable
-fun MyScaffoldTopBar(title: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = title,
-                style = TextStyle(
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight(500),
-                    color = Color(0xFF212121),
-                )
-            )
-        }
-        Divider(color = Color(0xFF9E9E9E))
-    }
-}
 
 @Composable
-fun SaveNovelBotton(navController: NavHostController, user: FirebaseUser?) {
+fun SaveNovelButton(navController: NavHostController, user: FirebaseUser?) {
     Button(
         onClick = {
             val book = Book(
@@ -161,9 +165,10 @@ fun SaveNovelBotton(navController: NavHostController, user: FirebaseUser?) {
                 author = user!!.displayName!!,
                 description = "description",
                 userID = user.uid,
+                rating = 0.0f
             )
             FirebaseTools.saveBook(book)
-            navController.navigate("SavedBook")
+            navController.navigate(Screen.Library.route)
         }
     ) {
         Text("Save Book")
@@ -171,7 +176,7 @@ fun SaveNovelBotton(navController: NavHostController, user: FirebaseUser?) {
 }
 
 @Composable
-fun ShowBooks(user: FirebaseUser?, modifier: Modifier, navController: NavHostController) {
+fun ShowMyBooks(user: FirebaseUser?, modifier: Modifier, navController: NavHostController) {
     var books by remember { mutableStateOf<List<Book>>(emptyList()) }
     LaunchedEffect(Unit) {
         books = FirebaseTools.fetchDataFromFirestore(user?.uid ?: "")
@@ -190,55 +195,225 @@ fun ShowBooks(user: FirebaseUser?, modifier: Modifier, navController: NavHostCon
 }
 
 @Composable
+fun ShowAllBooks(modifier: Modifier, navController: NavHostController) {
+    var books by remember { mutableStateOf<List<Book>>(emptyList()) }
+    LaunchedEffect(Unit) {
+        books = FirebaseTools.bookDataFromFirestore()
+    }
+    LazyColumn(
+        modifier = modifier
+            .padding(15.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    )
+    {
+        items(books) { book ->
+            BookCards(book, navController)
+            Spacer(modifier = Modifier.size(25.dp))
+        }
+    }
+}
+
+
+@Composable
 fun BookCards(book: Book, navController: NavHostController) {
     Card(
         modifier = Modifier
             .width(378.dp)
-            .height(95.dp)
+            .height(100.dp)
             .background(color = Color(0xFFF5F5F5), shape = RoundedCornerShape(size = 19.dp))
-            .clickable { navController.navigate("ReadBookScreen/${book.title}/${book.description}") }
+            .clickable { navController.navigate("ReadBookScreen/${book.title}/${book.description}/${book.documentID}") }
     ) {
-        Column(
+        Column(modifier = Modifier.padding(10.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .width(322.dp)
+                            .height(22.dp),
+                        text = book.title,
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight(600),
+                            color = Color(0xFF212121),
+                        )
+                    )
+                    Text(
+                        modifier = Modifier
+                            .width(322.dp)
+                            .height(30.dp),
+                        text = book.description,
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight(500),
+                            color = Color(0xFFBBBBBB),
+                        )
+                    )
+                }
+                Image(
+                    modifier = Modifier
+                        .size(33.dp)
+                        .padding(5.dp),
+                    painter = painterResource(id = R.drawable.arrow_right),
+                    contentDescription = "Front Arrow"
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .height(12.dp),
+                    text = book.author,
+                    style = TextStyle(
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight(500),
+                        color = Color(0xFF9E9E9E),
+                        textAlign = TextAlign.Start
+                    )
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_star_rate_24),
+                    contentDescription = "stars"
+                )
+                Spacer(modifier = Modifier.size(2.dp))
+                Text(text = "${book.rating}")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyReadBookScaffold(
+    title: String,
+    navController: NavHostController,
+    documentId: String,
+    content: @Composable (Modifier) -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            MyReadBookScaffoldTopBar(title, navController, documentId)
+        },
+    ) {
+        content(
+            Modifier
+                .fillMaxSize()
+                .padding(it)
+        )
+    }
+}
+
+@Composable
+fun MyReadBookScaffoldTopBar(title: String, navController: NavHostController, documentId: String) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
             modifier = Modifier
-                .padding(15.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .height(60.dp)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
+            Image(
                 modifier = Modifier
-                    .width(322.dp)
-                    .height(22.dp),
-                text = book.title,
+                    .clickable { navController.popBackStack() }
+                    .size(20.dp),
+                painter = painterResource(id = R.drawable.arrow_left),
+                contentDescription = "back"
+            )
+            Text(
+                text = title,
                 style = TextStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight(600),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight(500),
                     color = Color(0xFF212121),
                 )
             )
-            Text(
-                modifier = Modifier
-                    .width(322.dp)
-                    .height(30.dp),
-                text = book.description,
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight(500),
-                    color = Color(0xFFBBBBBB),
-                )
+            Image(
+                modifier = Modifier.clickable { navController.navigate("RatingScreen/${documentId}") },
+                painter = painterResource(id = R.drawable.rating),
+                contentDescription = "rating"
             )
-            Text(
-                modifier = Modifier
-                    .width(62.dp)
-                    .height(12.dp)
-                    .align(Alignment.End),
-                text = book.author,
-                style = TextStyle(
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight(500),
-                    color = Color(0xFF9E9E9E),
-                    textAlign = TextAlign.End
+        }
+        Divider(color = Color(0xFF9E9E9E))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun Bookds() {
+    Card(
+        modifier = Modifier
+            .width(378.dp)
+            .height(100.dp)
+            .background(color = Color(0xFFF5F5F5), shape = RoundedCornerShape(size = 19.dp))
+            .clickable { }
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .width(322.dp)
+                            .height(22.dp),
+                        text = "title",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight(600),
+                            color = Color(0xFF212121),
+                        )
+                    )
+                    Text(
+                        modifier = Modifier
+                            .width(322.dp)
+                            .height(30.dp),
+                        text = "description",
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight(500),
+                            color = Color(0xFFBBBBBB),
+                        )
+                    )
+                }
+                Image(
+                    modifier = Modifier
+                        .size(33.dp)
+                        .padding(5.dp),
+                    painter = painterResource(id = R.drawable.arrow_right),
+                    contentDescription = "Front Arrow"
                 )
-            )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .height(12.dp),
+                    text = "author",
+                    style = TextStyle(
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight(500),
+                        color = Color(0xFF9E9E9E),
+                        textAlign = TextAlign.Start
+                    )
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_star_rate_24),
+                    contentDescription = "stars"
+                )
+                Spacer(modifier = Modifier.size(2.dp))
+                Text(text = "${0}")
+            }
         }
     }
 }
