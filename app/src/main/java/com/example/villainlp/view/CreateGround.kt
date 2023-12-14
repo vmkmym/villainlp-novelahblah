@@ -141,106 +141,106 @@ fun CreativeYardScreenPreview() {
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyScaffold() {
-    Scaffold(
-        topBar = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .background(color = Color(0xFFF4F4F4))
-                        .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "Home",
-                        style = TextStyle(
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight(500),
-                            color = Color(0xFF212121),
-                        )
-                    )
-                }
-                Divider(color = Color(0xFF9E9E9E))
-            }
-        },
-        bottomBar = {
-            Row(
-                Modifier
-                    .shadow(
-                        elevation = 16.dp,
-                        spotColor = Color(0x3817C3CE),
-                        ambientColor = Color(0x3817C3CE)
-                    )
-                    .width(428.dp)
-                    .height(100.dp)
-                    .background(color = Color(0xFFF4F4F4))
-                    .padding(start = 66.dp, top = 21.dp, end = 66.dp, bottom = 21.dp),
-                horizontalArrangement = Arrangement.spacedBy(96.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.Top,
-            ) {
-                // Child views.
-                IconButton(onClick = { /*TODO*/ }) {
-                    Column(verticalArrangement = Arrangement.Center) {
-                        Image(
-                            modifier = Modifier
-                                .padding(0.dp)
-                                .width(28.dp)
-                                .height(28.dp),
-                            painter = painterResource(id = R.drawable.message),
-                            contentDescription = "image description",
-                        )
-                        Text(
-                            modifier = Modifier
-                                .width(23.dp)
-                                .height(17.dp),
-                            text = "Chat",
-                            style = TextStyle(
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight(500),
-                                color = Color(0xFFBBBBBB),
-                            )
-                        )
-                    }
-                }
-                IconButton(onClick = { /*TODO*/ }) {
-                    Column(verticalArrangement = Arrangement.Center) {
-                        Image(
-                            modifier = Modifier
-                                .padding(0.dp)
-                                .width(26.dp)
-                                .height(26.dp),
-                            painter = painterResource(id = R.drawable.archive_add),
-                            contentDescription = "image description",
-                        )
-                        Text(
-                            modifier = Modifier
-                                .width(30.dp)
-                                .height(17.dp),
-                            text = "Saved",
-                            style = TextStyle(
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight(500),
-                                color = Color(0xFFBBBBBB),
-                            )
-                        )
-                    }
-                }
-
-            }
-        }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it), contentAlignment = Alignment.Center
-        ) {
-            Text("Body Content")
-        }
-    }
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun MyScaffold() {
+//    Scaffold(
+//        topBar = {
+//            Column(modifier = Modifier.fillMaxWidth()) {
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(60.dp)
+//                        .background(color = Color(0xFFF4F4F4))
+//                        .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+//                    horizontalArrangement = Arrangement.Center,
+//                    verticalAlignment = Alignment.CenterVertically,
+//                ) {
+//                    Text(
+//                        text = "Home",
+//                        style = TextStyle(
+//                            fontSize = 22.sp,
+//                            fontWeight = FontWeight(500),
+//                            color = Color(0xFF212121),
+//                        )
+//                    )
+//                }
+//                Divider(color = Color(0xFF9E9E9E))
+//            }
+//        },
+//        bottomBar = {
+//            Row(
+//                Modifier
+//                    .shadow(
+//                        elevation = 16.dp,
+//                        spotColor = Color(0x3817C3CE),
+//                        ambientColor = Color(0x3817C3CE)
+//                    )
+//                    .width(428.dp)
+//                    .height(100.dp)
+//                    .background(color = Color(0xFFF4F4F4))
+//                    .padding(start = 66.dp, top = 21.dp, end = 66.dp, bottom = 21.dp),
+//                horizontalArrangement = Arrangement.spacedBy(96.dp, Alignment.CenterHorizontally),
+//                verticalAlignment = Alignment.Top,
+//            ) {
+//                // Child views.
+//                IconButton(onClick = { /*TODO*/ }) {
+//                    Column(verticalArrangement = Arrangement.Center) {
+//                        Image(
+//                            modifier = Modifier
+//                                .padding(0.dp)
+//                                .width(28.dp)
+//                                .height(28.dp),
+//                            painter = painterResource(id = R.drawable.message),
+//                            contentDescription = "image description",
+//                        )
+//                        Text(
+//                            modifier = Modifier
+//                                .width(23.dp)
+//                                .height(17.dp),
+//                            text = "Chat",
+//                            style = TextStyle(
+//                                fontSize = 10.sp,
+//                                fontWeight = FontWeight(500),
+//                                color = Color(0xFFBBBBBB),
+//                            )
+//                        )
+//                    }
+//                }
+//                IconButton(onClick = { /*TODO*/ }) {
+//                    Column(verticalArrangement = Arrangement.Center) {
+//                        Image(
+//                            modifier = Modifier
+//                                .padding(0.dp)
+//                                .width(26.dp)
+//                                .height(26.dp),
+//                            painter = painterResource(id = R.drawable.archive_add),
+//                            contentDescription = "image description",
+//                        )
+//                        Text(
+//                            modifier = Modifier
+//                                .width(30.dp)
+//                                .height(17.dp),
+//                            text = "Saved",
+//                            style = TextStyle(
+//                                fontSize = 10.sp,
+//                                fontWeight = FontWeight(500),
+//                                color = Color(0xFFBBBBBB),
+//                            )
+//                        )
+//                    }
+//                }
+//
+//            }
+//        }
+//    ) {
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(it), contentAlignment = Alignment.Center
+//        ) {
+//            Text("Body Content")
+//        }
+//    }
+//}
 

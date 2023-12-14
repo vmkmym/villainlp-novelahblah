@@ -2,17 +2,22 @@ package com.example.villainlp.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.villainlp.model.Screen.Logout
 import com.example.villainlp.view.CreativeYardScreen
+import com.example.villainlp.view.BookScreen
 import com.example.villainlp.view.HomeScreen
-import com.example.villainlp.view.LoginScreen
 import com.example.villainlp.view.Logout
+import com.example.villainlp.view.LoginScreen
 import com.google.firebase.auth.FirebaseAuth
+import com.example.villainlp.view.Logout
+import com.example.villainlp.view.MyScaffold
+import com.example.villainlp.view.RatingBar
+import com.example.villainlp.view.RatingScreen
+import com.example.villainlp.view.SavedBooks
 import com.google.firebase.auth.FirebaseUser
 
 @Composable
@@ -25,7 +30,7 @@ fun VillainNavigation(
 ) {
     val startDestination = remember {
         if (user == null) {
-            Screen.Home.route
+            Screen.Login.route
         } else {
             Screen.Home.route
         }
@@ -35,7 +40,14 @@ fun VillainNavigation(
         composable(Screen.Home.route) { HomeScreen(navController, firebaseAuth = firebaseAuth) } // 창작마당
         composable(Logout.route) { Logout { signOutClicked() } } // 설정 스크린
         composable(Screen.CreativeYard.route) { CreativeYardScreen(navController) }
+        composable(Screen.Logout.route) { Logout { signOutClicked() } }
+        composable(Screen.Library.route) { SavedBooks(user) }
+
+        // Test 용도
+        composable(Screen.TestSendBookData.route) { BookScreen(navController, user) }
+        composable("TestScreenRate") { RatingScreen(navController) }
+        composable("Test2") { RatingScreen(navController) }
+//        composable("Test3") { MyScaffold() }
     }
 }
-
 
