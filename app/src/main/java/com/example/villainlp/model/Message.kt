@@ -22,6 +22,8 @@ data class CreativeYard(
     val type: String
 )
 
+data class TextContent(val subtitle: String, val body: String)
+
 
 data class ChatMessage(
     val message: String? = "message error",

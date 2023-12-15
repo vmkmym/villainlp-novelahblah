@@ -48,12 +48,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.assistant.AssistantId
 import com.aallam.openai.api.core.Role
@@ -67,7 +65,6 @@ import com.aallam.openai.client.OpenAI
 import com.example.villainlp.R
 import com.example.villainlp.model.ChatMessage
 import com.example.villainlp.model.ChatbotMessage
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -82,37 +79,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@Composable
-fun LoginScreen(signInClicked: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.google_login),
-            contentDescription = "구글로그인",
-            modifier = Modifier
-                .size(250.dp, 100.dp)
-                .clickable { signInClicked() }
-        )
-    }
-}
-
-@Composable
-fun SettingScreen(signOutClicked: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Button(onClick = { signOutClicked() }) {
-            Text(text = "LogOut")
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
@@ -128,12 +94,7 @@ fun HomeScreen(navController: NavController, user: FirebaseUser?) {
     var sentMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
     var sentBotMessages by remember { mutableStateOf(listOf<ChatbotMessage>()) }
 
-
     val title = ""
-
-    // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
-    loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
-    loadChatBotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
 
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
@@ -256,6 +217,7 @@ fun HomeScreen(navController: NavController, user: FirebaseUser?) {
                                 } while (retrievedRun.status != Status.Completed)
 
                                 setInput("")
+
 
                                 val assistantMessages = openAI.messages(threadId!!)
                                 val response = assistantMessages.joinToString("\n") { message ->

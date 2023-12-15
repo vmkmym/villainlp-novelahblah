@@ -54,7 +54,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.villainlp.R
 
 @Composable
-fun CreativeYardScreen(navController: NavHostController) {
+fun CreativeYardScreen(navHostController: NavHostController) {
     Scaffold(
         topBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -182,8 +182,8 @@ fun CreativeYardScreen(navController: NavHostController) {
                 LazyColumn {
                     item {
                         Header()
-                        CreativeYard(navController = rememberNavController())
-                        CreativeYard(navController = rememberNavController())
+                        CreativeYard()
+                        CreativeYard()
                     }
                 }
             }
@@ -210,7 +210,7 @@ fun Header() {
 }
 
 @Composable
-fun CreativeYard(navController: NavHostController) {
+fun CreativeYard() {
     LazyRow {
         item {
             CreativeCard(
@@ -406,11 +406,4 @@ val genreScary = listOf(
 val genreSad = listOf(
     "Melodrama", "Tragedy", "Family", "others"
 )
-
-
-@Preview
-@Composable
-fun Preview() {
-    CreativeYardScreen(navController = rememberNavController())
-}
 

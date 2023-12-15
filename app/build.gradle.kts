@@ -88,4 +88,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
     implementation("com.google.firebase:firebase-storage")
+
+    // Lottie
+    implementation("com.airbnb.android:lottie:6.1.0")
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
 }
