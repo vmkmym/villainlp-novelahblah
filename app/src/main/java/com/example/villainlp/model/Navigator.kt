@@ -10,6 +10,7 @@ import com.example.villainlp.view.HomeScreen
 import com.example.villainlp.view.LibraryScreen
 import com.example.villainlp.view.LoginScreen
 import com.example.villainlp.view.MyBookScreen
+import com.example.villainlp.view.NovelChatList
 import com.example.villainlp.view.RatingScreen
 import com.example.villainlp.view.ReadBookScreen
 import com.example.villainlp.view.SaveNovelButton
@@ -23,13 +24,19 @@ fun VillainNavigation(
     user: FirebaseUser?,
     navController: NavHostController
 ) {
-    val startDestination = remember { if (user == null) { Screen.Login.route } else { Screen.Home.route } }
-    NavHost(navController = navController, startDestination = "TestScreenRate") {
+    val startDestination = remember { if (user == null) { Screen.Login.route } else { Screen.CreativeYard.route } }
+    NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.Login.route) { LoginScreen(signInClicked = { signInClicked() }) }
-        composable(Screen.Home.route) { HomeScreen(navController, user) }
         composable(Screen.Library.route) { LibraryScreen(navController) }
         composable(Screen.MyBook.route) { MyBookScreen(user, navController) }
         composable(Screen.Settings.route) { SettingScreen { signOutClicked() } }
+        composable(Screen.ChattingList.route) { NovelChatList(navController, user) }
+        composable(Screen.Home.route) {
+            val title = it.arguments?.getString("title")?: "title"
+            val threadId = it.arguments?.getString("threadId")?: "threadId"
+            val assistantKey = it.arguments?.getString("assistantKey")?: "assistantKey"
+            HomeScreen(navController, user, title, threadId, assistantKey)
+        }
         composable(Screen.Rating.route) {
             val documentId = it.arguments?.getString("documentId")?: "documentId"
             RatingScreen(navController, documentId)
@@ -40,7 +47,7 @@ fun VillainNavigation(
             val documentId = it.arguments?.getString("documentId")?: "documentId"
             ReadBookScreen(navController, title, description,documentId)
         }
-        composable(Screen.CreativeYard.route) { CreativeYardScreen(navController) }
+        composable(Screen.CreativeYard.route) { CreativeYardScreen(navController, user) }
 
         // Test 용도
         composable("TestScreenRate") { SaveNovelButton(navController, user) }

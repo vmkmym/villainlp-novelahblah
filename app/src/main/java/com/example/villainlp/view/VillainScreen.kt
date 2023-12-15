@@ -48,12 +48,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.assistant.AssistantId
 import com.aallam.openai.api.core.Role
@@ -67,7 +65,7 @@ import com.aallam.openai.client.OpenAI
 import com.example.villainlp.R
 import com.example.villainlp.model.ChatMessage
 import com.example.villainlp.model.ChatbotMessage
-import com.google.firebase.auth.FirebaseAuth
+import com.example.villainlp.model.Screen
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -116,24 +114,24 @@ fun SettingScreen(signOutClicked: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
-fun HomeScreen(navController: NavController, user: FirebaseUser?) {
+fun HomeScreen(
+    navController: NavController,
+    user: FirebaseUser?,
+    title: String,
+    threadID: String,
+    assistantKey: String,
+) {
     val context = LocalContext.current
     val (input, setInput) = remember { mutableStateOf("") }
     val token = getString(context, R.string.api_key)
-    val assistantKey = getString(context, R.string.assistant_key)
     val openAI by lazy { OpenAI(token) }
     var assistantId by remember { mutableStateOf<AssistantId?>(null) }
-    var threadId by remember { mutableStateOf<ThreadId?>(null) }
+    val threadId = ThreadId(threadID)
+
+    var instructions by remember { mutableStateOf("") }
 
     var sentMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
     var sentBotMessages by remember { mutableStateOf(listOf<ChatbotMessage>()) }
-
-
-    val title = ""
-
-    // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
-    loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
-    loadChatBotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
 
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
@@ -144,21 +142,8 @@ fun HomeScreen(navController: NavController, user: FirebaseUser?) {
                 "getChatCompletion: ${assistantResponse.instructions}, ${assistantResponse.id}"
             )
             assistantId = assistantResponse.id
+            instructions = assistantResponse.instructions ?: ""
         }
-
-        // assistantId 가져와서 설정 바꾸고 사용하기
-//        val assistantResponse = openAI.assistant(
-//            id = AssistantId(assistant_key), request = AssistantRequest(
-//                instructions = "/* TODO : 누링이 주는 instructions를 넣고 실행해 보세요 */",
-//                tools = listOf(AssistantTool.RetrievalTool),
-//                model = ModelId("gpt-3.5-turbo-1106"),
-//            )
-//        )
-//        assistantId = assistantResponse.id
-//        assistantInstruction = assistantResponse.instructions?: ""
-
-        val thread = openAI.thread()
-        threadId = thread.id
 
         // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
         loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
@@ -177,7 +162,7 @@ fun HomeScreen(navController: NavController, user: FirebaseUser?) {
                 },
                 navigationIcon = {
                     IconButton(onClick = { /* 창작마당으로 이동 */
-                        navController.navigate("CreateGroundScreen")
+                        navController.navigate(Screen.ChattingList.route)
                     }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -212,9 +197,6 @@ fun HomeScreen(navController: NavController, user: FirebaseUser?) {
                             Date()
                         )
                         if (input.isNotEmpty()) {
-//                            val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-//                                Date()
-//                            )
                             val newChatMessage =
                                 ChatMessage(
                                     message = input,
@@ -225,68 +207,70 @@ fun HomeScreen(navController: NavController, user: FirebaseUser?) {
                             saveChatMessage(newChatMessage, title, threadId)
                         }
                         // 챗봇 대답
-                        if (threadId != null) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                Log.d("UserPrompt", "CoroutineScope launched")
-                                // user의 message를 assistant에게 전달
-                                openAI.message(
-                                    threadId = threadId!!,
-                                    request = MessageRequest(
-                                        role = Role.User,
-                                        content = input
-                                    )
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Log.d("UserPrompt", "CoroutineScope launched")
+                            // user의 message를 assistant에게 전달
+                            openAI.message(
+                                threadId = threadId,
+                                request = MessageRequest(
+                                    role = Role.User,
+                                    content = input
                                 )
-                                Log.d("threadId", "threadId: $threadId")
-                                // assistant가 작성한 novel을 가져옴
-                                val run = openAI.createRun(
-                                    threadId!!,
-                                    request = RunRequest(
-                                        assistantId = assistantId ?: return@launch,
-                                        instructions = "The user wants you to continue writing the novel. Please continue writing the novel.",
-                                    )
+                            )
+                            Log.d("threadId", "threadId: $threadId")
+                            // assistant가 작성한 novel을 가져옴
+                            val run = openAI.createRun(
+                                threadId,
+                                request = RunRequest(
+                                    assistantId = assistantId ?: return@launch,
+                                    instructions = instructions,
                                 )
-                                var retrievedRun: Run
-                                // assistant가 작성한 novel이 완성될 때까지 기다리면서 응답 중 이미지 띄우기
-                                do {
-                                    delay(150)
-                                    retrievedRun = openAI.getRun(
-                                        threadId = threadId!!,
-                                        runId = run.id
-                                    )
-                                } while (retrievedRun.status != Status.Completed)
+                            )
 
-                                setInput("")
+                            setInput("")
 
-                                val assistantMessages = openAI.messages(threadId!!)
-                                val response = assistantMessages.joinToString("\n") { message ->
-                                    val textContent =
-                                        message.content.first() as? MessageContent.Text
-                                    textContent?.text?.value ?: ""
-                                }
+                            var retrievedRun: Run
+                            // assistant가 작성한 novel이 완성될 때까지 기다리면서 응답 중 이미지 띄우기
+                            do {
+                                delay(150)
+                                retrievedRun = openAI.getRun(
+                                    threadId = threadId,
+                                    runId = run.id
+                                )
+                            } while (retrievedRun.status != Status.Completed)
 
-//                                // 사용자가 입력한 메시지에 대한 Assistant의 응답을 가져옵니다.
-//                                val assistantMessages = openAI.messages(threadId!!)
-//                                val response = assistantMessages.firstOrNull { message ->
-//                                    val textContent =
-//                                        message.content.firstOrNull() as? MessageContent.Text
-//                                    textContent?.text?.value == ""
-//                                }
-//                                response?.let {
-//                                    val textContent = it.content.firstOrNull() as? MessageContent.Text
-//                                    val assistantResponse = textContent?.text?.value ?: ""
-//                                    // 여기에 assistantResponse를 사용하여 처리 로직을 추가합니다.
-//                                    // assistantResponse는 사용자 입력에 관련된 Assistant의 응답을 포함합니다.
-//                                }
+                            // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
+//                            val assistantMessages = openAI.messages(threadId)
+//                            val reversedMessages = assistantMessages.reversed()
+//                            val response = reversedMessages.joinToString("\n") { message ->
+//                                val textContent =
+//                                    message.content.first() as? MessageContent.Text
+//                                textContent?.text?.value ?: ""
+//                            }
 
-                                Log.d("UserPrompt", "response: $response")
+                            // 챗봇이 내준 마지막 문장을 가져옴
+                            val assistantMessages = openAI.messages(threadId)
+                            val lastAssistantMessage = assistantMessages
+                                .filter { it.role == Role.Assistant }  // Assistant의 메시지만 필터링
+                                .firstOrNull()  // 마지막 메시지만 가져옴 .lastOrNull 이렇게 하면 첫문장만 가져옴
 
-                                val newChatbotMessage =
-                                    ChatbotMessage(
-                                        message = response,
-                                        uploadDate = currentDate
-                                    )
-                                saveChatbotMessage(newChatbotMessage, title, threadId)
+                            val response = if (lastAssistantMessage != null) {
+                                val textContent =
+                                    lastAssistantMessage.content.first() as? MessageContent.Text
+                                textContent?.text?.value ?: ""
+                            } else {
+                                ""
                             }
+
+                            Log.d("UserPrompt", "response: $response")
+
+                            val newChatbotMessage =
+                                ChatbotMessage(
+                                    message = response,
+                                    uploadDate = currentDate
+                                )
+                            saveChatbotMessage(newChatbotMessage, title, threadId)
+
                         }
                     }
                 }
@@ -313,7 +297,7 @@ fun HomeScreen(navController: NavController, user: FirebaseUser?) {
 fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    onSendClick: () -> Unit
+    onSendClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -344,11 +328,27 @@ fun CustomTextField(
 @Composable
 fun ChatItemBubble(
     message: ChatMessage,
-    userId: String?
+    userId: String?,
 ) {
     val isCurrentUserMessage = userId == message.userId
     val bubbleColor = if (isCurrentUserMessage) Color(0xFF17C3CE) else Color(0xFF646E6F)
     val horizontalArrangement = if (isCurrentUserMessage) Arrangement.End else Arrangement.Start
+    val bubbleShape =
+        if (isCurrentUserMessage) {
+            RoundedCornerShape(
+                topEnd = 25.dp,
+                topStart = 25.dp,
+                bottomEnd = 25.dp,
+                bottomStart = 0.dp
+            )
+        } else {
+            RoundedCornerShape(
+                topEnd = 25.dp,
+                topStart = 25.dp,
+                bottomEnd = 0.dp,
+                bottomStart = 25.dp
+            )
+        }
 
     if (!isCurrentUserMessage) {
         Column(
@@ -357,8 +357,6 @@ fun ChatItemBubble(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = horizontalArrangement,
-//                modifier = Modifier
-//                    .fillMaxWidth(),
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.userimage),
@@ -377,12 +375,7 @@ fun ChatItemBubble(
                         modifier = Modifier
                             .background(
                                 color = bubbleColor,
-                                shape = RoundedCornerShape(
-                                    topEnd = 25.dp,
-                                    topStart = 25.dp,
-                                    bottomEnd = 25.dp,
-                                    bottomStart = 0.dp
-                                )
+                                shape = bubbleShape
                             )
                             .padding(6.dp)
                     ) {
@@ -419,12 +412,7 @@ fun ChatItemBubble(
                 modifier = Modifier
                     .background(
                         color = bubbleColor,
-                        shape = RoundedCornerShape(
-                            topEnd = 25.dp,
-                            topStart = 25.dp,
-                            bottomEnd = 25.dp,
-                            bottomStart = 0.dp
-                        )
+                        shape = bubbleShape
                     )
                     .padding(6.dp)
             ) {
@@ -441,6 +429,7 @@ fun ChatItemBubble(
 
 
 // Firebase에서 특정 제목 아래에 채팅 메시지 저장하는 함수
+@OptIn(BetaOpenAI::class)
 fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
     val database = Firebase.database
     val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
@@ -451,6 +440,7 @@ fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?
     newMessageRef.child("threadId").setValue(threadId.toString())
 }
 
+@OptIn(BetaOpenAI::class)
 fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: ThreadId?) {
     val database = Firebase.database
     val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
@@ -462,6 +452,7 @@ fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: 
 }
 
 
+@OptIn(BetaOpenAI::class)
 fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threadId: ThreadId?) {
     val database = Firebase.database
     val chatRef = database.getReference("cute/$title")
@@ -481,6 +472,7 @@ fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threa
             }
             listener(messages)
         }
+
         override fun onCancelled(error: DatabaseError) {
             // Failed to read value
             Log.w("Load Chat Message", "채팅 내용 로드하기 실패!!", error.toException())
@@ -488,7 +480,11 @@ fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threa
     })
 }
 
-fun loadChatBotMessages(listener: (List<ChatbotMessage>) -> Unit, title: String, threadId: ThreadId?) {
+fun loadChatBotMessages(
+    listener: (List<ChatbotMessage>) -> Unit,
+    title: String,
+    threadId: ThreadId?,
+) {
     val database = Firebase.database
     val chatRef = database.getReference("cute/$title")
 
@@ -507,6 +503,7 @@ fun loadChatBotMessages(listener: (List<ChatbotMessage>) -> Unit, title: String,
             }
             listener(messages)
         }
+
         override fun onCancelled(error: DatabaseError) {
             // Failed to read value
             Log.w("Load Chat Message", "채팅 내용 로드하기 실패!!", error.toException())

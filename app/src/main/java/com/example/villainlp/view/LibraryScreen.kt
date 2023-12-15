@@ -5,5 +5,5 @@ import androidx.navigation.NavHostController
 
 @Composable
 fun LibraryScreen(navController: NavHostController) {
-    MyScaffold("Library", navController) { ShowAllBooks(it, navController) }
+    MyScaffold("도서관", navController) { ShowAllBooks(it, navController) }
 }

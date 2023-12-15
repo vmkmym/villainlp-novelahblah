@@ -2,6 +2,7 @@ package com.example.villainlp.model
 
 import android.content.ContentValues
 import android.util.Log
+import com.aallam.openai.api.BetaOpenAI
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -38,6 +39,19 @@ object FirebaseTools {
             .addOnFailureListener { e ->
                 // 업데이트 실패
                 Log.w(ContentValues.TAG, "Error updating document", e)
+            }
+    }
+
+    fun saveNovelInfo(novelInfo: NovelInfo) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("NovelInfo")
+            .add(novelInfo)
+            .addOnSuccessListener { documentReference ->
+                Log.d(ContentValues.TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(ContentValues.TAG, "Error adding document", e)
             }
     }
 
@@ -89,6 +103,35 @@ object FirebaseTools {
                             bookId
                         )
                         result.add(bookWithId)
+                    }
+                    continuation.resume(result)
+                }.addOnFailureListener { exception ->
+                    println("Error getting documents: $exception")
+                    continuation.resumeWithException(exception)
+                }
+        }
+
+
+    suspend fun fetchNovelInfoDataFromFirestore(userId: String): List<NovelInfo> =
+        suspendCoroutine { continuation ->
+            val db = FirebaseFirestore.getInstance()
+            val result = mutableListOf<NovelInfo>()
+
+            db.collection("NovelInfo")
+                .get().addOnSuccessListener { querySnapshot ->
+                    for (document in querySnapshot) {
+                        val novelInfoId = document.id
+                        val novelInfo = document.toObject(NovelInfo::class.java)
+                        if (novelInfo.userID == userId) {
+                            val bookWithId = NovelInfo(
+                                novelInfo.title,
+                                novelInfo.assistId,
+                                novelInfo.threadId,
+                                novelInfo.userID,
+                                novelInfoId
+                            )
+                            result.add(bookWithId)
+                        }
                     }
                     continuation.resume(result)
                 }.addOnFailureListener { exception ->

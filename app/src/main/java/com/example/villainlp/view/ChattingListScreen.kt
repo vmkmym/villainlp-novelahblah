@@ -5,6 +5,6 @@ import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseUser
 
 @Composable
-fun MyBookScreen(user: FirebaseUser?, navController: NavHostController) {
-    MyScaffold("내서재", navController) { ShowMyBooks(user, it, navController) }
+fun NovelChatList(navController: NavHostController, user: FirebaseUser?){
+    MyScaffold("내 작업 공간", navController ) { ShowChats(user, it, navController) }
 }
