@@ -5,16 +5,15 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.villainlp.model.Screen.Logout
-import com.example.villainlp.view.CreativeYard
-import com.example.villainlp.view.BookScreen
 import com.example.villainlp.view.CreativeYardScreen
 import com.example.villainlp.view.HomeScreen
-import com.example.villainlp.view.Logout
+import com.example.villainlp.view.LibraryScreen
 import com.example.villainlp.view.LoginScreen
-import com.google.firebase.auth.FirebaseAuth
+import com.example.villainlp.view.MyBookScreen
 import com.example.villainlp.view.RatingScreen
-import com.example.villainlp.view.SavedBooks
+import com.example.villainlp.view.ReadBookScreen
+import com.example.villainlp.view.SaveNovelButton
+import com.example.villainlp.view.SettingScreen
 import com.google.firebase.auth.FirebaseUser
 
 @Composable
@@ -22,28 +21,29 @@ fun VillainNavigation(
     signInClicked: () -> Unit,
     signOutClicked: () -> Unit,
     user: FirebaseUser?,
-    navController: NavHostController,
-    firebaseAuth: FirebaseAuth
+    navController: NavHostController
 ) {
-    val startDestination = remember {
-        if (user == null) {
-            Screen.Login.route
-        } else {
-            Screen.Home.route
-        }
-    }
-    NavHost(navController = navController, startDestination = startDestination) {
+    val startDestination = remember { if (user == null) { Screen.Login.route } else { Screen.Home.route } }
+    NavHost(navController = navController, startDestination = "TestScreenRate") {
         composable(Screen.Login.route) { LoginScreen(signInClicked = { signInClicked() }) }
-        composable(Screen.Home.route) { HomeScreen(navController, firebaseAuth = firebaseAuth) } // 창작마당
-        composable(Logout.route) { Logout { signOutClicked() } } // 설정 스크린
+        composable(Screen.Home.route) { HomeScreen(navController, user) }
+        composable(Screen.Library.route) { LibraryScreen(navController) }
+        composable(Screen.MyBook.route) { MyBookScreen(user, navController) }
+        composable(Screen.Settings.route) { SettingScreen { signOutClicked() } }
+        composable(Screen.Rating.route) {
+            val documentId = it.arguments?.getString("documentId")?: "documentId"
+            RatingScreen(navController, documentId)
+        }
+        composable(Screen.ReadBook.route) {
+            val title = it.arguments?.getString("title")?: "title"
+            val description = it.arguments?.getString("description")?: "description"
+            val documentId = it.arguments?.getString("documentId")?: "documentId"
+            ReadBookScreen(navController, title, description,documentId)
+        }
         composable(Screen.CreativeYard.route) { CreativeYardScreen(navController) }
-        composable(Screen.Library.route) { SavedBooks(user) }
 
         // Test 용도
-        composable(Screen.TestSendBookData.route) { BookScreen(navController, user) }
-        composable("TestScreenRate") { RatingScreen(navController) }
-        composable("Test2") { RatingScreen(navController) }
-//        composable("Test3") { MyScaffold() }
+        composable("TestScreenRate") { SaveNovelButton(navController, user) }
     }
 }
 

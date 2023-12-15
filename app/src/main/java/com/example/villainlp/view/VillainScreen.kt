@@ -67,7 +67,6 @@ import com.aallam.openai.client.OpenAI
 import com.example.villainlp.R
 import com.example.villainlp.model.ChatMessage
 import com.example.villainlp.model.ChatbotMessage
-//import com.example.villainlp.model.ChatbotMessage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -102,13 +101,13 @@ fun LoginScreen(signInClicked: () -> Unit) {
 }
 
 @Composable
-fun Logout(signOutClicked: () -> Unit) {
+fun SettingScreen(signOutClicked: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-    ){
+    ) {
         Button(onClick = { signOutClicked() }) {
             Text(text = "LogOut")
         }
@@ -117,7 +116,7 @@ fun Logout(signOutClicked: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
-fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
+fun HomeScreen(navController: NavController, user: FirebaseUser?) {
     val context = LocalContext.current
     val (input, setInput) = remember { mutableStateOf("") }
     val token = getString(context, R.string.api_key)
@@ -126,7 +125,6 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
     var assistantId by remember { mutableStateOf<AssistantId?>(null) }
     var threadId by remember { mutableStateOf<ThreadId?>(null) }
 
-    val user: FirebaseUser? = firebaseAuth.currentUser
     var sentMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
     var sentBotMessages by remember { mutableStateOf(listOf<ChatbotMessage>()) }
 
@@ -147,6 +145,18 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
             )
             assistantId = assistantResponse.id
         }
+
+        // assistantId 가져와서 설정 바꾸고 사용하기
+//        val assistantResponse = openAI.assistant(
+//            id = AssistantId(assistant_key), request = AssistantRequest(
+//                instructions = "/* TODO : 누링이 주는 instructions를 넣고 실행해 보세요 */",
+//                tools = listOf(AssistantTool.RetrievalTool),
+//                model = ModelId("gpt-3.5-turbo-1106"),
+//            )
+//        )
+//        assistantId = assistantResponse.id
+//        assistantInstruction = assistantResponse.instructions?: ""
+
         val thread = openAI.thread()
         threadId = thread.id
 
@@ -163,7 +173,8 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
                         text = "Messenger",
                         fontSize = 17.sp,
                         fontFamily = FontFamily.SansSerif
-                    ) },
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { /* 창작마당으로 이동 */
                         navController.navigate("CreateGroundScreen")
@@ -502,3 +513,5 @@ fun loadChatBotMessages(listener: (List<ChatbotMessage>) -> Unit, title: String,
         }
     })
 }
+
+
