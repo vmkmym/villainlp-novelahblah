@@ -29,7 +29,7 @@ fun VillainNavigation(
         if (user == null) {
             Screen.Login.route
         } else {
-            Screen.CreativeYard.route
+            Screen.Home.route
         }
     }
     NavHost(navController = navController, startDestination = startDestination) {

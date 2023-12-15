@@ -67,6 +67,7 @@ import com.aallam.openai.client.OpenAI
 import com.example.villainlp.R
 import com.example.villainlp.model.ChatMessage
 import com.example.villainlp.model.ChatbotMessage
+//import com.example.villainlp.model.ChatbotMessage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -127,11 +128,14 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
 
     val user: FirebaseUser? = firebaseAuth.currentUser
     var sentMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
+    var sentBotMessages by remember { mutableStateOf(listOf<ChatbotMessage>()) }
+
 
     val title = ""
 
     // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
     loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
+    loadChatBotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
 
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
@@ -148,6 +152,7 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
 
         // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
         loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
+        loadChatBotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
     }
 
     Scaffold(
@@ -192,10 +197,13 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
                         value = input,
                         onValueChange = { setInput(it) }
                     ) {
+                        val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+                            Date()
+                        )
                         if (input.isNotEmpty()) {
-                            val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-                                Date()
-                            )
+//                            val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+//                                Date()
+//                            )
                             val newChatMessage =
                                 ChatMessage(
                                     message = input,
@@ -263,7 +271,8 @@ fun HomeScreen(navController: NavController, firebaseAuth: FirebaseAuth) {
 
                                 val newChatbotMessage =
                                     ChatbotMessage(
-                                        message = response
+                                        message = response,
+                                        uploadDate = currentDate
                                     )
                                 saveChatbotMessage(newChatbotMessage, title, threadId)
                             }
@@ -419,6 +428,29 @@ fun ChatItemBubble(
     }
 }
 
+
+// Firebase에서 특정 제목 아래에 채팅 메시지 저장하는 함수
+fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
+    val database = Firebase.database
+    val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
+    val newMessageRef = chatRef.push()
+    newMessageRef.setValue(chatMessage)
+
+    // 해당 대화에 대한 threadId도 저장
+    newMessageRef.child("threadId").setValue(threadId.toString())
+}
+
+fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: ThreadId?) {
+    val database = Firebase.database
+    val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
+    val newMessageRef = chatRef.push()
+    newMessageRef.setValue(chatbotMessage)
+
+    // 해당 대화에 대한 threadId도 저장
+    newMessageRef.child("threadId").setValue(threadId.toString())
+}
+
+
 fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threadId: ThreadId?) {
     val database = Firebase.database
     val chatRef = database.getReference("cute/$title")
@@ -445,24 +477,28 @@ fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threa
     })
 }
 
-// Firebase에서 특정 제목 아래에 채팅 메시지 저장하는 함수
-fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
+fun loadChatBotMessages(listener: (List<ChatbotMessage>) -> Unit, title: String, threadId: ThreadId?) {
     val database = Firebase.database
-    val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
-    val newMessageRef = chatRef.push()
-    newMessageRef.setValue(chatMessage)
+    val chatRef = database.getReference("cute/$title")
 
-    // 해당 대화에 대한 threadId도 저장
-    newMessageRef.child("threadId").setValue(threadId.toString())
+    // 대화 스레드에 대한 쿼리를 추가하여 해당 스레드의 메시지만 가져옵니다.
+    val query = chatRef.orderByChild("threadId").equalTo(threadId.toString())
+
+    // 쿼리를 이용해서 데이터베이스에서 데이터를 가져오는 로직
+    query.addValueEventListener(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            val messages = mutableListOf<ChatbotMessage>()
+            for (childSnapshot in snapshot.children) {
+                val chatMessage = childSnapshot.getValue(ChatbotMessage::class.java)
+                chatMessage?.let {
+                    messages.add(it)
+                }
+            }
+            listener(messages)
+        }
+        override fun onCancelled(error: DatabaseError) {
+            // Failed to read value
+            Log.w("Load Chat Message", "채팅 내용 로드하기 실패!!", error.toException())
+        }
+    })
 }
-
-fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: ThreadId?) {
-    val database = Firebase.database
-    val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
-    val newMessageRef = chatRef.push()
-    newMessageRef.setValue(chatbotMessage)
-
-    // 해당 대화에 대한 threadId도 저장
-    newMessageRef.child("threadId").setValue(threadId.toString())
-}
-

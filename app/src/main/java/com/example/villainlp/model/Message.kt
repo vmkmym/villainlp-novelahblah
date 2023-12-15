@@ -33,6 +33,7 @@ data class ChatMessage(
 
 data class ChatbotMessage(
     val message: String? = null,
+    val uploadDate: String? = ""
 )
 
 // 이거 그냥 상은이가 참고하려고 만든 데이터 클래스,,, 추후 지울거임
