@@ -60,22 +60,32 @@ private fun StartLottie() {
             .fillMaxSize()
             .background(color = Blue789)
     ) {
-        LottieAnimation(
-            composition = robotlottie,
-            iterations = LottieConstants.IterateForever
-        )
-        Image(
-            painter = painterResource(id = R.drawable.image99),
-            contentDescription = "그림자 이미지",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp)
-                .padding(start = 16.dp, end = 16.dp),
-            contentScale = ContentScale.FillBounds
-        )
-        Spacer(modifier = Modifier.weight(1f))
+        Box {
+            Row(
+                modifier = Modifier.padding(top = 20.dp)
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                LottieAnimation(
+                    composition = robotlottie,
+                    modifier = Modifier.fillMaxWidth(),
+                    iterations = LottieConstants.IterateForever
+                )
+            }
+            Box (
+                modifier = Modifier.padding(top = 320.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.image99),
+                    contentDescription = "그림자 이미지",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(30.dp)
+                        .padding(start = 60.dp, end = 25.dp),
+                    contentScale = ContentScale.FillBounds
+                )
+            }
+        }
         Descriptions(textList[index])
-        Spacer(modifier = Modifier.weight(5f))
     }
     Box(
         contentAlignment = Alignment.BottomEnd,
