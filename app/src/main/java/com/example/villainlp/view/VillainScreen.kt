@@ -5,6 +5,7 @@ package com.example.villainlp.view
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -155,7 +155,7 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Messenger",
+                        text = title,
                         fontSize = 17.sp,
                         fontFamily = FontFamily.SansSerif
                     )
@@ -171,10 +171,23 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* 채팅 내용 검색 동작 */ }) {
+                    IconButton(onClick = {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
+                            val assistantMessages = openAI.messages(threadId)
+                            val reversedMessages = assistantMessages.reversed()
+                            val response = reversedMessages.joinToString("\n\n") { message ->
+                                val textContent =
+                                    message.content.first() as? MessageContent.Text
+                                textContent?.text?.value ?: ""
+                            }
+
+                        }
+                    }) {
                         Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "검색"
+                            painter = painterResource(id = R.drawable.book_5),
+                            contentDescription = "save as book",
+                            modifier = Modifier.padding(end = 12.dp)
                         )
                     }
                 }
@@ -239,14 +252,6 @@ fun HomeScreen(
                                 )
                             } while (retrievedRun.status != Status.Completed)
 
-                            // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
-//                            val assistantMessages = openAI.messages(threadId)
-//                            val reversedMessages = assistantMessages.reversed()
-//                            val response = reversedMessages.joinToString("\n") { message ->
-//                                val textContent =
-//                                    message.content.first() as? MessageContent.Text
-//                                textContent?.text?.value ?: ""
-//                            }
 
                             // 챗봇이 내준 마지막 문장을 가져옴
                             val assistantMessages = openAI.messages(threadId)
@@ -331,7 +336,7 @@ fun ChatItemBubble(
     userId: String?,
 ) {
     val isCurrentUserMessage = userId == message.userId
-    val bubbleColor = if (isCurrentUserMessage) Color(0xFF17C3CE) else Color(0xFF646E6F)
+    val bubbleColor = if (isCurrentUserMessage) Color(0xFF3CDEE9) else Color(0xFFFFFFFF)
     val horizontalArrangement = if (isCurrentUserMessage) Arrangement.End else Arrangement.Start
     val bubbleShape =
         if (isCurrentUserMessage) {
@@ -377,11 +382,16 @@ fun ChatItemBubble(
                                 color = bubbleColor,
                                 shape = bubbleShape
                             )
+                            .border(
+                                width = 2.dp,
+                                color = Color(0xFF3CDEE9),
+                                shape = bubbleShape
+                            )
                             .padding(6.dp)
                     ) {
                         Text(
                             text = message.message ?: "",
-                            color = Color(0xFFFFFFFF),
+                            color = Color(0xFF646E6F),
                             fontSize = 14.sp,
                             modifier = Modifier.padding(6.dp)
                         )

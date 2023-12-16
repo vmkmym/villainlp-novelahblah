@@ -10,7 +10,7 @@ import com.example.villainlp.view.HomeScreen
 import com.example.villainlp.view.LibraryScreen
 import com.example.villainlp.view.LoginScreen
 import com.example.villainlp.view.MyBookScreen
-import com.example.villainlp.view.NovelChatList
+import com.example.villainlp.view.ChattingListScreen
 import com.example.villainlp.view.RatingScreen
 import com.example.villainlp.view.ReadBookScreen
 import com.example.villainlp.view.SaveNovelButton
@@ -30,7 +30,7 @@ fun VillainNavigation(
         composable(Screen.Library.route) { LibraryScreen(navController) }
         composable(Screen.MyBook.route) { MyBookScreen(user, navController) }
         composable(Screen.Settings.route) { SettingScreen { signOutClicked() } }
-        composable(Screen.ChattingList.route) { NovelChatList(navController, user) }
+        composable(Screen.ChattingList.route) { ChattingListScreen(navController, user) }
         composable(Screen.Home.route) {
             val title = it.arguments?.getString("title")?: "title"
             val threadId = it.arguments?.getString("threadId")?: "threadId"
