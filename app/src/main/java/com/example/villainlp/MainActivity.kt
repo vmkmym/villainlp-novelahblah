@@ -59,7 +59,9 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 val launcher =
-                    rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+                    rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.StartActivityForResult()
+                    ) { result ->
                         val data = result.data
                         val task = GoogleSignIn.getSignedInAccountFromIntent(data)
                         val exception = task.exception
@@ -85,7 +87,7 @@ class MainActivity : ComponentActivity() {
                     VillainNavigation(
                         signInClicked = { launcher.launch(googleSignInClient.signInIntent) },
                         signOutClicked = { signOut(navController) },
-                        mAuth.currentUser, navController
+                        mAuth.currentUser, navController, mAuth
                     )
                 }
             }

@@ -70,6 +70,8 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // 비동기
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
 
 
@@ -96,4 +98,8 @@ dependencies {
     // Lottie
     implementation("com.airbnb.android:lottie:6.1.0")
     implementation("com.airbnb.android:lottie-compose:6.1.0")
+
+    // coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
 }

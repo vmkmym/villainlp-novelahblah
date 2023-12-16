@@ -15,6 +15,8 @@ import com.example.villainlp.view.ReadBookScreen
 import com.example.villainlp.view.SaveNovelButton
 import com.example.villainlp.view.LogoutButton
 import com.example.villainlp.view.LottieScreen
+import com.example.villainlp.view.UserProfileScreen
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 
 @Composable
@@ -22,9 +24,10 @@ fun VillainNavigation(
     signInClicked: () -> Unit,
     signOutClicked: () -> Unit,
     user: FirebaseUser?,
-    navController: NavHostController
+    navController: NavHostController,
+    auth: FirebaseAuth
 ) {
-    val startDestination = remember { if (user == null) { Screen.Lottie.route } else { Screen.Lottie.route } }
+    val startDestination = remember { if (user == null) { Screen.Profile.route } else { Screen.Profile.route } }
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.Login.route) { LoginScreen(signInClicked = { signInClicked() }) }
         composable(Screen.Home.route) { HomeScreen(navController, user) }
@@ -43,6 +46,8 @@ fun VillainNavigation(
         }
         composable(Screen.CreativeYard.route) { CreativeYardScreen(navController) }
         composable(Screen.Lottie.route) { LottieScreen(navController) }
+        composable(Screen.Profile.route) {
+            UserProfileScreen(auth, signOutClicked = { signOutClicked()}, navController) }
 
         // Test 용도
         composable("TestScreenRate") { SaveNovelButton(navController, user) }
