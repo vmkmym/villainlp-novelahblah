@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +37,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -47,6 +47,10 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.model.TextContent
 import com.example.villainlp.ui.theme.Blue789
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
 
 @Composable
 fun LottieScreen(navController: NavController) {
@@ -60,6 +64,7 @@ private fun StartLottie(navController: NavController) {
         spec = LottieCompositionSpec.RawRes(R.raw.robot)
     )
     var index by remember { mutableStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
 
 
     Column(
@@ -108,10 +113,14 @@ private fun StartLottie(navController: NavController) {
                     index = (index + 1) % textList.size
 
                     // 인덱스가 2일 때, 로그인 화면으로 이동
-                    if (index == 3) {
-                        navController.navigate("LoginScreen")
+                    if (index == 2) {
+                        coroutineScope.launch {
+                            withContext(Dispatchers.Main) {
+                                delay(2000) // 2초 지연 (2000ms)
+                                navController.navigate("LoginScreen")
+                            }
+                        }
                     }
-
                 },
             contentScale = ContentScale.Crop
         )
@@ -285,65 +294,6 @@ fun LoginScreen(signInClicked: () -> Unit) {
             modifier = Modifier
                 .size(250.dp, 100.dp)
                 .clickable { signInClicked() }
-        )
-    }
-}
-
-@Composable
-private fun StartLottie() {
-    // 애니메이션 시작 화면
-    val robotlottie by rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.robot)
-    )
-    var index by remember { mutableStateOf(0) }
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Blue789)
-    ) {
-        Box {
-            Row(
-                modifier = Modifier.padding(top = 20.dp)
-            ) {
-                Spacer(modifier = Modifier.weight(1f))
-                LottieAnimation(
-                    composition = robotlottie,
-                    modifier = Modifier.fillMaxWidth(),
-                    iterations = LottieConstants.IterateForever
-                )
-            }
-            Box(
-                modifier = Modifier.padding(top = 320.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.image99),
-                    contentDescription = "그림자 이미지",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(30.dp)
-                        .padding(start = 60.dp, end = 25.dp),
-                    contentScale = ContentScale.FillBounds
-                )
-            }
-        }
-        Descriptions(textList[index])
-    }
-    Box(
-        contentAlignment = Alignment.BottomEnd,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.progress22),
-            contentDescription = "다음 화면으로 이동 버튼",
-            modifier = Modifier
-                .padding(bottom = 40.dp, end = 30.dp)
-                .clickable {
-                    // 이미지 클릭 시 인덱스 증가
-                    index = (index + 1) % textList.size
-                },
-            contentScale = ContentScale.Crop
         )
     }
 }
