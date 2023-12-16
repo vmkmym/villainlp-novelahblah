@@ -14,7 +14,8 @@ import com.example.villainlp.view.ChattingListScreen
 import com.example.villainlp.view.RatingScreen
 import com.example.villainlp.view.ReadBookScreen
 import com.example.villainlp.view.SaveNovelButton
-import com.example.villainlp.view.SettingScreen
+import com.example.villainlp.view.LogoutButton
+import com.example.villainlp.view.LottieScreen
 import com.google.firebase.auth.FirebaseUser
 
 @Composable
@@ -24,12 +25,12 @@ fun VillainNavigation(
     user: FirebaseUser?,
     navController: NavHostController
 ) {
-    val startDestination = remember { if (user == null) { Screen.Login.route } else { Screen.CreativeYard.route } }
+    val startDestination = remember { if (user == null) { Screen.Lottie.route } else { Screen.Lottie.route } }
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.Login.route) { LoginScreen(signInClicked = { signInClicked() }) }
         composable(Screen.Library.route) { LibraryScreen(navController) }
         composable(Screen.MyBook.route) { MyBookScreen(user, navController) }
-        composable(Screen.Settings.route) { SettingScreen { signOutClicked() } }
+        composable(Screen.Settings.route) { LogoutButton { signOutClicked() } }
         composable(Screen.ChattingList.route) { ChattingListScreen(navController, user) }
         composable(Screen.Home.route) {
             val title = it.arguments?.getString("title")?: "title"
@@ -47,6 +48,7 @@ fun VillainNavigation(
             val documentId = it.arguments?.getString("documentId")?: "documentId"
             ReadBookScreen(navController, title, description,documentId)
         }
+        composable(Screen.Lottie.route) { LottieScreen(navController) }
         composable(Screen.CreativeYard.route) { CreativeYardScreen(navController, user) }
 
         // Test 용도

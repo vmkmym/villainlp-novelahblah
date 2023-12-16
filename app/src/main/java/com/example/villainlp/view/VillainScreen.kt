@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -66,6 +67,7 @@ import com.example.villainlp.R
 import com.example.villainlp.model.ChatMessage
 import com.example.villainlp.model.ChatbotMessage
 import com.example.villainlp.model.Screen
+import com.example.villainlp.model.Screen
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -80,37 +82,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@Composable
-fun LoginScreen(signInClicked: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.google_login),
-            contentDescription = "구글로그인",
-            modifier = Modifier
-                .size(250.dp, 100.dp)
-                .clickable { signInClicked() }
-        )
-    }
-}
-
-@Composable
-fun SettingScreen(signOutClicked: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Button(onClick = { signOutClicked() }) {
-            Text(text = "LogOut")
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
@@ -520,5 +491,3 @@ fun loadChatBotMessages(
         }
     })
 }
-
-

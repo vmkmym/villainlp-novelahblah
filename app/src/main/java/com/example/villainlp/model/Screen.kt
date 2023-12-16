@@ -1,6 +1,7 @@
 package com.example.villainlp.model
 
 sealed class Screen(val route: String) {
+    object Lottie : Screen("LottieScreen")
     object Login : Screen("LoginScreen")
     object Home : Screen("HomeScreen/{title}/{threadId}/{assistantKey}")
     object CreativeYard : Screen("CreativeYardScreen")
