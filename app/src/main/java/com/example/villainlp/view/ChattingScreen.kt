@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -63,8 +64,10 @@ import com.aallam.openai.client.OpenAI
 import com.example.villainlp.R
 import com.example.villainlp.model.ChatMessage
 import com.example.villainlp.model.ChatbotMessage
+import com.example.villainlp.model.FirebaseTools.saveChatToNovel
+import com.example.villainlp.model.RelayChatToNovelBook
 import com.example.villainlp.model.Screen
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -83,7 +86,7 @@ import java.util.Locale
 @Composable
 fun ChattingScreen(
     navController: NavController,
-    user: FirebaseUser?,
+    auth: FirebaseAuth,
     title: String,
     threadID: String,
     assistantKey: String,
@@ -99,6 +102,9 @@ fun ChattingScreen(
 
     var sentMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
     var sentBotMessages by remember { mutableStateOf(listOf<ChatbotMessage>()) }
+
+    var showDialog by remember { mutableStateOf(false) }
+    val user = auth.currentUser
 
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
@@ -138,19 +144,7 @@ fun ChattingScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
-                            val assistantMessages = openAI.messages(threadId)
-                            val reversedMessages = assistantMessages.reversed()
-                            val response = reversedMessages.joinToString("\n\n") { message ->
-                                val textContent =
-                                    message.content.first() as? MessageContent.Text
-                                textContent?.text?.value ?: ""
-                            }
-
-                        }
-                    }) {
+                    IconButton(onClick = { showDialog = true }) {
                         Icon(
                             painter = painterResource(id = R.drawable.book_5),
                             contentDescription = "save as book",
@@ -263,6 +257,63 @@ fun ChattingScreen(
             }
         }
     }
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                Text(text = title)
+                }
+            },
+            text = {
+                Text(text = "지금까지의 이야기를 저장하시겠습니까?")
+            },
+            confirmButton = {
+                IconButton(
+                    onClick = {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
+                            val assistantMessages = openAI.messages(threadId)
+                            val reversedMessages = assistantMessages.reversed()
+                            val response = reversedMessages.joinToString("\n\n") { message ->
+                                val textContent =
+                                    message.content.first() as? MessageContent.Text
+                                textContent?.text?.value ?: ""
+                            }
+                            val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
+                                Date()
+                            )
+                            val myRelayNovel = RelayChatToNovelBook(
+                                title = title,
+                                author = user?.displayName ?: "ERROR",
+                                script = response,
+                                userID = user?.uid ?: "ERROR",
+                                createdDate = currentDate
+                            )
+                            saveChatToNovel(myRelayNovel)
+                        }
+                        showDialog = false
+                        navController.navigate(Screen.MyBook.route)
+                    }
+                ) {
+                    Text(text = "확인")
+                }
+            },
+            dismissButton = {
+                IconButton(
+                    onClick = { showDialog = false }
+                ) {
+                    Text(text = "취소")
+                }
+            },
+            modifier = Modifier
+                .padding(16.dp)
+        )
+    }
+
 }
 
 @Composable
@@ -457,6 +508,7 @@ fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threa
     })
 }
 
+@OptIn(BetaOpenAI::class)
 fun loadChatBotMessages(
     listener: (List<ChatbotMessage>) -> Unit,
     title: String,
