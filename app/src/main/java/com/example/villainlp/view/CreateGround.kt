@@ -29,7 +29,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,16 +57,19 @@ import com.example.villainlp.R
 import com.example.villainlp.model.FirebaseTools.saveNovelInfo
 import com.example.villainlp.model.NovelInfo
 import com.example.villainlp.model.Screen
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
-fun CreativeYardScreen(navController: NavHostController, user: FirebaseUser?) {
-    MyScaffold("창작마당", navController) { Creative(it, navController, user) }
+fun CreativeYardScreen(navController: NavHostController, auth: FirebaseAuth) {
+    MyScaffold("창작마당", navController) { Creative(it, navController, auth) }
 }
 
 @Composable
-fun Creative(modifier: Modifier, navController: NavHostController, user: FirebaseUser?) {
+fun Creative(modifier: Modifier, navController: NavHostController, auth: FirebaseAuth) {
     Box(
         modifier = modifier.padding(12.dp)
     ) {
@@ -102,8 +104,7 @@ fun Creative(modifier: Modifier, navController: NavHostController, user: Firebas
             LazyColumn {
                 item {
                     Header()
-                    CreativeYard(navController, user)
-                    CreativeYard(navController, user)
+                    CreativeYard(navController, auth)
                 }
             }
         }
@@ -130,7 +131,7 @@ fun Header() {
 
 @OptIn(BetaOpenAI::class, ExperimentalMaterial3Api::class)
 @Composable
-fun CreativeYard(navController: NavHostController, user: FirebaseUser?) {
+fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var dialogTitle by remember { mutableStateOf("") }
@@ -140,6 +141,7 @@ fun CreativeYard(navController: NavHostController, user: FirebaseUser?) {
     var threadId by remember { mutableStateOf<ThreadId?>(null) }
     val scope = rememberCoroutineScope()
     var alertMessage by remember { mutableStateOf("") }
+    val user = auth.currentUser
 
     Column(
         modifier = Modifier
@@ -205,12 +207,14 @@ fun CreativeYard(navController: NavHostController, user: FirebaseUser?) {
                         scope.launch {
                             val thread = openAI.thread()
                             threadId = thread.id
+                            val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
                             val novelInfo =
                                 NovelInfo(
                                     title = dialogTitle,
                                     assistId = assistantId,
                                     threadId = extractThreadId(threadId.toString()),
                                     userID = user!!.uid,
+                                    createdDate = currentDate
                                 )
                             saveNovelInfo(novelInfo)
                         }

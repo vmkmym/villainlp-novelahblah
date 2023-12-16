@@ -1,7 +1,6 @@
 package com.example.villainlp.model
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,47 +11,49 @@ import com.example.villainlp.view.LoginScreen
 import com.example.villainlp.view.MyBookScreen
 import com.example.villainlp.view.ChattingListScreen
 import com.example.villainlp.view.RatingScreen
-import com.example.villainlp.view.ReadBookScreen
-import com.example.villainlp.view.SaveNovelButton
-import com.example.villainlp.view.LogoutButton
+import com.example.villainlp.view.ReadMyBookScreen
 import com.example.villainlp.view.LottieScreen
+import com.example.villainlp.view.ReadLibraryBookScreen
 import com.example.villainlp.view.SettingScreen
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun VillainNavigation(
     signInClicked: () -> Unit,
     signOutClicked: () -> Unit,
-    user: FirebaseUser?,
-    navController: NavHostController
+    navController: NavHostController,
+    auth: FirebaseAuth,
 ) {
     NavHost(navController = navController, startDestination = Screen.Lottie.route) {
         composable(Screen.Login.route) { LoginScreen(signInClicked = { signInClicked() }) }
-        composable(Screen.Library.route) { LibraryScreen(navController) }
-        composable(Screen.MyBook.route) { MyBookScreen(user, navController) }
+        composable(Screen.Library.route) { LibraryScreen(navController, auth) }
+        composable(Screen.MyBook.route) { MyBookScreen(navController, auth) }
         composable(Screen.Settings.route) { SettingScreen(navController) { signOutClicked() } }
-        composable(Screen.ChattingList.route) { ChattingListScreen(navController, user) }
+        composable(Screen.ChattingList.route) { ChattingListScreen(navController, auth) }
+        composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
+        composable(Screen.CreativeYard.route) { CreativeYardScreen(navController, auth) }
         composable(Screen.Chatting.route) {
             val title = it.arguments?.getString("title")?: "title"
             val threadId = it.arguments?.getString("threadId")?: "threadId"
             val assistantKey = it.arguments?.getString("assistantKey")?: "assistantKey"
-            ChattingScreen(navController, user, title, threadId, assistantKey)
+            ChattingScreen(navController, auth, title, threadId, assistantKey)
         }
         composable(Screen.Rating.route) {
             val documentId = it.arguments?.getString("documentId")?: "documentId"
             RatingScreen(navController, documentId)
         }
-        composable(Screen.ReadBook.route) {
+        composable(Screen.ReadMyBook.route) {
             val title = it.arguments?.getString("title")?: "title"
-            val description = it.arguments?.getString("description")?: "description"
-            val documentId = it.arguments?.getString("documentId")?: "documentId"
-            ReadBookScreen(navController, title, description,documentId)
+            val script = it.arguments?.getString("script")?: "script"
+            ReadMyBookScreen(navController, title, script, auth)
         }
-        composable(Screen.Lottie.route) { LottieScreen(navController, user) }
-        composable(Screen.CreativeYard.route) { CreativeYardScreen(navController, user) }
+        composable(Screen.ReadLibraryBook.route) {
+            val title = it.arguments?.getString("title")?: "title"
+            val script = it.arguments?.getString("script")?: "script"
+            val documentId = it.arguments?.getString("documentId")?: "documentId"
+            ReadLibraryBookScreen(navController, title, script, documentId)
+        }
 
-        // Test 용도
-        composable("TestScreenRate") { SaveNovelButton(navController, user) }
     }
 }
 

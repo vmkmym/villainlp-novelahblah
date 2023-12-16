@@ -5,5 +5,6 @@ data class NovelInfo(
     val assistId: String = "",
     val threadId: String = "",
     val userID: String = "",
+    val createdDate: String = "",
     val documentID: String? = null
 )

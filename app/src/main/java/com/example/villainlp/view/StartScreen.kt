@@ -27,7 +27,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -37,16 +36,16 @@ import com.example.villainlp.R
 import com.example.villainlp.model.Screen
 import com.example.villainlp.model.TextContent
 import com.example.villainlp.ui.theme.Blue789
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun LottieScreen(navController: NavHostController, user: FirebaseUser?) {
-    StartLottie(navController, user)
+fun LottieScreen(navController: NavHostController, auth: FirebaseAuth) {
+    StartLottie(navController, auth)
 }
 
 @Composable
-private fun StartLottie(navController: NavHostController, user: FirebaseUser?) {
-
+private fun StartLottie(navController: NavHostController, auth: FirebaseAuth) {
+    val user = auth.currentUser
     val startDestination = remember { if (user == null) { Screen.Login.route } else { Screen.CreativeYard.route } }
 
     // 애니메이션 시작 화면
