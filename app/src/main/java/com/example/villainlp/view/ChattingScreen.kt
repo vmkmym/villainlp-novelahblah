@@ -6,8 +6,6 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -67,7 +64,6 @@ import com.example.villainlp.R
 import com.example.villainlp.model.ChatMessage
 import com.example.villainlp.model.ChatbotMessage
 import com.example.villainlp.model.Screen
-import com.example.villainlp.model.Screen
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -85,7 +81,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
-fun HomeScreen(
+fun ChattingScreen(
     navController: NavController,
     user: FirebaseUser?,
     title: String,

@@ -51,7 +51,6 @@ import com.example.villainlp.model.NovelInfo
 import com.example.villainlp.model.Screen
 import com.google.firebase.auth.FirebaseUser
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScaffold(
     title: String,
@@ -157,31 +156,32 @@ fun CustomIconButton(
     clickedIcon: Int,
     isCurrentScreen: Boolean,
     iconText: String,
-    onClicked: () -> Unit
+    onClicked: () -> Unit,
 ) {
     val icon = if (isCurrentScreen) clickedIcon else defaultIcon
 
-    IconButton(onClick = { onClicked() }) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                modifier = Modifier
-                    .padding(0.dp)
-                    .width(28.dp)
-                    .height(28.dp),
-                painter = painterResource(id = icon),
-                contentDescription = null,
+    Column(
+        modifier = Modifier.clickable { onClicked() },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier = Modifier
+                .padding(0.dp)
+                .width(28.dp)
+                .height(28.dp),
+            painter = painterResource(id = icon),
+            contentDescription = null,
+        )
+        Text(
+            modifier = Modifier
+                .height(17.dp),
+            text = iconText,
+            style = TextStyle(
+                fontSize = 10.sp,
+                fontWeight = FontWeight(500),
+                color = Color(0xFFBBBBBB),
             )
-            Text(
-                modifier = Modifier
-                    .height(17.dp),
-                text = iconText,
-                style = TextStyle(
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight(500),
-                    color = Color(0xFFBBBBBB),
-                )
-            )
-        }
+        )
     }
 }
 
@@ -430,7 +430,7 @@ fun NovelChatCards(novelInfo: NovelInfo, navController: NavHostController) {
         modifier = Modifier
             .width(378.dp)
             .height(100.dp)
-            .clickable { navController.navigate("HomeScreen/${novelInfo.title}/${novelInfo.threadId}/${novelInfo.assistId}") },
+            .clickable { navController.navigate("ChattingScreen/${novelInfo.title}/${novelInfo.threadId}/${novelInfo.assistId}") },
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
