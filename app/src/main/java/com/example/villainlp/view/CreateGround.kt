@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -23,10 +24,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +57,7 @@ import com.aallam.openai.client.OpenAI
 import com.example.villainlp.R
 import com.example.villainlp.model.FirebaseTools.saveNovelInfo
 import com.example.villainlp.model.NovelInfo
+import com.example.villainlp.model.Screen
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.launch
 
@@ -134,9 +139,21 @@ fun CreativeYard(navController: NavHostController, user: FirebaseUser?) {
     val openAI by lazy { OpenAI(token) }
     var threadId by remember { mutableStateOf<ThreadId?>(null) }
     val scope = rememberCoroutineScope()
+    var alertMessage by remember { mutableStateOf("") }
 
-    LazyRow {
-        item {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(12.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             CreativeCard(
                 cardColor = Color(0xFFC3FCD9),
                 cardTitle = "작가의 마당",
@@ -145,6 +162,7 @@ fun CreativeYard(navController: NavHostController, user: FirebaseUser?) {
                 onCardClick = {
                     showDialog = true
                     assistantId = getString(context, R.string.assistant_key_for_novelist)
+                    alertMessage = "작가의 마당"
                 }
             )
             CreativeCard(
@@ -155,28 +173,30 @@ fun CreativeYard(navController: NavHostController, user: FirebaseUser?) {
                 onCardClick = {
                     showDialog = true
                     assistantId = getString(context, R.string.assistant_key_for_general)
+                    alertMessage = "꿈의 마당"
                 }
             )
-            CreativeCard(
-                cardColor = Color(0xFFFFE8C6),
-                cardTitle = "아이디어 마당",
-                cardDescription = "아이디어를 나누어봐요",
-                imageResource = painterResource(id = R.drawable.idea),
-                onCardClick = { }
-            )
         }
+        CreativeCard(
+            cardColor = Color(0xFFFFE8C6),
+            cardTitle = "아이디어 마당",
+            cardDescription = "아이디어를 나누어봐요",
+            imageResource = painterResource(id = R.drawable.idea),
+            onCardClick = { }
+        )
     }
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
-                Text(text = "작가의 마당 채팅방을 생성하시겠습니까?")
+                Text(text = "$alertMessage 채팅방을 생성하시겠습니까?")
             },
             text = {
-                TextField(
+                OutlinedTextField(
                     value = dialogTitle,
                     onValueChange = { dialogTitle = it },
-                    placeholder = { Text("채팅방 이름을 입력해주세요") }
+                    label = { Text("채팅방 이름을 입력해주세요") },
+                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
                 )
             },
             confirmButton = {
@@ -195,7 +215,7 @@ fun CreativeYard(navController: NavHostController, user: FirebaseUser?) {
                             saveNovelInfo(novelInfo)
                         }
                         showDialog = false
-                        navController.navigate("Test")
+                        navController.navigate(Screen.ChattingList.route)
                     }
                 ) {
                     Text(text = "확인")
@@ -226,10 +246,10 @@ fun CreativeCard(
         modifier = Modifier
             .padding(8.dp)
             .shadow(elevation = 8.dp, spotColor = cardColor, ambientColor = cardColor)
-            .width(180.dp)
-            .height(226.dp)
-            .background(color = cardColor, shape = RoundedCornerShape(size = 17.dp)),
-        onClick = onCardClick
+            .width(160.dp)
+            .height(226.dp),
+        onClick = onCardClick,
+        colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
