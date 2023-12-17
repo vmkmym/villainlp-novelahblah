@@ -189,6 +189,7 @@ fun ShowUserFields(
             .padding(8.dp),
         label = { Text("이름") },
         singleLine = true,
+        enabled = false, // 편집 불가능하게 설정
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Blue789,
             unfocusedBorderColor = Blue789
@@ -203,6 +204,7 @@ fun ShowUserFields(
             .padding(8.dp),
         label = { Text("이메일") },
         singleLine = true,
+        enabled = false, // 편집 불가능하게 설정
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Blue789,
             unfocusedBorderColor = Blue789
