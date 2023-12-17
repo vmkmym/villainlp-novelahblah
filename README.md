@@ -1,5 +1,4 @@
-<img width="1512" alt="banner" src="https://www.canva.com/design/DAF3OqBWWXE/2IEeGHZXCaGtFsxbuuPc-Q/export/gif">
-
+![villainllp팀의 README Banner Image](https://github.com/KDT-villainlp/villainlp/assets/71699054/35c0f73b-2288-4244-a7a4-4e82bc09a23b)
 
 
 
