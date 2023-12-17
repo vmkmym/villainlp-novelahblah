@@ -8,6 +8,7 @@ package com.example.villainlp.view
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,10 +28,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +49,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
@@ -58,6 +61,7 @@ import com.example.villainlp.R
 import com.example.villainlp.model.FirebaseTools.saveNovelInfo
 import com.example.villainlp.model.NovelInfo
 import com.example.villainlp.model.Screen
+import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -185,21 +189,57 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
             cardTitle = "아이디어 마당",
             cardDescription = "아이디어를 나누어봐요",
             imageResource = painterResource(id = R.drawable.idea),
-            onCardClick = { }
+            onCardClick = {
+                showDialog = true
+                assistantId = getString(context, R.string.assistant_key_for_general)
+                alertMessage = "아이디어 마당"
+            }
         )
     }
     if (showDialog) {
+        // 다이얼로그 강조를 위한 스크림 오버레이
+        ScrimOverlay(
+            onClick = { showDialog = false },
+            visible = showDialog,
+            scrimColor = Color.Black.copy(alpha = 0.5f)
+        )
+
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
-                Text(text = "$alertMessage 채팅방을 생성하시겠습니까?")
+                Text(
+                    text = "$alertMessage 채팅방을 생성하시겠습니까?",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        lineHeight = 28.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                )
             },
             text = {
                 OutlinedTextField(
                     value = dialogTitle,
                     onValueChange = { dialogTitle = it },
-                    label = { Text("채팅방 이름을 입력해주세요") },
-                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
+                    modifier = Modifier
+                        .width(300.dp)
+                        .height(80.dp)
+                        .padding(8.dp),
+                    label = {
+                        Text(
+                            text = "채팅방 이름을 입력해주세요.",
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                lineHeight = 24.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color.Black
+                            )
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Blue789,
+                        unfocusedBorderColor = Blue789
+                    ),
                 )
             },
             confirmButton = {
@@ -208,7 +248,10 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         scope.launch {
                             val thread = openAI.thread()
                             threadId = thread.id
-                            val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+                            val currentDate =
+                                SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
+                                    Date()
+                                )
                             val novelInfo =
                                 NovelInfo(
                                     title = dialogTitle,
@@ -223,18 +266,33 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         navController.navigate(Screen.ChattingList.route)
                     }
                 ) {
-                    Text(text = "확인")
+                    Text(
+                        text = "확인",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue789
+                        )
+                    )
                 }
             },
             dismissButton = {
                 IconButton(
                     onClick = { showDialog = false }
                 ) {
-                    Text(text = "취소")
+                    Text(
+                        text = "취소",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue789
+                        )
+                    )
                 }
             },
-            modifier = Modifier
-                .padding(16.dp)
+            containerColor = Color.White
         )
     }
 }
@@ -359,3 +417,22 @@ val genreSad = listOf(
 fun extractThreadId(threadIdString: String): String {
     return threadIdString.substringAfter("ThreadId(id=").substringBeforeLast(")")
 }
+
+
+@Composable
+fun ScrimOverlay(
+    modifier: Modifier = Modifier,
+    scrimColor: Color = Color.Black.copy(alpha = 0.5f),
+    visible: Boolean = true,
+    onClick: () -> Unit = {},
+) {
+    if (visible) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(scrimColor)
+                .clickable(onClick = onClick)
+        )
+    }
+}
+

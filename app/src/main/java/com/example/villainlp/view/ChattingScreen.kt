@@ -45,8 +45,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
@@ -61,12 +63,17 @@ import com.aallam.openai.api.run.Run
 import com.aallam.openai.api.run.RunRequest
 import com.aallam.openai.api.thread.ThreadId
 import com.aallam.openai.client.OpenAI
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.model.ChatMessage
 import com.example.villainlp.model.ChatbotMessage
 import com.example.villainlp.model.FirebaseTools.saveChatToNovel
 import com.example.villainlp.model.RelayChatToNovelBook
 import com.example.villainlp.model.Screen
+import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -106,6 +113,8 @@ fun ChattingScreen(
     var showDialog by remember { mutableStateOf(false) }
     val user = auth.currentUser
 
+    val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
+
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
         val assistantResponse = openAI.assistant(AssistantId(assistantKey))
@@ -129,12 +138,13 @@ fun ChattingScreen(
                 title = {
                     Text(
                         text = title,
-                        fontSize = 17.sp,
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp,
                         fontFamily = FontFamily.SansSerif
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* 창작마당으로 이동 */
+                    IconButton(onClick = { /* 릴레이소설로 이동 */
                         navController.navigate(Screen.ChattingList.route)
                     }) {
                         Icon(
@@ -259,17 +269,36 @@ fun ChattingScreen(
     }
     if (showDialog) {
         AlertDialog(
+            icon = {
+                LottieAnimation(
+                    modifier = Modifier.size(40.dp),
+                    composition = firePuppleLottie,
+                    iterations = LottieConstants.IterateForever
+                )
+            },
             onDismissRequest = { showDialog = false },
+            containerColor = Color.White,
             title = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                Text(text = title)
-                }
+                Text(
+                    text = title,
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        lineHeight = 28.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                )
             },
             text = {
-                Text(text = "지금까지의 이야기를 저장하시겠습니까?")
+                Text(
+                    text = "작성한 소설을 저장하시겠습니까?",
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        lineHeight = 24.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                )
             },
             confirmButton = {
                 IconButton(
@@ -299,21 +328,36 @@ fun ChattingScreen(
                         navController.navigate(Screen.MyBook.route)
                     }
                 ) {
-                    Text(text = "확인")
+                    Text(
+                        text = "확인",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue789
+                        )
+                    )
                 }
             },
             dismissButton = {
                 IconButton(
                     onClick = { showDialog = false }
                 ) {
-                    Text(text = "취소")
+                    Text(
+                        text = "취소",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue789
+                        )
+                    )
                 }
             },
             modifier = Modifier
                 .padding(16.dp)
         )
     }
-
 }
 
 @Composable

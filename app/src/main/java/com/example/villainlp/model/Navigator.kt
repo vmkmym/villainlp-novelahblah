@@ -24,7 +24,7 @@ fun VillainNavigation(
     navController: NavHostController,
     auth: FirebaseAuth,
 ) {
-    NavHost(navController = navController, startDestination = Screen.Lottie.route) {
+    NavHost(navController = navController, startDestination = Screen.CreativeYard.route) {
         // 초기화면
         composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
 
@@ -34,9 +34,10 @@ fun VillainNavigation(
         // 창작마당
         composable(Screen.CreativeYard.route) { CreativeYardScreen(navController, auth) }
 
-        // 채팅화면
+        // 릴레이소설이 채팅리스트화면
         composable(Screen.ChattingList.route) { ChattingListScreen(navController, auth) }
 
+        // 채팅 화면
         composable(Screen.Chatting.route) {
             val title = it.arguments?.getString("title")?: "title"
             val threadId = it.arguments?.getString("threadId")?: "threadId"

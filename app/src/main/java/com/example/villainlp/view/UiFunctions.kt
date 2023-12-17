@@ -60,6 +60,7 @@ import com.example.villainlp.model.FirebaseTools.updateBookViews
 import com.example.villainlp.model.NovelInfo
 import com.example.villainlp.model.RelayChatToNovelBook
 import com.example.villainlp.model.Screen
+import com.example.villainlp.ui.theme.Blue789
 import kotlin.math.roundToInt
 
 @Composable
@@ -80,6 +81,8 @@ fun MyScaffold(
             Modifier
                 .fillMaxSize()
                 .padding(it)
+                .background(color = Color(0xFFFFFFFF)
+                ),
         )
     }
 }
@@ -90,15 +93,10 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
     val currentScreen = remember { mutableStateOf(navController.currentDestination?.route) }
     Row(
         Modifier
-            .shadow(
-                elevation = 16.dp,
-                spotColor = Color(0x3817C3CE),
-                ambientColor = Color(0x3817C3CE)
-            )
             .width(428.dp)
-            .height(100.dp)
-            .background(color = Color(0xFFF4F4F4))
-            .padding(start = 33.dp, top = 21.dp, end = 33.dp, bottom = 21.dp),
+            .height(80.dp)
+            .background(color = Color(0xFFFFFFFF), RoundedCornerShape(17.dp))
+            .padding(start = 33.dp, top = 16.dp, end = 33.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top,
     ) {
@@ -151,7 +149,7 @@ fun MyScaffoldTopBar(title: String) {
                 text = title,
                 style = TextStyle(
                     fontSize = 22.sp,
-                    fontWeight = FontWeight(500),
+                    fontWeight = FontWeight(600),
                     color = Color(0xFF212121),
                 )
             )
@@ -632,7 +630,7 @@ fun ReadLibraryBookScaffoldTopBar(
                 text = title,
                 style = TextStyle(
                     fontSize = 22.sp,
-                    fontWeight = FontWeight(500),
+                    fontWeight = FontWeight(600),
                     color = Color(0xFF212121),
                 )
             )
@@ -665,7 +663,7 @@ fun ShowChats(
             NovelChatCards(novelInfo, navController) { selectedChatting ->
                 onClicked(selectedChatting)
             }
-            Spacer(modifier = Modifier.size(25.dp))
+            Spacer(modifier = Modifier.size(15.dp))
         }
         item { AddChatCard(navController) }
     }
@@ -726,19 +724,22 @@ fun NovelChatCards(
     Box {
         Card(
             modifier = Modifier
-                .width(378.dp)
+                .background(Color.White)
+                .width(370.dp)
                 .height(100.dp)
                 .offset {
                     IntOffset(
                         swipeableState.offset.value.roundToInt(),
                         0
                     )
-                } // Apply the offset
-                .then(swipeableModifier) // Apply the swipeable modifier
+                }
+                .then(swipeableModifier)
                 .clickable { navController.navigate("ChattingScreen/${novelInfo.title}/${novelInfo.threadId}/${novelInfo.assistId}") },
             colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
         ) {
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(
+                modifier = Modifier.padding(10.dp)
+            ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -748,8 +749,8 @@ fun NovelChatCards(
                             id = if (novelInfo.assistId == getString(
                                     context,
                                     R.string.assistant_key_for_novelist
-                                )
-                            ) R.drawable.creative_yard_1 else R.drawable.creative_yard_2
+                                ))
+                                R.drawable.creative_yard_1 else R.drawable.creative_yard_2
                         ),
                         contentDescription = "Working On"
                     )
@@ -868,7 +869,7 @@ fun MyLibraryScaffoldTopBar(title: String) {
                 text = title,
                 style = TextStyle(
                     fontSize = 22.sp,
-                    fontWeight = FontWeight(500),
+                    fontWeight = FontWeight(600),
                     color = Color(0xFF212121),
                 )
             )
