@@ -38,6 +38,7 @@ fun VillainNavigation(
         composable(Screen.ChattingList.route) { ChattingListScreen(navController, auth) }
 
         // 채팅 화면
+        // TODO: 채팅 할 때 말풍선 패딩 주기, 내가 채팅 길게 해도 다 보이게 하기(옵션)
         composable(Screen.Chatting.route) {
             val title = it.arguments?.getString("title")?: "title"
             val threadId = it.arguments?.getString("threadId")?: "threadId"
@@ -45,6 +46,7 @@ fun VillainNavigation(
             ChattingScreen(navController, auth, title, threadId, assistantKey)
         }
 
+        // TODO: 별점 UI 바꾸기
         // 별점화면
         composable(Screen.Rating.route) {
             val documentId = it.arguments?.getString("documentId")?: "documentId"
@@ -54,6 +56,7 @@ fun VillainNavigation(
         // 내서재화면
         composable(Screen.MyBook.route) { MyBookScreen(navController, auth) }
 
+        // 내서재에서 저장한 소설 눌렀을 때 화면
         composable(Screen.ReadMyBook.route) {
             val title = it.arguments?.getString("title")?: "title"
             val script = it.arguments?.getString("script")?: "script"
@@ -61,8 +64,11 @@ fun VillainNavigation(
         }
 
         // 도서관화면
+        // TODO: 삭제할 때 body text 가운데 정렬하기
+        // TODO: 별점, 조회수, 시간순 아이콘 바꾸기... 차라리 상단바에 넣어놓고 창작마당 카테고리를 도서관 상단에 넣기?
         composable(Screen.Library.route) { LibraryScreen(navController, auth) }
 
+        // 도서관에서 저장한 소설 눌렀을 때 화면
         composable(Screen.ReadLibraryBook.route) {
             val title = it.arguments?.getString("title")?: "title"
             val script = it.arguments?.getString("script")?: "script"
@@ -70,7 +76,8 @@ fun VillainNavigation(
             ReadLibraryBookScreen(navController, title, script, documentId)
         }
 
-        // 프로필화면
+        // 설정-프로필화면
+        // TODO: 애니메이션 넣을 곳 없나..
         composable(Screen.Profile.route) {
             UserProfileScreen(auth, signOutClicked = { signOutClicked()}, navController)
         }

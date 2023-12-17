@@ -57,6 +57,10 @@ import androidx.navigation.NavHostController
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.thread.ThreadId
 import com.aallam.openai.client.OpenAI
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.model.FirebaseTools.saveNovelInfo
 import com.example.villainlp.model.NovelInfo
@@ -147,6 +151,8 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
     val scope = rememberCoroutineScope()
     var alertMessage by remember { mutableStateOf("") }
     val user = auth.currentUser
+    val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
+
 
     Column(
         modifier = Modifier
@@ -205,6 +211,13 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
         )
 
         AlertDialog(
+            icon = {
+                LottieAnimation(
+                    modifier = Modifier.size(40.dp),
+                    composition = firePuppleLottie,
+                    iterations = LottieConstants.IterateForever
+                )
+            },
             onDismissRequest = { showDialog = false },
             title = {
                 Text(

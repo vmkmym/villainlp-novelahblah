@@ -81,7 +81,8 @@ fun MyScaffold(
             Modifier
                 .fillMaxSize()
                 .padding(it)
-                .background(color = Color(0xFFFFFFFF)
+                .background(
+                    color = Color(0xFFFFFFFF)
                 ),
         )
     }
@@ -220,7 +221,6 @@ fun ShowMyBooks(
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ShowAllBooks(
-//    modifier: Modifier,
     navController: NavHostController,
     books: List<Book>,
     onClicked: (Book) -> Unit,
@@ -232,14 +232,13 @@ fun ShowAllBooks(
     )
     {
         items(books) { book ->
-            LibraryBookCards(book, navController) { selectedBook ->
-                onClicked(selectedBook)
-            }
+            LibraryBookCards(book, navController) { selectedBook -> onClicked(selectedBook) }
             Spacer(modifier = Modifier.size(25.dp))
         }
     }
 }
 
+// TODO: LibraryBookCards처럼 수정하기
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun MyBookCards(
@@ -369,6 +368,8 @@ fun MyBookCards(
 }
 
 
+// TODO: 이거보고 MyBookCards() 수정하기
+
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun LibraryBookCards(
@@ -396,8 +397,9 @@ fun LibraryBookCards(
     Box {
         Card(
             modifier = Modifier
-                .width(378.dp)
-                .height(100.dp)
+//                .border(2.dp, color = Blue789)
+                .width(360.dp)
+                .height(120.dp)
                 .offset {
                     IntOffset(
                         swipeableState.offset.value.roundToInt(),
@@ -412,7 +414,10 @@ fun LibraryBookCards(
                 },
             colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
         ) {
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+            ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -422,25 +427,26 @@ fun LibraryBookCards(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            modifier = Modifier
-                                .width(322.dp)
-                                .height(22.dp),
                             text = book.title,
+                            modifier = Modifier
+                                .width(320.dp)
+                                .height(30.dp),
                             style = TextStyle(
-                                fontSize = 18.sp,
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight(600),
                                 color = Color(0xFF212121),
                             )
                         )
+                        Spacer(modifier = Modifier.padding(top = 2.dp))
                         Text(
                             modifier = Modifier
-                                .width(322.dp)
-                                .height(30.dp),
+                                .width(320.dp)
+                                .height(28.dp),
                             text = book.description,
                             style = TextStyle(
-                                fontSize = 12.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight(500),
-                                color = Color(0xFFBBBBBB),
+                                color = Color(0xFF2C2C2C),
                             )
                         )
                     }
@@ -458,15 +464,12 @@ fun LibraryBookCards(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .height(12.dp),
                         text = book.author,
                         style = TextStyle(
-                            fontSize = 10.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight(500),
                             color = Color(0xFF9E9E9E),
-                            textAlign = TextAlign.Start
+                            textAlign = TextAlign.Start,
                         )
                     )
                     Row {
@@ -749,7 +752,8 @@ fun NovelChatCards(
                             id = if (novelInfo.assistId == getString(
                                     context,
                                     R.string.assistant_key_for_novelist
-                                ))
+                                )
+                            )
                                 R.drawable.creative_yard_1 else R.drawable.creative_yard_2
                         ),
                         contentDescription = "Working On"
