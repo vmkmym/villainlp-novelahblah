@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -25,27 +26,62 @@ object FirebaseTools {
             }
     }
 
-    fun updateBookRating(documentId: String, newRating: Float) {
+
+    fun updateBookRating(documentId: String, totalRate: Float, starCount: Int) {
         val db = FirebaseFirestore.getInstance()
         // 업데이트할 문서의 참조 가져오기
         val documentReference = db.collection("Library").document(documentId)
-        // 업데이트할 데이터 생성
-        val updates = hashMapOf<String, Any>(
-            "rating" to newRating // 새로운 평점 값으로 업데이트
-        )
-        // 문서 업데이트
-        documentReference.update(updates)
-            .addOnSuccessListener {
-                // 업데이트 성공
-                Log.d(
-                    ContentValues.TAG,
-                    "DocumentSnapshot updated with ID: ${documentReference.id}"
-                )
-            }
-            .addOnFailureListener { e ->
-                // 업데이트 실패
-                Log.w(ContentValues.TAG, "Error updating document", e)
-            }
+        // 문서가져오기
+        documentReference.get().addOnSuccessListener { documet ->
+            // 토탈평점 계산
+            val totalRating = totalRate / starCount
+
+            // 업데이트할 데이터 생성
+            val updates = hashMapOf<String, Any>(
+                "rating" to totalRating,
+                "starCount" to starCount
+            )
+            // 문서 업데이트
+            documentReference.update(updates)
+                .addOnSuccessListener {
+                    // 업데이트 성공
+                    Log.d(
+                        ContentValues.TAG,
+                        "DocumentSnapshot updated with ID: ${documentReference.id}"
+                    )
+                }
+                .addOnFailureListener { e ->
+                    // 업데이트 실패
+                    Log.w(ContentValues.TAG, "Error updating document", e)
+                }
+        }
+    }
+
+    suspend fun getLibraryBookFromFirestore(documentId: String): List<Book> =
+        suspendCoroutine { continuation ->
+            val db = FirebaseFirestore.getInstance()
+            val result = mutableListOf<Book>()
+
+            db.collection("Library").document(documentId)
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+                    val book = documentSnapshot.toObject(Book::class.java)
+                    result.add(book!!)
+                    Log.d(ContentValues.TAG, "DocumentSnapshot successfully retrieved: $book")
+                    continuation.resume(result)
+                }
+                .addOnFailureListener { e ->
+                    Log.w(ContentValues.TAG, "Error getting document", e)
+                    continuation.resumeWithException(e)
+                }
+        }
+
+    suspend fun getCommentCount(documentId: String): Int {
+        val db = FirebaseFirestore.getInstance()
+        val commentCollection = db.collection("Library").document(documentId).collection("comment")
+
+        val snapshot = commentCollection.get().await()
+        return snapshot.size()
     }
 
     fun updateBookViews(documentId: String, views: Int) {
@@ -54,7 +90,7 @@ object FirebaseTools {
         val documentReference = db.collection("Library").document(documentId)
         // 업데이트할 데이터 생성
         val updates = hashMapOf<String, Any>(
-            "views" to views // 새로운 평점 값으로 업데이트
+            "views" to views
         )
         // 문서 업데이트
         documentReference.update(updates)
@@ -71,6 +107,69 @@ object FirebaseTools {
             }
     }
 
+    fun updateCommentCount(documentId: String, commentCount: Int) {
+        val db = FirebaseFirestore.getInstance()
+        // 업데이트할 문서의 참조 가져오기
+        val documentReference = db.collection("Library").document(documentId)
+        // 업데이트할 데이터 생성
+        val updates = hashMapOf<String, Any>(
+            "commentCount" to commentCount
+        )
+        // 문서 업데이트
+        documentReference.update(updates)
+            .addOnSuccessListener {
+                // 업데이트 성공
+                Log.d(
+                    ContentValues.TAG,
+                    "DocumentSnapshot updated with ID: ${documentReference.id}"
+                )
+            }
+            .addOnFailureListener { e ->
+                // 업데이트 실패
+                Log.w(ContentValues.TAG, "Error updating document", e)
+            }
+    }
+
+    fun uploadComment(documentId: String, comment: Comment) {
+        val db = FirebaseFirestore.getInstance()
+        // 업데이트할 문서의 참조 가져오기
+        val newDocRef =
+            db.collection("Library").document(documentId).collection("comment").document()
+        val commentDocumentId = newDocRef.id
+        val updateComment = comment.copy(documentID = commentDocumentId)
+        // 코멘트 업로드
+        newDocRef.set(updateComment)
+            .addOnSuccessListener {
+                // 업로드 성공
+                Log.d(
+                    ContentValues.TAG,
+                    "Comment uploaded with ID: $commentDocumentId"
+                )
+            }
+            .addOnFailureListener { e ->
+                // 업로드 실패
+                Log.w(ContentValues.TAG, "Error uploading comment", e)
+            }
+    }
+
+    suspend fun fetchCommentsFromFirestore(documentId: String): List<Comment> =
+        suspendCoroutine { continuation ->
+            val db = FirebaseFirestore.getInstance()
+            val result = mutableListOf<Comment>()
+
+            db.collection("Library").document(documentId).collection("comment")
+                .orderBy("uploadDate", Query.Direction.DESCENDING)
+                .get().addOnSuccessListener { querySnapshot ->
+                    for (document in querySnapshot) {
+                        val commentData = document.toObject(Comment::class.java)
+                        result.add(commentData)
+                    }
+                    continuation.resume(result)
+                }.addOnFailureListener { exception ->
+                    println("Error getting documents: $exception")
+                    continuation.resumeWithException(exception)
+                }
+        }
 
     fun saveNovelInfo(novelInfo: NovelInfo) {
         val db = FirebaseFirestore.getInstance()
@@ -115,7 +214,12 @@ object FirebaseTools {
 
         db.collection("MyBookData").document(documentId)
             .delete()
-            .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully deleted!") }
+            .addOnSuccessListener {
+                Log.d(
+                    ContentValues.TAG,
+                    "DocumentSnapshot successfully deleted!"
+                )
+            }
             .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
     }
 
@@ -124,7 +228,12 @@ object FirebaseTools {
 
         db.collection("NovelInfo").document(documentId)
             .delete()
-            .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully deleted!") }
+            .addOnSuccessListener {
+                Log.d(
+                    ContentValues.TAG,
+                    "DocumentSnapshot successfully deleted!"
+                )
+            }
             .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
     }
 
@@ -133,7 +242,27 @@ object FirebaseTools {
 
         db.collection("Library").document(documentId)
             .delete()
-            .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully deleted!") }
+            .addOnSuccessListener {
+                Log.d(
+                    ContentValues.TAG,
+                    "DocumentSnapshot successfully deleted!"
+                )
+            }
+            .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
+    }
+
+    fun deleteCommentFromFirestore(documentId: String, commentDocumentId: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("Library").document(documentId).collection("comment")
+            .document(commentDocumentId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(
+                    ContentValues.TAG,
+                    "DocumentSnapshot successfully deleted!"
+                )
+            }
             .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
     }
 
@@ -218,7 +347,9 @@ object FirebaseTools {
                             bookData.userID,
                             bookData.rating,
                             bookData.views,
+                            bookData.starCount,
                             bookData.uploadDate,
+                            bookData.commentCount,
                             bookId
                         )
                         result.add(bookWithId)
@@ -249,7 +380,9 @@ object FirebaseTools {
                             bookData.userID,
                             bookData.rating,
                             bookData.views,
+                            bookData.starCount,
                             bookData.uploadDate,
+                            bookData.commentCount,
                             bookId
                         )
                         result.add(bookWithId)
@@ -281,7 +414,9 @@ object FirebaseTools {
                             bookData.userID,
                             bookData.rating,
                             bookData.views,
+                            bookData.starCount,
                             bookData.uploadDate,
+                            bookData.commentCount,
                             bookId
                         )
                         result.add(bookWithId)

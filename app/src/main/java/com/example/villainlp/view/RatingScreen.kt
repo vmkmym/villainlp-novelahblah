@@ -1,5 +1,6 @@
 package com.example.villainlp.view
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,8 +27,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
+import com.example.villainlp.model.FirebaseTools
 import com.example.villainlp.model.FirebaseTools.updateBookRating
+import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun RatingScreen(navController: NavHostController, documentId: String) {
     var artistryRate by remember { mutableStateOf(0) }
@@ -34,7 +39,7 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
     var commercialViabilityRate by remember { mutableStateOf(0) }
     var literaryMeritRate by remember { mutableStateOf(0) }
     var completenessRate by remember { mutableStateOf(0) }
-    var averageRate by remember { mutableStateOf(0.0f) }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -54,14 +59,19 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
             }
         }
 
-        averageRate = (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
-
         Row {
             Button(onClick = { navController.popBackStack() }) {
                 Text(text = "취소")
             }
             Button(onClick = {
-                updateBookRating(documentId, averageRate)
+                scope.launch {
+                    val book = FirebaseTools.getLibraryBookFromFirestore(documentId)
+                    var averageRate = book[0].rating
+                    var starCount = book[0].starCount
+                    averageRate += (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
+                    starCount += 1
+                    updateBookRating(documentId, averageRate, starCount)
+                }
                 navController.popBackStack()
             }) {
                 Text(text = "제출")

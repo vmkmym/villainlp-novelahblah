@@ -1,5 +1,6 @@
 package com.example.villainlp.model
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -10,6 +11,7 @@ import com.example.villainlp.view.LibraryScreen
 import com.example.villainlp.view.LoginScreen
 import com.example.villainlp.view.MyBookScreen
 import com.example.villainlp.view.ChattingListScreen
+import com.example.villainlp.view.CommentScreen
 import com.example.villainlp.view.RatingScreen
 import com.example.villainlp.view.ReadMyBookScreen
 import com.example.villainlp.view.LottieScreen
@@ -66,7 +68,14 @@ fun VillainNavigation(
             val title = it.arguments?.getString("title")?: "title"
             val script = it.arguments?.getString("script")?: "script"
             val documentId = it.arguments?.getString("documentId")?: "documentId"
-            ReadLibraryBookScreen(navController, title, script, documentId)
+            val rating = it.arguments?.getString("rating")?.toFloat()
+            Log.d("Rating","$rating")
+            ReadLibraryBookScreen(navController, title, script, documentId, rating)
+        }
+
+        composable(Screen.Comment.route){
+            val documentId = it.arguments?.getString("documentId")?: "documentId"
+            CommentScreen(navController, auth, documentId)
         }
 
         // 프로필화면

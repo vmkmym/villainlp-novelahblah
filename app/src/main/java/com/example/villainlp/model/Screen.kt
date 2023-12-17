@@ -10,9 +10,10 @@ sealed class Screen(val route: String) {
     object MyBook : Screen("MyBookScreen")
 //    object Settings : Screen("SettingScreen")
     object ReadMyBook : Screen("ReadMyBookScreen/{title}/{script}")
-    object ReadLibraryBook : Screen("ReadLibraryBookScreen/{title}/{script}/{documentId}")
+    object ReadLibraryBook : Screen("ReadLibraryBookScreen/{title}/{script}/{documentId}/{rating}")
     object Rating : Screen("RatingScreen/{documentId}")
     object ChattingList : Screen("ChattingScreen")
+    object Comment : Screen("CommentScreen/{documentId}")
 
     // Test 용
     object TestSendBookData : Screen("book")
