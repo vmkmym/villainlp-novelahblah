@@ -26,7 +26,7 @@ fun VillainNavigation(
 ) {
     NavHost(navController = navController, startDestination = Screen.Lottie.route) {
         // 초기화면
-        composable(Screen.Lottie.route) { LottieScreen(navController) }
+        composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
 
         // 로그인화면
         composable(Screen.Login.route) { LoginScreen(signInClicked = { signInClicked() }) }
