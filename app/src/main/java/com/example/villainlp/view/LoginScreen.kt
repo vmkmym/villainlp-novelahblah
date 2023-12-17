@@ -42,7 +42,7 @@ import com.example.villainlp.ui.theme.Blue789
 fun LoginScreen(signInClicked: () -> Unit) {
     var idValue by remember { mutableStateOf("") }
     var pwValue by remember { mutableStateOf("") }
-    val hellolottie by rememberLottieComposition(
+    val helloLottie by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.hello)
     )
     Column(
@@ -54,7 +54,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
     ) {
         // 애니메이션
         LottieAnimation(
-            composition = hellolottie,
+            composition = helloLottie,
             modifier = Modifier
                 .height(200.dp)
                 .width(200.dp),
@@ -75,7 +75,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
         )
 
         // 아이디, 비번 입력
-        CreateLoginFields (
+        CreateLoginFields(
             idValue = idValue,
             onIdValueChange = { newValue ->
                 idValue = newValue
@@ -213,7 +213,7 @@ fun CreateLoginFields(
     idValue: String,
     onIdValueChange: (String) -> Unit,
     pwValue: String,
-    onPwValueChange: (String) -> Unit
+    onPwValueChange: (String) -> Unit,
 ) {
     OutlinedTextField(
         value = idValue,

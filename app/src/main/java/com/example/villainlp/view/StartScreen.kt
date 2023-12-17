@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -37,22 +39,25 @@ import com.example.villainlp.model.Screen
 import com.example.villainlp.model.TextContent
 import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
-fun LottieScreen(navController: NavHostController, auth: FirebaseAuth) {
-    StartLottie(navController, auth)
+fun LottieScreen(navController: NavController) {
+    StartLottie(navController)
 }
 
 @Composable
-private fun StartLottie(navController: NavHostController, auth: FirebaseAuth) {
-    val user = auth.currentUser
-    val startDestination = remember { if (user == null) { Screen.Login.route } else { Screen.CreativeYard.route } }
-
+private fun StartLottie(navController: NavController) {
     // 애니메이션 시작 화면
     val robotlottie by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.robot)
     )
     var index by remember { mutableStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
+
 
     Column(
         modifier = Modifier
@@ -101,9 +106,13 @@ private fun StartLottie(navController: NavHostController, auth: FirebaseAuth) {
 
                     // 인덱스가 2일 때, 로그인 화면으로 이동
                     if (index == 2) {
-                        navController.navigate(startDestination)
+                        coroutineScope.launch {
+                            withContext(Dispatchers.Main) {
+                                delay(2000) // 2초 지연 (2000ms)
+                                navController.navigate("LoginScreen")
+                            }
+                        }
                     }
-
                 },
             contentScale = ContentScale.Crop
         )
@@ -123,7 +132,7 @@ private fun Descriptions(content: TextContent) {
             style = TextStyle(
                 fontSize = 24.sp,
                 lineHeight = 40.sp,
-                fontWeight = FontWeight(700),
+                fontWeight = FontWeight(900),
                 color = Color(0xFFFFFFFF),
             )
         )
