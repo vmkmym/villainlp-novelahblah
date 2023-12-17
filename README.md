@@ -5,9 +5,9 @@
 # TOUR: Tales Of Unexplored Realms(탐험되지 않은 영역의 이야기)
 
 - TOUR는 사용자와 AI가 함께 손을 잡고 창의적인 소설 여행을 할 수 있는 소설 계주 서비스를 제공합니다.
-- 
+  
 - TOUR는 사용자의 소설 이야기 전개에 이어서 AI가 이야기를 쓰고, AI의 이야기 내용에 따라 사용자가 소설 이야기를 진행하는 것을 반복하여 사용자가 한 권의 소설책을 창작하는 것을 도와줍니다.
-- 
+  
 - TOUR는 소설에 관심이 많은 사용자들이 소설을 읽기만 하는 데 그치지 않고 소설을 손 쉽게 창작할 수 있도록 하여 흥미와 창의성을 증진시키는 데 기여합니다.
 
 
@@ -77,9 +77,15 @@
   - Navigation
 
 
+
+
+
 - **Kotlin Libraries**
   - Coroutines
   - Ktor (OkHttp)
+
+
+
 
 
 - **Firebase**
@@ -89,16 +95,24 @@
   - Storage
 
 
+
+
+
 - **Compose**
   - Activity
   - Material3
   - Navigation
 
 
+
+
+
 - **External Libraries**
   - OpenAI Client
   - Lottie
   - Coil (Image loading)
+
+
 
   
 - **Wear OS with Compose**
