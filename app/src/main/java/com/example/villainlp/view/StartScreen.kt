@@ -45,19 +45,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun LottieScreen(navController: NavController) {
-    StartLottie(navController)
+fun LottieScreen(navController: NavController, auth: FirebaseAuth) {
+    StartLottie(navController, auth)
 }
 
 @Composable
-private fun StartLottie(navController: NavController) {
+private fun StartLottie(navController: NavController, auth: FirebaseAuth) {
     // 애니메이션 시작 화면
     val robotlottie by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.robot)
     )
     var index by remember { mutableStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
+    val user = auth.currentUser
 
+    val startDestination = if (user == null) Screen.Login.route else Screen.CreativeYard.route
 
     Column(
         modifier = Modifier
@@ -109,7 +111,7 @@ private fun StartLottie(navController: NavController) {
                         coroutineScope.launch {
                             withContext(Dispatchers.Main) {
                                 delay(2000) // 2초 지연 (2000ms)
-                                navController.navigate("LoginScreen")
+                                navController.navigate(startDestination)
                             }
                         }
                     }
