@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                                 val account = task.getResult(ApiException::class.java)!!
                                 firebaseAuthWithGoogle(account.idToken!!)
                                 navController.popBackStack()
-                                navController.navigate(Screen.Home.route)
+                                navController.navigate(Screen.CreativeYard.route)
                             } catch (e: Exception) {
                                 Log.d("SignIn", "로그인 실패")
                             }
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                     VillainNavigation(
                         signInClicked = { launcher.launch(googleSignInClient.signInIntent) },
                         signOutClicked = { signOut(navController) },
-                        mAuth.currentUser, navController, mAuth
+                        navController, mAuth
                     )
                 }
             }

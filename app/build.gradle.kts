@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.villainlp"
-        minSdk = 24
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -102,4 +102,7 @@ dependencies {
     // coil
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+
+    // Swipe
+    implementation("androidx.wear.compose:compose-material:1.2.1")
 }

@@ -24,27 +24,27 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.model.FirebaseTools
-import com.example.villainlp.model.RelayChatToNovelBook
+import com.example.villainlp.model.NovelInfo
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun MyBookScreen(navController: NavHostController, auth: FirebaseAuth) {
+fun ChattingListScreen(navController: NavHostController, auth: FirebaseAuth) {
     var showDialog by remember { mutableStateOf(false) }
     val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
     var documentID by remember { mutableStateOf("") }
-    var myBooks by remember { mutableStateOf<List<RelayChatToNovelBook>>(emptyList()) }
+
+    var novelInfo by remember { mutableStateOf<List<NovelInfo>>(emptyList()) }
     val scope = rememberCoroutineScope()
 
     scope.launch {
-        //user를 받아와서 쓰다보니까, navgation이 겹쳐서 currentUser가 바뀌나봄 mAuth를 가져와서 currentUser를 업데이트해서 해결
-        myBooks = FirebaseTools.myNovelDataFromFirestore(auth.currentUser?.uid ?: "")
+        novelInfo = FirebaseTools.fetchNovelInfoDataFromFirestore(auth.currentUser?.uid ?: "")
     }
 
-    MyScaffold("내서재", navController) {
-        ShowMyBooks(it, navController, myBooks) { selectedBook ->
-            documentID = selectedBook.documentID ?: "ERROR"
+    MyScaffold("내 작업 공간", navController) {
+        ShowChats(it, navController, novelInfo) { selectedChatting ->
+            documentID = selectedChatting.documentID ?: "ERROR"
             showDialog = true
         }
     }
@@ -62,7 +62,7 @@ fun MyBookScreen(navController: NavHostController, auth: FirebaseAuth) {
                         composition = firePuppleLottie,
                         iterations = LottieConstants.IterateForever
                     )
-                    Text(text = "내 서재에서 삭제가 됩니다.")
+                    Text(text = "내 작업공간에서 삭제가 됩니다.")
                     LottieAnimation(
                         modifier = Modifier.size(40.dp),
                         composition = firePuppleLottie,
@@ -73,10 +73,12 @@ fun MyBookScreen(navController: NavHostController, auth: FirebaseAuth) {
             confirmButton = {
                 IconButton(
                     onClick = {
-                        FirebaseTools.deleteBookFromFirestore(documentID)
+                        FirebaseTools.deleteChattingFromFirestore(documentID)
                         showDialog = false
                     }
-                ) { Text(text = "확인") }
+                ) {
+                    Text(text = "확인")
+                }
             },
             dismissButton = {
                 IconButton(
