@@ -71,7 +71,8 @@ fun VillainNavigation(
 
         // 프로필화면
         composable(Screen.Profile.route) {
-            UserProfileScreen(auth, signOutClicked = { signOutClicked()}, navController) }
+            UserProfileScreen(auth, signOutClicked = { signOutClicked()}, navController)
+        }
     }
 }
 

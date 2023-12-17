@@ -132,7 +132,7 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
             clickedIcon = R.drawable.settings_clicked,
             isCurrentScreen = currentScreen.value == Screen.Settings.route,
             iconText = "설정"
-        ) { navController.navigate(Screen.Settings.route) }
+        ) { navController.navigate(Screen.Profile.route) }
     }
 }
 
