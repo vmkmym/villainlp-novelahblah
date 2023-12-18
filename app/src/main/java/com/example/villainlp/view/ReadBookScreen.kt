@@ -8,8 +8,13 @@ import androidx.compose.ui.Alignment
 import androidx.navigation.NavHostController
 
 @Composable
-fun ReadLibraryBookScreen(navController: NavHostController, title: String, script: String, documentId: String, rating: Float?) {
-    ReadLibraryBookScaffold(title, navController, documentId, rating) { modifier, listState ->
+fun ReadLibraryBookScreen(
+    navController: NavHostController,
+    title: String,
+    script: String,
+    documentId: String
+) {
+    ReadLibraryBookScaffold(title, navController, documentId) { modifier, listState ->
         LazyColumn(
             modifier = modifier,
             state = listState,

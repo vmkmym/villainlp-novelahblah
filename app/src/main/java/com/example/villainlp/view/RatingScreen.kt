@@ -66,7 +66,7 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
             Button(onClick = {
                 scope.launch {
                     val book = FirebaseTools.getLibraryBookFromFirestore(documentId)
-                    var averageRate = book[0].rating
+                    var averageRate = book[0].totalRate
                     var starCount = book[0].starCount
                     averageRate += (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
                     starCount += 1

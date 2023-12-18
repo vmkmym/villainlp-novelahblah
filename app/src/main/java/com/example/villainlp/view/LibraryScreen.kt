@@ -60,7 +60,7 @@ fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
     val user = auth.currentUser
     var isCurrentUser by remember { mutableStateOf(false) }
 
-    scope.launch {
+    LaunchedEffect(Unit) {
         books = FirebaseTools.novelDataSortingByViewsFromFirestore()
     }
     MyLibraryScaffold(

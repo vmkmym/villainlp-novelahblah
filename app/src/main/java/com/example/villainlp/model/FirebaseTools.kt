@@ -33,13 +33,13 @@ object FirebaseTools {
         val documentReference = db.collection("Library").document(documentId)
         // 문서가져오기
         documentReference.get().addOnSuccessListener { documet ->
-            // 토탈평점 계산
-            val totalRating = totalRate / starCount
-
             // 업데이트할 데이터 생성
+            val rate = totalRate / starCount
+
             val updates = hashMapOf<String, Any>(
-                "rating" to totalRating,
-                "starCount" to starCount
+                "totalRate" to totalRate,
+                "starCount" to starCount,
+                "rating" to rate
             )
             // 문서 업데이트
             documentReference.update(updates)
@@ -69,6 +69,22 @@ object FirebaseTools {
                     result.add(book!!)
                     Log.d(ContentValues.TAG, "DocumentSnapshot successfully retrieved: $book")
                     continuation.resume(result)
+                }
+                .addOnFailureListener { e ->
+                    Log.w(ContentValues.TAG, "Error getting document", e)
+                    continuation.resumeWithException(e)
+                }
+        }
+
+    suspend fun getRatingFromFirestore(documentId: String): Float? =
+        suspendCoroutine { continuation ->
+            val db = FirebaseFirestore.getInstance()
+
+            db.collection("Library").document(documentId)
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+                    val rating = documentSnapshot.getDouble("rating")?.toFloat()
+                    continuation.resume(rating)
                 }
                 .addOnFailureListener { e ->
                     Log.w(ContentValues.TAG, "Error getting document", e)
@@ -348,6 +364,7 @@ object FirebaseTools {
                             bookData.rating,
                             bookData.views,
                             bookData.starCount,
+                            bookData.totalRate,
                             bookData.uploadDate,
                             bookData.commentCount,
                             bookId
@@ -381,6 +398,7 @@ object FirebaseTools {
                             bookData.rating,
                             bookData.views,
                             bookData.starCount,
+                            bookData.totalRate,
                             bookData.uploadDate,
                             bookData.commentCount,
                             bookId
@@ -415,6 +433,7 @@ object FirebaseTools {
                             bookData.rating,
                             bookData.views,
                             bookData.starCount,
+                            bookData.totalRate,
                             bookData.uploadDate,
                             bookData.commentCount,
                             bookId

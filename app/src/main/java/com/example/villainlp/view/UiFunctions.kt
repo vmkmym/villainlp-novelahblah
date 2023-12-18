@@ -37,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,6 +69,7 @@ import com.example.villainlp.model.FirebaseTools.updateBookViews
 import com.example.villainlp.model.NovelInfo
 import com.example.villainlp.model.RelayChatToNovelBook
 import com.example.villainlp.model.Screen
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -423,7 +425,7 @@ fun LibraryBookCards(
                 .clickable {
                     viewCount += 1
                     updateBookViews(book.documentID ?: "ERROR", viewCount)
-                    navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}/${book.rating}")
+                    navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}")
                 },
             colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
         ) {
@@ -490,7 +492,7 @@ fun LibraryBookCards(
                             contentDescription = "stars"
                         )
                         Spacer(modifier = Modifier.size(2.dp))
-                        Text(text = "${book.rating}")
+                        Text(text = "${formatRating(book.rating)}")
                         Spacer(modifier = Modifier.size(6.dp))
                         Image(
                             painter = painterResource(id = R.drawable.views),
@@ -571,16 +573,18 @@ fun ReadLibraryBookScaffold(
     title: String,
     navController: NavHostController,
     documentId: String,
-    rating: Float?,
     content: @Composable (Modifier, LazyListState) -> Unit,
 ) {
     var barVisible by remember { mutableStateOf(true) }
     // 레이지컬럼에 상태 추적
     val listState = rememberLazyListState()
     var commentCount by remember { mutableStateOf(0)}
+    var rating by remember { mutableStateOf(0.0f)}
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
+    scope.launch {
         commentCount = FirebaseTools.getCommentCount(documentId)
+        rating = formatRating(FirebaseTools.getRatingFromFirestore(documentId)!!)
     }
 
     Scaffold(
@@ -948,4 +952,10 @@ fun MyLibraryScaffoldTopBar(title: String) {
         }
         Divider(color = Color(0xFF9E9E9E))
     }
+}
+
+
+fun formatRating(rating: Float): Float {
+    val formattedString = String.format("%.2f", rating)
+    return formattedString.toFloat()
 }
