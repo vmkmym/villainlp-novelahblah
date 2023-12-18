@@ -2,6 +2,10 @@ package com.example.villainlp.view
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -69,6 +73,7 @@ import com.example.villainlp.model.NovelInfo
 import com.example.villainlp.model.RelayChatToNovelBook
 import com.example.villainlp.model.Screen
 import com.example.villainlp.ui.theme.Blue789
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -102,7 +107,7 @@ fun MyScaffold(
 fun MyScaffoldBottomBar(navController: NavHostController) {
     val currentScreen = remember { mutableStateOf(navController.currentDestination?.route) }
     Column {
-        Divider(thickness = 0.5.dp,color = Color(0xFF9E9E9E))
+        Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
         Row(
             Modifier
                 .width(428.dp)
@@ -246,6 +251,7 @@ fun ShowMyBooks(
 fun ShowAllBooks(
     navController: NavHostController,
     books: List<Book>,
+    auth: FirebaseAuth,
     onClicked: (Book) -> Unit,
 ) {
     LazyColumn(
@@ -255,7 +261,7 @@ fun ShowAllBooks(
     )
     {
         items(books) { book ->
-            LibraryBookCards(book, navController) { selectedBook -> onClicked(selectedBook) }
+            LibraryBookCards(book, navController, auth) { selectedBook -> onClicked(selectedBook) }
             Spacer(modifier = Modifier.size(25.dp))
         }
     }
@@ -363,27 +369,31 @@ fun MyBookCards(
             }
         }
         // The image that appears when swiped
-        AnimatedVisibility(visible = imageVisibility) {
-            Column(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            680 - swipeableState.offset.value.roundToInt(),
-                            0
-                        )
-                    } // Use the same offset as the Card
-                    .size(50.dp, 100.dp)
-                    .border(
-                        1.dp, Color(0xFFF5F5F5),
-                        RoundedCornerShape(
-                            topStart = 0.dp,
-                            bottomStart = 0.dp,
-                            topEnd = 16.dp,
-                            bottomEnd = 16.dp
-                        )
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+        Column(
+            modifier = Modifier
+                .offset {
+                    IntOffset(
+                        620 - swipeableState.offset.value.roundToInt(),
+                        0
+                    )
+                } // Use the same offset as the Card
+                .size(67.dp, 120.dp)
+                .border(
+                    1.dp, Color(0xFFF5F5F5),
+                    RoundedCornerShape(
+                        topStart = 0.dp,
+                        bottomStart = 0.dp,
+                        topEnd = 16.dp,
+                        bottomEnd = 16.dp
+                    )
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            AnimatedVisibility(
+                visible = imageVisibility,
+                enter = scaleIn(),
+                exit = ExitTransition.None
             ) {
                 LottieAnimation(
                     modifier = Modifier
@@ -398,17 +408,22 @@ fun MyBookCards(
 }
 
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun LibraryBookCards(
     book: Book,
     navController: NavHostController,
+    auth: FirebaseAuth,
     onClicked: (Book) -> Unit,
 ) {
     var viewCount by remember { mutableStateOf(book.views) }
     var commentCount by remember { mutableStateOf(0) }
+    val user = auth.currentUser
+    val isCurrentUser = user?.uid == book.userID
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
+    scope.launch {
         commentCount = FirebaseTools.getCommentCount(book.documentID!!)
     }
 
@@ -427,119 +442,118 @@ fun LibraryBookCards(
 
     val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
 
-    Box {
-        Card(
-            modifier = Modifier
-//                .border(2.dp, color = Blue789)
-                .width(360.dp)
-                .height(120.dp)
-                .offset {
-                    IntOffset(
-                        swipeableState.offset.value.roundToInt(),
-                        0
-                    )
-                } // Apply the offset
-                .then(swipeableModifier) // Apply the swipeable modifier
-                .clickable {
-                    viewCount += 1
-                    updateBookViews(book.documentID ?: "ERROR", viewCount)
-                    navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}")
-                },
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
-        ) {
-            Column(
+    if (isCurrentUser) {
+        Box {
+            Card(
                 modifier = Modifier
-                    .padding(16.dp)
+//                .border(2.dp, color = Blue789)
+                    .width(360.dp)
+                    .height(120.dp)
+                    .offset {
+                        IntOffset(
+                            swipeableState.offset.value.roundToInt(),
+                            0
+                        )
+                    } // Apply the offset
+                    .then(swipeableModifier) // Apply the swipeable modifier
+                    .clickable {
+                        viewCount += 1
+                        updateBookViews(book.documentID ?: "ERROR", viewCount)
+                        navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}")
+                    },
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .width(300.dp)
+                                    .height(30.dp),
+                                text = book.title,
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight(600),
+                                    color = Color(0xFF212121),
+                                )
+                            )
+                            Text(
+                                modifier = Modifier
+                                    .width(300.dp)
+                                    .height(20.dp),
+                                text = book.description,
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight(500),
+                                    color = Color(0xFF2C2C2C),
+                                )
+                            )
+                        }
+                        Image(
+                            modifier = Modifier
+                                .size(33.dp)
+                                .padding(5.dp),
+                            painter = painterResource(id = R.drawable.arrow_right),
+                            contentDescription = "Front Arrow"
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = book.title,
-                            modifier = Modifier
-                                .width(320.dp)
-                                .height(30.dp),
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight(600),
-                                color = Color(0xFF212121),
-                            )
-                        )
-                        Text(
-                            modifier = Modifier
-                                .width(320.dp)
-                                .height(28.dp),
-                            text = book.description,
+                            text = book.author,
                             style = TextStyle(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight(500),
-                                color = Color(0xFF2C2C2C),
+                                color = Color(0xFF9E9E9E),
+                                textAlign = TextAlign.Start,
                             )
                         )
-                    }
-                    Image(
-                        modifier = Modifier
-                            .size(33.dp)
-                            .padding(5.dp),
-                        painter = painterResource(id = R.drawable.arrow_right),
-                        contentDescription = "Front Arrow"
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = book.author,
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight(500),
-                            color = Color(0xFF9E9E9E),
-                            textAlign = TextAlign.Start,
-                        )
-                    )
-                    Row {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_star_filled),
-                            contentDescription = "stars"
-                        )
-                        Spacer(modifier = Modifier.size(2.dp))
-                        Text(text = "${formatRating(book.rating)}")
-                        Spacer(modifier = Modifier.size(6.dp))
-                        Image(
-                            painter = painterResource(id = R.drawable.views),
-                            contentDescription = "views"
-                        )
-                        Spacer(modifier = Modifier.size(2.dp))
-                        Text(text = "${book.views}")
-                        Spacer(modifier = Modifier.size(2.dp))
-                        Image(
-                            painter = painterResource(id = R.drawable.message),
-                            contentDescription = "댓글"
-                        )
-                        Spacer(modifier = Modifier.size(2.dp))
-                        Text(text = "$commentCount")
+                        Row {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_star_filled),
+                                contentDescription = "stars"
+                            )
+                            Spacer(modifier = Modifier.size(2.dp))
+                            Text(text = "${formatRating(book.rating)}")
+                            Spacer(modifier = Modifier.size(6.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.views),
+                                contentDescription = "views"
+                            )
+                            Spacer(modifier = Modifier.size(2.dp))
+                            Text(text = "${book.views}")
+                            Spacer(modifier = Modifier.size(2.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.message),
+                                contentDescription = "댓글"
+                            )
+                            Spacer(modifier = Modifier.size(2.dp))
+                            Text(text = "$commentCount")
+                        }
                     }
                 }
             }
-        }
-        // The image that appears when swiped
-        AnimatedVisibility(visible = imageVisibility) {
             Column(
                 modifier = Modifier
                     .offset {
                         IntOffset(
-                            680 - swipeableState.offset.value.roundToInt(),
+                            620 - swipeableState.offset.value.roundToInt(),
                             0
                         )
                     } // Use the same offset as the Card
-                    .size(50.dp, 100.dp)
+                    .size(67.dp, 120.dp)
                     .border(
                         1.dp, Color(0xFFF5F5F5),
                         RoundedCornerShape(
@@ -552,13 +566,115 @@ fun LibraryBookCards(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                LottieAnimation(
+                AnimatedVisibility(
+                    visible = imageVisibility,
+                    enter = scaleIn(),
+                    exit = ExitTransition.None
+                ) {
+                    LottieAnimation(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clickable { onClicked(book) },
+                        composition = fireLottie,
+                        iterations = LottieConstants.IterateForever
+                    )
+                }
+            }
+        }
+    } else{
+        Box {
+            Card(
+                modifier = Modifier
+                    .width(360.dp)
+                    .height(120.dp)
+                    .clickable {
+                        viewCount += 1
+                        updateBookViews(book.documentID ?: "ERROR", viewCount)
+                        navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}")
+                    },
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+            ) {
+                Column(
                     modifier = Modifier
-                        .size(40.dp)
-                        .clickable { onClicked(book) },
-                    composition = fireLottie,
-                    iterations = LottieConstants.IterateForever
-                )
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .width(300.dp)
+                                    .height(30.dp),
+                                text = book.title,
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight(600),
+                                    color = Color(0xFF212121),
+                                )
+                            )
+                            Text(
+                                modifier = Modifier
+                                    .width(300.dp)
+                                    .height(20.dp),
+                                text = book.description,
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight(500),
+                                    color = Color(0xFF2C2C2C),
+                                )
+                            )
+                        }
+                        Image(
+                            modifier = Modifier
+                                .size(33.dp)
+                                .padding(5.dp),
+                            painter = painterResource(id = R.drawable.arrow_right),
+                            contentDescription = "Front Arrow"
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = book.author,
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight(500),
+                                color = Color(0xFF9E9E9E),
+                                textAlign = TextAlign.Start,
+                            )
+                        )
+                        Row {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_star_filled),
+                                contentDescription = "stars"
+                            )
+                            Spacer(modifier = Modifier.size(2.dp))
+                            Text(text = "${formatRating(book.rating)}")
+                            Spacer(modifier = Modifier.size(6.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.views),
+                                contentDescription = "views"
+                            )
+                            Spacer(modifier = Modifier.size(2.dp))
+                            Text(text = "${book.views}")
+                            Spacer(modifier = Modifier.size(2.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.message),
+                                contentDescription = "댓글"
+                            )
+                            Spacer(modifier = Modifier.size(2.dp))
+                            Text(text = "$commentCount")
+                        }
+                    }
+                }
             }
         }
     }
@@ -634,7 +750,6 @@ fun ReadLibraryBookScaffold(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.message),
-//                            painter = painterResource(id = R.drawable.comments),
                             contentDescription = "댓글"
                         )
                         Text(text = "$commentCount")
@@ -895,27 +1010,31 @@ fun NovelChatCards(
                 }
             }
         }
-        AnimatedVisibility(visible = imageVisibility) {
-            Column(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            680 - swipeableState.offset.value.roundToInt(),
-                            0
-                        )
-                    } // Use the same offset as the Card
-                    .size(50.dp, 100.dp)
-                    .border(
-                        1.dp, Color(0xFFF5F5F5),
-                        RoundedCornerShape(
-                            topStart = 0.dp,
-                            bottomStart = 0.dp,
-                            topEnd = 16.dp,
-                            bottomEnd = 16.dp
-                        )
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+        Column(
+            modifier = Modifier
+                .offset {
+                    IntOffset(
+                        650 - swipeableState.offset.value.roundToInt(),
+                        0
+                    )
+                } // Use the same offset as the Card
+                .size(70.dp, 100.dp)
+                .border(
+                    1.dp, Color(0xFFF5F5F5),
+                    RoundedCornerShape(
+                        topStart = 0.dp,
+                        bottomStart = 0.dp,
+                        topEnd = 16.dp,
+                        bottomEnd = 16.dp
+                    )
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            AnimatedVisibility(
+                visible = imageVisibility,
+                enter = scaleIn(),
+                exit = ExitTransition.None
             ) {
                 LottieAnimation(
                     modifier = Modifier

@@ -94,6 +94,9 @@ fun MyBookScreen(navController: NavHostController, auth: FirebaseAuth) {
                     IconButton(
                         onClick = {
                             FirebaseTools.deleteBookFromFirestore(documentID)
+                            scope.launch {
+                                myBooks = FirebaseTools.myNovelDataFromFirestore(auth.currentUser?.uid ?: "")
+                            }
                             showDialog = false
                         }
                     ) {

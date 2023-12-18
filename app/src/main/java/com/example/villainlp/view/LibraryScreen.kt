@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,56 +54,71 @@ import kotlinx.coroutines.launch
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
-    val context = LocalContext.current
-
-    val sortOptions = listOf(R.drawable.ic_star_filled, R.drawable.views, R.drawable.clock)
-
     var showDialog by remember { mutableStateOf(false) }
     val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
     var documentID by remember { mutableStateOf("") }
     var books by remember { mutableStateOf<List<Book>>(emptyList()) }
     val scope = rememberCoroutineScope()
-    val user = auth.currentUser
-    var isCurrentUser by remember { mutableStateOf(false) }
+    var isRateClicked by remember{ mutableStateOf(true)}
+    var isViewClicked by remember{ mutableStateOf(false)}
+    var isUpdateClicked by remember{ mutableStateOf(false)}
 
-    LaunchedEffect(Unit) {
-        books = FirebaseTools.novelDataSortingByViewsFromFirestore()
+    val starIcon = if(isRateClicked) R.drawable.ic_star_filled2 else R.drawable.ic_star_filled
+
+    scope.launch {
+        books = FirebaseTools.novelDataSortingByRatingFromFirestore()
     }
 
     MyLibraryScaffold(
         "도서관", navController
     ) {
         Column(
-            modifier = it.padding(top = 12.dp)
+            modifier = it.padding(12.dp)
         ) {
-            LazyRow(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 30.dp, end = 30.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                items(sortOptions.size) { index ->
-                    SortOptionButton(sortOptions[index]) {
-                        scope.launch {
-                            books = when (index) {
-                                0 -> FirebaseTools.novelDataSortingByRatingFromFirestore()
-                                1 -> FirebaseTools.novelDataSortingByViewsFromFirestore()
-                                2 -> FirebaseTools.novelDataSortingByUploadDateFromFirestore()
-                                else -> emptyList()
-                            }
-                        }
+                SortOptionButton(
+                    image = starIcon,
+                    backColor = if (isRateClicked) Color(0xFF17C3CE) else Color.White
+                    ) {
+                    scope.launch {
+                        books = FirebaseTools.novelDataSortingByRatingFromFirestore()
+                        isRateClicked = true
+                        isViewClicked = false
+                        isUpdateClicked = false
+                    }
+                }
+                SortOptionButton(
+                    image = R.drawable.views,
+                    backColor = if (isViewClicked) Color(0xFF17C3CE) else Color.White
+                ) {
+                    scope.launch {
+                        books = FirebaseTools.novelDataSortingByViewsFromFirestore()
+                        isRateClicked = false
+                        isViewClicked = true
+                        isUpdateClicked = false
+                    }
+                }
+                SortOptionButton(
+                    image = R.drawable.clock,
+                    backColor = if (isUpdateClicked) Color(0xFF17C3CE) else Color.White
+                ) {
+                    scope.launch {
+                        books = FirebaseTools.novelDataSortingByUploadDateFromFirestore()
+                        isRateClicked = false
+                        isViewClicked = false
+                        isUpdateClicked = true
                     }
                 }
             }
-            ShowAllBooks(navController, books) { selectedBook ->
+            ShowAllBooks(navController, books, auth) { selectedBook ->
                 documentID = selectedBook.documentID ?: "ERROR"
-                isCurrentUser = user?.uid == selectedBook.userID
-                if (isCurrentUser) {
-                    showDialog = true
-                } else {
-                    showToasts("작성자만 삭제할 수 있습니다.", context)
-                }
+                showDialog = true
             }
         }
     }
@@ -183,19 +199,17 @@ fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
     }
 }
 
-
-fun showToasts(message: String, context: Context) {
-    val toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
-    toast.show()
-}
-
 @Composable
-fun SortOptionButton(image: Int, onClicked: () -> Unit) {
+fun SortOptionButton(image: Int, backColor: Color,onClicked: () -> Unit) {
     Box(
         modifier = Modifier
             .border(
                 width = 1.5.dp,
                 color = Color(0xFF17C3CE),
+                shape = RoundedCornerShape(size = 17.dp)
+            )
+            .background(
+                color = backColor,
                 shape = RoundedCornerShape(size = 17.dp)
             )
             .width(IntrinsicSize.Min)
@@ -206,10 +220,6 @@ fun SortOptionButton(image: Int, onClicked: () -> Unit) {
         Image(
             painter = painterResource(id = image),
             contentDescription = "Sort Options",
-            modifier = Modifier
-                .clickable {
-                    onClicked()
-                }
         )
     }
 }

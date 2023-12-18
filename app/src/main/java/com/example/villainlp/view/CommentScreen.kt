@@ -259,6 +259,7 @@ fun CommentBox(
     onClicked: (Comment) -> Unit,
 ) {
     val user = auth.currentUser
+    val isCurrentUser = (user?.uid == comment.userID)
 
     val swipeableState = rememberSwipeableState(initialValue = 0f)
 
@@ -275,7 +276,7 @@ fun CommentBox(
 
     val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
 
-    if (user?.uid == comment.userID) {
+    if (isCurrentUser) {
         Box {
             Column(
                 modifier = Modifier
