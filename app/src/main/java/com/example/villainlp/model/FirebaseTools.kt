@@ -175,7 +175,7 @@ object FirebaseTools {
             val result = mutableListOf<Comment>()
 
             db.collection("Library").document(documentId).collection("comment")
-                .orderBy("uploadDate", Query.Direction.DESCENDING)
+                .orderBy("uploadDate", Query.Direction.ASCENDING)
                 .get().addOnSuccessListener { querySnapshot ->
                     for (document in querySnapshot) {
                         val commentData = document.toObject(Comment::class.java)
