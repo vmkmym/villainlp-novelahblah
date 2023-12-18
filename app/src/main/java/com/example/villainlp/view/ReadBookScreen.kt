@@ -18,7 +18,7 @@ fun ReadLibraryBookScreen(
     script: String,
     documentId: String,
 ) {
-    ReadLibraryBookScaffold(title, navController, documentId) {
+    ReadLibraryBookScaffold(title, navController, documentId) { modifier, listState ->
         LazyColumn(
             modifier = modifier,
             state = listState,
