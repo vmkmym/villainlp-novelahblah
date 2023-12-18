@@ -2,10 +2,8 @@ package com.example.villainlp.view
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -37,7 +35,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -57,6 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavHostController
+import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.FractionalThreshold
 import androidx.wear.compose.material.rememberSwipeableState
@@ -581,7 +581,7 @@ fun LibraryBookCards(
                 }
             }
         }
-    } else{
+    } else {
         Box {
             Card(
                 modifier = Modifier
@@ -740,11 +740,18 @@ fun ReadLibraryBookScaffold(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
+                        .height(65.dp)
                         .background(color = Color(0xFFF4F4F4))
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(painter = painterResource(id = R.drawable.star), contentDescription = "별")
-                    Text(text = "$rating")
+                    Spacer(modifier = Modifier.size(7.dp))
+                    Text(
+                        text = "$rating",
+                        color = Color(0xFFDD2424)
+                    )
+                    Spacer(modifier = Modifier.size(15.dp))
                     Row(
                         modifier = Modifier.clickable { navController.navigate("CommentScreen/${documentId}") },
                     ) {
@@ -752,15 +759,30 @@ fun ReadLibraryBookScaffold(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "댓글"
                         )
+                        Spacer(modifier = Modifier.size(10.dp))
                         Text(text = "$commentCount")
                     }
                     Box(modifier = Modifier
                         .weight(1f, fill = false)
                         .fillMaxWidth()
-                        .align(Alignment.CenterVertically)
-                        .clickable { navController.navigate("RatingScreen/${documentId}") }
                     ) {
-                        Text(text = "별점주기", modifier = Modifier.align(Alignment.CenterEnd))
+                        Button(
+                            modifier = Modifier.align(Alignment.CenterEnd).width(65.dp).border(1.dp, Color(0xFFBBBBBB), RoundedCornerShape(5.dp)).padding(5.dp),
+                            onClick = { navController.navigate("RatingScreen/${documentId}") },
+                            colors = ButtonDefaults.primaryButtonColors(
+                                backgroundColor = Color.Transparent
+                            ),
+                            shape = RectangleShape
+                        ) {
+                            Text(
+                                text = "별점주기",
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color(0xFF000000)
+                                )
+                            )
+                        }
                     }
                 }
             }
