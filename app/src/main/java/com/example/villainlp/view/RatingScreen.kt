@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,13 +23,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
 import com.example.villainlp.model.FirebaseTools
 import com.example.villainlp.model.FirebaseTools.updateBookRating
+import com.example.villainlp.ui.theme.Blue789
 import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -49,6 +55,7 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
     {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
                 artistryRate = RatingBar(question = "작품성 (문장력과 구성력)")
@@ -59,22 +66,52 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
             }
         }
 
-        Row {
-            Button(onClick = { navController.popBackStack() }) {
-                Text(text = "취소")
+        Row(
+            horizontalArrangement = Arrangement.Center, // 버튼들을 수평 가운데로 정렬
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 16.dp) // 상하 여백 추가
+        ) {
+            Button(
+                onClick = {
+                    navController.popBackStack()
+                          },
+                colors = ButtonDefaults.buttonColors(Color.White)
+            )
+            {
+                Text(
+                    text = "취소",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue789
+                    )
+                )
             }
-            Button(onClick = {
-                scope.launch {
-                    val book = FirebaseTools.getLibraryBookFromFirestore(documentId)
-                    var averageRate = book[0].totalRate
-                    var starCount = book[0].starCount
-                    averageRate += (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
-                    starCount += 1
-                    updateBookRating(documentId, averageRate, starCount)
-                }
-                navController.popBackStack()
-            }) {
-                Text(text = "제출")
+            Button(
+                onClick = {
+                    scope.launch {
+                        val book = FirebaseTools.getLibraryBookFromFirestore(documentId)
+                        var averageRate = book[0].totalRate
+                        var starCount = book[0].starCount
+                        averageRate += (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
+                        starCount += 1
+                        updateBookRating(documentId, averageRate, starCount)
+                    }
+                    navController.popBackStack()
+                },
+                colors = ButtonDefaults.buttonColors(Color.White)
+            ) {
+                Text(
+                    text = "제출",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue789
+                    )
+                )
             }
         }
     }
@@ -89,7 +126,7 @@ fun RatingBar(question: String): Int {
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Display stars based on the selected rating

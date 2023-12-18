@@ -33,7 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -42,6 +46,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.model.Book
 import com.example.villainlp.model.FirebaseTools
+import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -63,10 +68,13 @@ fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
     LaunchedEffect(Unit) {
         books = FirebaseTools.novelDataSortingByViewsFromFirestore()
     }
+
     MyLibraryScaffold(
         "도서관", navController
     ) {
-        Column(modifier = it.padding(top = 12.dp)) {
+        Column(
+            modifier = it.padding(top = 12.dp)
+        ) {
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,23 +109,39 @@ fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
 
     if (showDialog) {
         AlertDialog(
+            icon = {
+                LottieAnimation(
+                    modifier = Modifier.size(40.dp),
+                    composition = firePuppleLottie,
+                    iterations = LottieConstants.IterateForever
+                )
+            },
             containerColor = Color.White,
             onDismissRequest = { showDialog = false },
             title = {
-                Text(text = "정말로 삭제하시겠습니까?")
+                Text(
+                    text = "정말로 삭제하시겠습니까?",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        lineHeight = 28.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                )
             },
             text = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    LottieAnimation(
-                        modifier = Modifier.size(40.dp),
-                        composition = firePuppleLottie,
-                        iterations = LottieConstants.IterateForever
-                    )
-                    Text(text = "내 서재에서 삭제가 됩니다.")
-                    LottieAnimation(
-                        modifier = Modifier.size(40.dp),
-                        composition = firePuppleLottie,
-                        iterations = LottieConstants.IterateForever
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "선택한 소설이 삭제됩니다.",
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            lineHeight = 24.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.Black
+                        )
                     )
                 }
             },
@@ -127,17 +151,34 @@ fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
                         FirebaseTools.deleteLibraryBookFromFirestore(documentID)
                         showDialog = false
                     }
-                ) { Text(text = "확인") }
+                ) {
+                    Text(
+                        text = "확인",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue789
+                        )
+                    )
+                }
             },
             dismissButton = {
                 IconButton(
                     onClick = { showDialog = false }
                 ) {
-                    Text(text = "취소")
+                    Text(
+                        text = "취소",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue789
+                        )
+                    )
                 }
             },
-            modifier = Modifier
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         )
     }
 }

@@ -16,7 +16,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -25,6 +28,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.model.FirebaseTools
 import com.example.villainlp.model.RelayChatToNovelBook
+import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -47,46 +51,84 @@ fun MyBookScreen(navController: NavHostController, auth: FirebaseAuth) {
             documentID = selectedBook.documentID ?: "ERROR"
             showDialog = true
         }
-    }
-    if (showDialog) {
-        AlertDialog(
-            containerColor = Color.White,
-            onDismissRequest = { showDialog = false },
-            title = {
-                Text(text = "정말로 삭제하시겠습니까?")
-            },
-            text = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+
+        if (showDialog) {
+            AlertDialog(
+                icon = {
                     LottieAnimation(
                         modifier = Modifier.size(40.dp),
                         composition = firePuppleLottie,
                         iterations = LottieConstants.IterateForever
                     )
-                    Text(text = "내 서재에서 삭제가 됩니다.")
-                    LottieAnimation(
-                        modifier = Modifier.size(40.dp),
-                        composition = firePuppleLottie,
-                        iterations = LottieConstants.IterateForever
+                },
+                containerColor = Color.White,
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Text(
+                        text = "정말로 삭제하시겠습니까?",
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            lineHeight = 28.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.Black
+                        )
                     )
-                }
-            },
-            confirmButton = {
-                IconButton(
-                    onClick = {
-                        FirebaseTools.deleteBookFromFirestore(documentID)
-                        showDialog = false
+                },
+                text = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "내 작업 공간에서 선택한 소설이 삭제가 됩니다.",
+                            style = TextStyle(
+                                fontSize = 15.sp,
+                                lineHeight = 24.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color.Black
+                            )
+                        )
                     }
-                ) { Text(text = "확인") }
-            },
-            dismissButton = {
-                IconButton(
-                    onClick = { showDialog = false }
-                ) {
-                    Text(text = "취소")
-                }
-            },
-            modifier = Modifier
-                .padding(16.dp)
-        )
+                },
+                confirmButton = {
+                    IconButton(
+                        onClick = {
+                            FirebaseTools.deleteBookFromFirestore(documentID)
+                            showDialog = false
+                        }
+                    ) {
+                        Text(
+                            text = "확인",
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                lineHeight = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Blue789
+                            )
+                        )
+                    }
+                },
+                dismissButton = {
+                    IconButton(
+                        onClick = { showDialog = false }
+                    ) {
+                        Text(
+                            text = "취소",
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                lineHeight = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Blue789
+                            )
+                        )
+                    }
+                },
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     }
 }
+
+
+
+
