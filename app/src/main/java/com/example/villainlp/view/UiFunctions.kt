@@ -68,6 +68,7 @@ import com.example.villainlp.model.FirebaseTools.updateBookViews
 import com.example.villainlp.model.NovelInfo
 import com.example.villainlp.model.RelayChatToNovelBook
 import com.example.villainlp.model.Screen
+import com.example.villainlp.ui.theme.Blue789
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -100,46 +101,59 @@ fun MyScaffold(
 @Composable
 fun MyScaffoldBottomBar(navController: NavHostController) {
     val currentScreen = remember { mutableStateOf(navController.currentDestination?.route) }
-    Row(
-        Modifier
-            .width(428.dp)
-            .height(80.dp)
-            .background(color = Color(0xFFFFFFFF), RoundedCornerShape(17.dp))
-            .padding(start = 33.dp, top = 16.dp, end = 33.dp, bottom = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top,
-    ) {
-        // Child views.
-        CustomIconButton(
-            defaultIcon = R.drawable.home,
-            clickedIcon = R.drawable.home_clicked,
-            isCurrentScreen = currentScreen.value == Screen.CreativeYard.route,
-            iconText = "창작마당"
-        ) { navController.navigate(Screen.CreativeYard.route) }
-        CustomIconButton(
-            defaultIcon = R.drawable.forum,
-            clickedIcon = R.drawable.forum_clicked,
-            isCurrentScreen = currentScreen.value == Screen.ChattingList.route,
-            iconText = "릴레이소설"
-        ) { navController.navigate(Screen.ChattingList.route) }
-        CustomIconButton(
-            defaultIcon = R.drawable.book_5,
-            clickedIcon = R.drawable.book_clicked,
-            isCurrentScreen = currentScreen.value == Screen.MyBook.route,
-            iconText = "내서재"
-        ) { navController.navigate(Screen.MyBook.route) }
-        CustomIconButton(
-            defaultIcon = R.drawable.local_library,
-            clickedIcon = R.drawable.local_library_clicked,
-            isCurrentScreen = currentScreen.value == Screen.Library.route,
-            iconText = "도서관"
-        ) { navController.navigate(Screen.Library.route) }
-        CustomIconButton(
-            defaultIcon = R.drawable.settings,
-            clickedIcon = R.drawable.settings_clicked,
-            isCurrentScreen = currentScreen.value == Screen.Profile.route,
-            iconText = "설정"
-        ) { navController.navigate(Screen.Profile.route) }
+    Column {
+        Divider(thickness = 0.5.dp,color = Color(0xFF9E9E9E))
+        Row(
+            Modifier
+                .width(428.dp)
+                .height(80.dp)
+                .background(color = Color(0xFFFFFFFF), RoundedCornerShape(17.dp))
+                .padding(start = 33.dp, top = 16.dp, end = 33.dp, bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top,
+        ) {
+            // Child views.
+            CustomIconButton(
+                defaultIcon = R.drawable.home,
+                clickedIcon = R.drawable.home_clicked,
+                isCurrentScreen = currentScreen.value == Screen.CreativeYard.route,
+                iconText = "창작마당",
+                clickedTextColor = Blue789,
+                defaultTextColor = Color(0xFFbbbbbb)
+            ) { navController.navigate(Screen.CreativeYard.route) }
+            CustomIconButton(
+                defaultIcon = R.drawable.forum,
+                clickedIcon = R.drawable.forum_clicked,
+                isCurrentScreen = currentScreen.value == Screen.ChattingList.route,
+                iconText = "릴레이소설",
+                clickedTextColor = Blue789,
+                defaultTextColor = Color(0xFFbbbbbb)
+            ) { navController.navigate(Screen.ChattingList.route) }
+            CustomIconButton(
+                defaultIcon = R.drawable.book_5,
+                clickedIcon = R.drawable.book_clicked,
+                isCurrentScreen = currentScreen.value == Screen.MyBook.route,
+                iconText = "내서재",
+                clickedTextColor = Blue789,
+                defaultTextColor = Color(0xFFbbbbbb)
+            ) { navController.navigate(Screen.MyBook.route) }
+            CustomIconButton(
+                defaultIcon = R.drawable.local_library,
+                clickedIcon = R.drawable.local_library_clicked,
+                isCurrentScreen = currentScreen.value == Screen.Library.route,
+                iconText = "도서관",
+                clickedTextColor = Blue789,
+                defaultTextColor = Color(0xFFbbbbbb)
+            ) { navController.navigate(Screen.Library.route) }
+            CustomIconButton(
+                defaultIcon = R.drawable.settings,
+                clickedIcon = R.drawable.settings_clicked,
+                isCurrentScreen = currentScreen.value == Screen.Profile.route,
+                iconText = "설정",
+                clickedTextColor = Blue789,
+                defaultTextColor = Color(0xFFbbbbbb)
+            ) { navController.navigate(Screen.Profile.route) }
+        }
     }
 }
 
@@ -174,9 +188,12 @@ fun CustomIconButton(
     clickedIcon: Int,
     isCurrentScreen: Boolean,
     iconText: String,
+    clickedTextColor: Color,
+    defaultTextColor: Color,
     onClicked: () -> Unit,
 ) {
     val icon = if (isCurrentScreen) clickedIcon else defaultIcon
+    val textColor = if (isCurrentScreen) clickedTextColor else defaultTextColor
 
     Column(
         modifier = Modifier.clickable { onClicked() },
@@ -197,7 +214,7 @@ fun CustomIconButton(
             style = TextStyle(
                 fontSize = 10.sp,
                 fontWeight = FontWeight(500),
-                color = Color(0xFFBBBBBB),
+                color = textColor,
             )
         )
     }
@@ -389,7 +406,7 @@ fun LibraryBookCards(
     onClicked: (Book) -> Unit,
 ) {
     var viewCount by remember { mutableStateOf(book.views) }
-    var commentCount by remember { mutableStateOf(0)}
+    var commentCount by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         commentCount = FirebaseTools.getCommentCount(book.documentID!!)
@@ -489,7 +506,7 @@ fun LibraryBookCards(
                     )
                     Row {
                         Image(
-                            painter = painterResource(id = R.drawable.baseline_star_rate_24),
+                            painter = painterResource(id = R.drawable.ic_star_filled),
                             contentDescription = "stars"
                         )
                         Spacer(modifier = Modifier.size(2.dp))
@@ -579,8 +596,8 @@ fun ReadLibraryBookScaffold(
     var barVisible by remember { mutableStateOf(true) }
     // 레이지컬럼에 상태 추적
     val listState = rememberLazyListState()
-    var commentCount by remember { mutableStateOf(0)}
-    var rating by remember { mutableStateOf(0.0f)}
+    var commentCount by remember { mutableStateOf(0) }
+    var rating by remember { mutableStateOf(0.0f) }
     val scope = rememberCoroutineScope()
 
     scope.launch {
