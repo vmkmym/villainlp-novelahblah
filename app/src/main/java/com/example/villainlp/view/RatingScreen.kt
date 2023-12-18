@@ -1,16 +1,22 @@
 package com.example.villainlp.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,12 +26,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
 import com.example.villainlp.model.FirebaseTools.updateBookRating
+import com.example.villainlp.ui.theme.Blue789
 
 @Composable
 fun RatingScreen(navController: NavHostController, documentId: String) {
@@ -44,6 +55,7 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
     {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
                 artistryRate = RatingBar(question = "작품성 (문장력과 구성력)")
@@ -54,17 +66,46 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
             }
         }
 
-        averageRate = (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
+        averageRate =
+            (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
 
-        Row {
-            Button(onClick = { navController.popBackStack() }) {
-                Text(text = "취소")
+        Row(
+            horizontalArrangement = Arrangement.Center, // 버튼들을 수평 가운데로 정렬
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 16.dp) // 상하 여백 추가
+        ) {
+            Button(
+                onClick = { navController.popBackStack() },
+                colors = ButtonDefaults.buttonColors(Color.White)
+            )
+            {
+                Text(
+                    text = "취소",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue789
+                    )
+                )
             }
-            Button(onClick = {
+            Button(
+                onClick = {
                 updateBookRating(documentId, averageRate)
                 navController.popBackStack()
-            }) {
-                Text(text = "제출")
+            },
+                colors = ButtonDefaults.buttonColors(Color.White)
+            ) {
+                Text(
+                    text = "제출",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue789
+                    )
+                )
             }
         }
     }
@@ -75,11 +116,12 @@ fun RatingBar(question: String): Int {
     var rating by remember { mutableStateOf(0) }
 
     Text(text = question)
+
     Row(
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Display stars based on the selected rating

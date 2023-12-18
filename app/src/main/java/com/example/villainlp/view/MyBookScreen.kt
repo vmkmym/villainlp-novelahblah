@@ -123,8 +123,7 @@ fun MyBookScreen(navController: NavHostController, auth: FirebaseAuth) {
                         )
                     }
                 },
-                modifier = Modifier
-                    .padding(16.dp)
+                modifier = Modifier.padding(16.dp)
             )
         }
     }

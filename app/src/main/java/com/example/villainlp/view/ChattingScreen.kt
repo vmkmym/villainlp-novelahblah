@@ -419,7 +419,7 @@ fun ChatItemBubble(
 
     if (!isCurrentUserMessage) {
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(start = 8.dp, end = 40.dp, top= 20.dp, bottom = 20.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

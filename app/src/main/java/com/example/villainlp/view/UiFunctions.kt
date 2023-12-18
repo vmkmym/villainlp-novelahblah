@@ -210,9 +210,7 @@ fun ShowMyBooks(
     )
     {
         items(myBooks) { book ->
-            MyBookCards(book, navController) { selectedBook ->
-                onClicked(selectedBook)
-            }
+            MyBookCards(book, navController) { selectedBook -> onClicked(selectedBook) }
             Spacer(modifier = Modifier.size(25.dp))
         }
     }
@@ -238,7 +236,6 @@ fun ShowAllBooks(
     }
 }
 
-// TODO: LibraryBookCards처럼 수정하기
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun MyBookCards(
@@ -264,8 +261,8 @@ fun MyBookCards(
     Box {
         Card(
             modifier = Modifier
-                .width(378.dp)
-                .height(100.dp)
+                .width(360.dp)
+                .height(120.dp)
                 .offset {
                     IntOffset(
                         swipeableState.offset.value.roundToInt(),
@@ -276,7 +273,9 @@ fun MyBookCards(
                 .clickable { navController.navigate("ReadMyBookScreen/${book.title}/${book.script}") },
             colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
         ) {
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -287,24 +286,25 @@ fun MyBookCards(
                     ) {
                         Text(
                             modifier = Modifier
-                                .width(322.dp)
-                                .height(22.dp),
+                                .width(300.dp)
+                                .height(30.dp),
                             text = book.title,
                             style = TextStyle(
-                                fontSize = 18.sp,
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight(600),
                                 color = Color(0xFF212121),
                             )
                         )
+                        Spacer(modifier = Modifier.padding(top = 2.dp))
                         Text(
                             modifier = Modifier
-                                .width(322.dp)
-                                .height(30.dp),
+                                .width(300.dp)
+                                .height(20.dp),
                             text = book.script,
                             style = TextStyle(
-                                fontSize = 12.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight(500),
-                                color = Color(0xFFBBBBBB),
+                                color = Color(0xFF2C2C2C),
                             )
                         )
                     }
@@ -316,14 +316,19 @@ fun MyBookCards(
                         contentDescription = "Front Arrow"
                     )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                )
+                {
                     Text(
                         modifier = Modifier
-                            .padding(8.dp)
-                            .height(12.dp),
+                            .padding(top = 8.dp, bottom = 8.dp)
+                            .height(16.dp),
                         text = book.author,
                         style = TextStyle(
-                            fontSize = 10.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight(500),
                             color = Color(0xFF9E9E9E),
                             textAlign = TextAlign.Start
@@ -368,7 +373,6 @@ fun MyBookCards(
 }
 
 
-// TODO: 이거보고 MyBookCards() 수정하기
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
@@ -437,14 +441,13 @@ fun LibraryBookCards(
                                 color = Color(0xFF212121),
                             )
                         )
-                        Spacer(modifier = Modifier.padding(top = 2.dp))
                         Text(
                             modifier = Modifier
                                 .width(320.dp)
                                 .height(28.dp),
                             text = book.description,
                             style = TextStyle(
-                                fontSize = 14.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight(500),
                                 color = Color(0xFF2C2C2C),
                             )

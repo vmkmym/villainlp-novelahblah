@@ -46,7 +46,6 @@ fun VillainNavigation(
             ChattingScreen(navController, auth, title, threadId, assistantKey)
         }
 
-        // TODO: 별점 UI 바꾸기
         // 별점화면
         composable(Screen.Rating.route) {
             val documentId = it.arguments?.getString("documentId")?: "documentId"
@@ -64,8 +63,6 @@ fun VillainNavigation(
         }
 
         // 도서관화면
-        // TODO: 삭제할 때 body text 가운데 정렬하기
-        // TODO: 별점, 조회수, 시간순 아이콘 바꾸기... 차라리 상단바에 넣어놓고 창작마당 카테고리를 도서관 상단에 넣기?
         composable(Screen.Library.route) { LibraryScreen(navController, auth) }
 
         // 도서관에서 저장한 소설 눌렀을 때 화면
@@ -77,7 +74,6 @@ fun VillainNavigation(
         }
 
         // 설정-프로필화면
-        // TODO: 애니메이션 넣을 곳 없나..
         composable(Screen.Profile.route) {
             UserProfileScreen(auth, signOutClicked = { signOutClicked()}, navController)
         }
