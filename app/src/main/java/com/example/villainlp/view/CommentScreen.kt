@@ -88,38 +88,45 @@ fun CommentScreen(navController: NavHostController, auth: FirebaseAuth, document
 
     Scaffold(
         topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .padding(13.dp)
-            )
-            {
-                Image(
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
                     modifier = Modifier
-                        .clickable { navController.popBackStack() }
-                        .size(20.dp),
-                    painter = painterResource(id = R.drawable.arrow_left),
-                    contentDescription = "back"
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 )
-                Spacer(modifier = Modifier.size(20.dp))
-                Text(text = "댓글")
-                Text(text = "$commentCount")
-                Spacer(modifier = Modifier.weight(1f))
-                LottieAnimation(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clickable {
-                            isAnimationPlaying = !isAnimationPlaying
-                            scope.launch {
-                                commentList = FirebaseTools.fetchCommentsFromFirestore(documentId)
-                                commentCount = commentList.size
-                            }
-                        }, // 클릭 이벤트에서 애니메이션 재생
-                    composition = reloadLottie,
-                    isPlaying = isAnimationPlaying, // 재생 상태에 따라 애니메이션 재생
-                    iterations = 1 // 재생 상태에 따라 애니메이션 재생 횟수 설정
-                )
+                {
+                    Row {
+                        Image(
+                            modifier = Modifier
+                                .clickable { navController.popBackStack() }
+                                .size(20.dp),
+                            painter = painterResource(id = R.drawable.arrow_left),
+                            contentDescription = "back"
+                        )
+                        Spacer(modifier = Modifier.size(20.dp))
+                        Text(text = "댓글")
+                        Text(text = "$commentCount")
+                    }
+                    LottieAnimation(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clickable {
+                                isAnimationPlaying = !isAnimationPlaying
+                                scope.launch {
+                                    commentList =
+                                        FirebaseTools.fetchCommentsFromFirestore(documentId)
+                                    commentCount = commentList.size
+                                }
+                            }, // 클릭 이벤트에서 애니메이션 재생
+                        composition = reloadLottie,
+                        isPlaying = isAnimationPlaying, // 재생 상태에 따라 애니메이션 재생
+                        iterations = 1 // 재생 상태에 따라 애니메이션 재생 횟수 설정
+                    )
+                }
+                Divider(color = Color(0xFF9E9E9E))
             }
         },
         bottomBar = {
