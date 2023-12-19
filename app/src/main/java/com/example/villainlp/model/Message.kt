@@ -13,7 +13,10 @@ import com.aallam.openai.api.thread.ThreadId
 import kotlinx.serialization.Serializable
 
 
-data class TextContent(val subtitle: String, val body: String)
+data class TextContent(
+    val subtitle: String,
+    val body: String
+)
 
 
 data class ChatMessage(

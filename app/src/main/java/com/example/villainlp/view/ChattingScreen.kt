@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,12 +21,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -73,6 +68,7 @@ import com.aallam.openai.api.run.Run
 import com.aallam.openai.api.run.RunRequest
 import com.aallam.openai.api.thread.ThreadId
 import com.aallam.openai.client.OpenAI
+import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -85,6 +81,7 @@ import com.example.villainlp.model.RelayChatToNovelBook
 import com.example.villainlp.model.Screen
 import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -114,7 +111,6 @@ fun ChattingScreen(
     val openAI by lazy { OpenAI(token) }
     var assistantId by remember { mutableStateOf<AssistantId?>(null) }
     val threadId = ThreadId(threadID)
-
     var instructions by remember { mutableStateOf("") }
 
     var sentMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
@@ -123,7 +119,13 @@ fun ChattingScreen(
     var showDialog by remember { mutableStateOf(false) }
     val user = auth.currentUser
 
-    val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
+    var isAnimationRunning by remember { mutableStateOf(false) }
+    val firePuppleLottie by rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(R.raw.loading)
+    )
+    val loadingAnimation by rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(R.raw.loading)
+    )
 
     val focusManager = LocalFocusManager.current
 
@@ -223,14 +225,14 @@ fun ChattingScreen(
                         setInput("")
 
                         var retrievedRun: Run
-                        // assistant가 작성한 novel이 완성될 때까지 기다리면서 응답 중 이미지 띄우기
+                        isAnimationRunning = true
                         do {
                             delay(150)
                             retrievedRun = openAI.getRun(
                                 threadId = threadId,
                                 runId = run.id
                             )
-                        } while (retrievedRun.status != Status.Completed)
+                        } while (retrievedRun.status != Status.Completed)//                            isAnimationRunning = false
 
 
                         // 챗봇이 내준 마지막 문장을 가져옴
@@ -255,6 +257,7 @@ fun ChattingScreen(
                                 uploadDate = currentDate
                             )
                         saveChatbotMessage(newChatbotMessage, title, threadId)
+                        isAnimationRunning = false
 
                     }
                 }
@@ -268,6 +271,12 @@ fun ChattingScreen(
                 .padding(innerPadding)
                 .addFocusCleaner(focusManager)
         ) {
+            // 챗봇 메시지의 응답이 올 때 까지 로딩 애니메이션 작동...
+            item {
+                if (isAnimationRunning) {
+                    GenerateResponse(loadingAnimation)
+                }
+            }
             items(sentMessages.reversed()) { message ->
                 ChatItemBubble(
                     message = message,
@@ -276,7 +285,38 @@ fun ChattingScreen(
             }
         }
     }
-    if (showDialog) {
+    DialogCard(showDialog, firePuppleLottie, title, openAI, threadId, user, navController)
+}
+
+@Composable
+private fun GenerateResponse(loadingAnimation: LottieComposition?) {
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxSize()
+    ) {
+        LottieAnimation(
+            composition = loadingAnimation,
+            modifier = Modifier.fillMaxWidth(),
+            iterations = LottieConstants.IterateForever
+        )
+    }
+}
+
+@Composable
+@OptIn(BetaOpenAI::class)
+private fun DialogCard(
+    showDialog: Boolean,
+    firePuppleLottie: LottieComposition?,
+    title: String,
+    openAI: OpenAI,
+    threadId: ThreadId,
+    user: FirebaseUser?,
+    navController: NavController,
+) {
+    var showDialog1 = showDialog
+    if (showDialog1) {
         AlertDialog(
             icon = {
                 LottieAnimation(
@@ -285,7 +325,7 @@ fun ChattingScreen(
                     iterations = LottieConstants.IterateForever
                 )
             },
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { showDialog1 = false },
             containerColor = Color.White,
             title = {
                 Text(
@@ -334,7 +374,7 @@ fun ChattingScreen(
                             )
                             saveChatToNovel(myRelayNovel)
                         }
-                        showDialog = false
+                        showDialog1 = false
                         navController.navigate(Screen.MyBook.route)
                     }
                 ) {
@@ -351,7 +391,7 @@ fun ChattingScreen(
             },
             dismissButton = {
                 IconButton(
-                    onClick = { showDialog = false }
+                    onClick = { showDialog1 = false }
                 ) {
                     Text(
                         text = "취소",
@@ -430,11 +470,11 @@ fun CustomTextField(
                 ),
                 singleLine = false
             )
-            IconButton(
-                onClick = { onSendClick() }
+            // send 버튼 이미지 수정했음IconButton(
+            IconButton(onClick = { onSendClick() }
             ) {
-                Icon(
-                    imageVector = Icons.Default.Send,
+                Image(
+                    painter = painterResource(id = R.drawable.send),
                     contentDescription = "메시지 전송 버튼"
                 )
             }
@@ -453,43 +493,107 @@ fun ChatItemBubble(
     val bubbleShape =
         if (isCurrentUserMessage) {
             RoundedCornerShape(
-                topEnd = 25.dp,
-                topStart = 25.dp,
-                bottomEnd = 25.dp,
-                bottomStart = 0.dp
+                topEnd = 28.dp,
+                topStart = 28.dp,
+                bottomEnd = 28.dp,
+                bottomStart = 28.dp
             )
         } else {
             RoundedCornerShape(
-                topEnd = 25.dp,
-                topStart = 25.dp,
-                bottomEnd = 0.dp,
-                bottomStart = 25.dp
+                topEnd = 28.dp,
+                topStart = 28.dp,
+                bottomEnd = 28.dp,
+                bottomStart = 28.dp
             )
         }
+// 챗봇 메시지
+    ChatbotResponse(isCurrentUserMessage, message, bubbleColor, bubbleShape)
+    // 유저가 보낸 메시지
+    UserResponse(isCurrentUserMessage, message, bubbleColor, bubbleShape)
 
-    if (!isCurrentUserMessage) {
+}
+@Composable
+private fun UserResponse(
+    isCurrentUserMessage: Boolean,
+    message: ChatMessage,
+    bubbleColor: Color,
+    bubbleShape: RoundedCornerShape,
+) {
+    if (isCurrentUserMessage) {
         Column(
-            modifier = Modifier.padding(start = 8.dp, end = 40.dp, top = 20.dp, bottom = 20.dp)
+            modifier = Modifier.padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
         ) {
             Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = message.uploadDate ?: "",
+                    fontSize = 9.sp,
+                    modifier = Modifier.padding(end = 3.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = bubbleColor,
+                            shape = bubbleShape
+                        )
+                        .padding(6.dp)
+                ) {
+                    Text(
+                        text = message.message ?: "",
+                        color = Color(0xFFFFFFFF),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChatbotResponse(
+    isCurrentUserMessage: Boolean,
+    message: ChatMessage,
+    bubbleColor: Color,
+    bubbleShape: RoundedCornerShape,
+) {
+    if (!isCurrentUserMessage) {
+        Column {
+            Row(
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = horizontalArrangement,
+                modifier = Modifier.padding(3.dp),
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.userimage),
-                    contentDescription = "Profile Picture",
+                    contentDescription = "프로필 이미지",
                     modifier = Modifier
-                        .size(26.dp)
+                        .padding(start = 3.dp)
+                        .size(35.dp)
                         .clip(CircleShape)
                 )
-                Column {
-                    Text(
-                        text = message.userName ?: "",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp
-                    )
+                Text(
+                    text = message.userName ?: "",
+                    modifier = Modifier.padding(start = 4.dp),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+            // 말풍선
+            Column(
+                modifier = Modifier.padding(start = 25.dp, end = 50.dp, bottom = 20.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Box(
                         modifier = Modifier
+                            .weight(1f)
                             .background(
                                 color = bubbleColor,
                                 shape = bubbleShape
@@ -508,46 +612,17 @@ fun ChatItemBubble(
                             modifier = Modifier.padding(6.dp)
                         )
                     }
-                }
-                Text(
-                    text = message.uploadDate ?: "",
-                    fontSize = 9.sp,
-                    modifier = Modifier.padding(top = 10.dp)
-                )
-            }
-        }
-    }
-
-    if (isCurrentUserMessage) {
-        Spacer(modifier = Modifier.padding(4.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = horizontalArrangement,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = message.uploadDate ?: "",
-                fontSize = 9.sp,
-                modifier = Modifier.padding(top = 6.dp)
-            )
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = bubbleColor,
-                        shape = bubbleShape
+                    Text(
+                        text = message.uploadDate ?: "",
+                        fontSize = 9.sp,
+                        modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
                     )
-                    .padding(6.dp)
-            ) {
-                Text(
-                    text = message.message ?: "",
-                    color = Color(0xFFFFFFFF),
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(6.dp)
-                )
+                }
             }
         }
     }
 }
+
 
 
 // Firebase에서 특정 제목 아래에 채팅 메시지 저장하는 함수

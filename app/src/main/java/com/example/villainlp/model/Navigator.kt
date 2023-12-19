@@ -25,7 +25,7 @@ fun VillainNavigation(
     navController: NavHostController,
     auth: FirebaseAuth,
 ) {
-    NavHost(navController = navController, startDestination = Screen.Library.route) {
+    NavHost(navController = navController, startDestination = Screen.Lottie.route) {
         // 초기화면
         composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
 
@@ -39,7 +39,6 @@ fun VillainNavigation(
         composable(Screen.ChattingList.route) { ChattingListScreen(navController, auth) }
 
         // 채팅 화면
-        // TODO: 채팅 할 때 말풍선 패딩 주기, 내가 채팅 길게 해도 다 보이게 하기(옵션)
         composable(Screen.Chatting.route) {
             val title = it.arguments?.getString("title")?: "title"
             val threadId = it.arguments?.getString("threadId")?: "threadId"
