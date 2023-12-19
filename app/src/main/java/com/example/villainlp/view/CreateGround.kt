@@ -231,29 +231,34 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                 )
             },
             text = {
-                OutlinedTextField(
-                    value = dialogTitle,
-                    onValueChange = { dialogTitle = it },
-                    modifier = Modifier
-                        .width(300.dp)
-                        .height(80.dp)
-                        .padding(8.dp),
-                    label = {
-                        Text(
-                            text = "채팅방 이름을 입력해주세요.",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                lineHeight = 24.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = dialogTitle,
+                        onValueChange = { dialogTitle = it },
+                        modifier = Modifier
+                            .width(300.dp)
+                            .height(80.dp)
+                            .padding(8.dp),
+                        label = {
+                            Text(
+                                text = "채팅방 이름을 입력해주세요.",
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    lineHeight = 24.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.Black
+                                )
                             )
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Blue789,
-                        unfocusedBorderColor = Blue789
-                    ),
-                )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Blue789,
+                            unfocusedBorderColor = Blue789
+                        ),
+                    )
+                }
             },
             confirmButton = {
                 IconButton(

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -312,9 +313,10 @@ fun ChattingScreen(
                                     message.content.first() as? MessageContent.Text
                                 textContent?.text?.value ?: ""
                             }
-                            val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
-                                Date()
-                            )
+                            val currentDate =
+                                SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
+                                    Date()
+                                )
                             val myRelayNovel = RelayChatToNovelBook(
                                 title = title,
                                 author = user?.displayName ?: "ERROR",
@@ -381,11 +383,12 @@ fun CustomTextField(
             textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
             singleLine = false
         )
+        // send 버튼 이미지 수정했음
         IconButton(
             onClick = { onSendClick() }
         ) {
-            Icon(
-                imageVector = Icons.Default.Send,
+            Image(
+                painter = painterResource(id = R.drawable.send),
                 contentDescription = "메시지 전송 버튼"
             )
         }
@@ -403,43 +406,54 @@ fun ChatItemBubble(
     val bubbleShape =
         if (isCurrentUserMessage) {
             RoundedCornerShape(
-                topEnd = 25.dp,
-                topStart = 25.dp,
-                bottomEnd = 25.dp,
-                bottomStart = 0.dp
+                topEnd = 28.dp,
+                topStart = 28.dp,
+                bottomEnd = 28.dp,
+                bottomStart = 28.dp
             )
         } else {
             RoundedCornerShape(
-                topEnd = 25.dp,
-                topStart = 25.dp,
-                bottomEnd = 0.dp,
-                bottomStart = 25.dp
+                topEnd = 28.dp,
+                topStart = 28.dp,
+                bottomEnd = 28.dp,
+                bottomStart = 28.dp
             )
         }
-
+    // 챗봇 메시지
     if (!isCurrentUserMessage) {
-        Column(
-            modifier = Modifier.padding(start = 8.dp, end = 40.dp, top= 20.dp, bottom = 20.dp)
-        ) {
+        Column {
             Row(
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = horizontalArrangement,
+                modifier = Modifier.padding(3.dp),
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.userimage),
-                    contentDescription = "Profile Picture",
+                    contentDescription = "프로필 이미지",
                     modifier = Modifier
-                        .size(26.dp)
+                        .padding(start = 3.dp)
+                        .size(35.dp)
                         .clip(CircleShape)
                 )
-                Column {
-                    Text(
-                        text = message.userName ?: "",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp
-                    )
+                Text(
+                    text = message.userName ?: "",
+                    modifier = Modifier.padding(start = 4.dp),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+            // 말풍선
+            Column(
+                modifier = Modifier.padding(start = 25.dp, end = 50.dp, bottom = 20.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Box(
                         modifier = Modifier
+                            .weight(1f)
                             .background(
                                 color = bubbleColor,
                                 shape = bubbleShape
@@ -458,42 +472,46 @@ fun ChatItemBubble(
                             modifier = Modifier.padding(6.dp)
                         )
                     }
+                    Text(
+                        text = message.uploadDate ?: "",
+                        fontSize = 9.sp,
+                        modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
+                    )
                 }
-                Text(
-                    text = message.uploadDate ?: "",
-                    fontSize = 9.sp,
-                    modifier = Modifier.padding(top = 10.dp)
-                )
             }
         }
     }
 
+    // 유저가 보낸 메시지
     if (isCurrentUserMessage) {
-        Spacer(modifier = Modifier.padding(4.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = horizontalArrangement,
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier.padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
         ) {
-            Text(
-                text = message.uploadDate ?: "",
-                fontSize = 9.sp,
-                modifier = Modifier.padding(top = 6.dp)
-            )
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = bubbleColor,
-                        shape = bubbleShape
-                    )
-                    .padding(6.dp)
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = message.message ?: "",
-                    color = Color(0xFFFFFFFF),
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(6.dp)
+                    text = message.uploadDate ?: "",
+                    fontSize = 9.sp,
+                    modifier = Modifier.padding(end = 3.dp)
                 )
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = bubbleColor,
+                            shape = bubbleShape
+                        )
+                        .padding(6.dp)
+                ) {
+                    Text(
+                        text = message.message ?: "",
+                        color = Color(0xFFFFFFFF),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
             }
         }
     }
