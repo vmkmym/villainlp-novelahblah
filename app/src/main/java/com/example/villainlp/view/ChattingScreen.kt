@@ -9,27 +9,30 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,10 +41,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -114,11 +123,13 @@ fun ChattingScreen(
 
     var isAnimationRunning by remember { mutableStateOf(false) }
     val firePuppleLottie by rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.loading)
+        spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple)
     )
     val loadingAnimation by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.loading)
     )
+
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
@@ -130,12 +141,11 @@ fun ChattingScreen(
             )
             assistantId = assistantResponse.id
             instructions = assistantResponse.instructions ?: ""
-//            isAnimationRunning = true
         }
+
         // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
         loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
         loadChatBotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
-
     }
 
     Scaffold(
@@ -171,89 +181,86 @@ fun ChattingScreen(
             )
         },
         bottomBar = {
-            BottomAppBar(
-                containerColor = Color.White
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                CustomTextField(
+                    value = input,
+                    onValueChange = { setInput(it) }
                 ) {
-                    CustomTextField(
-                        value = input,
-                        onValueChange = { setInput(it) }
-                    ) {
-                        val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-                            Date()
+                    val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+                        Date()
+                    )
+                    if (input.isNotEmpty()) {
+                        val newChatMessage =
+                            ChatMessage(
+                                message = input,
+                                userId = user?.uid,
+                                userName = user?.displayName,
+                                uploadDate = currentDate
+                            )
+                        saveChatMessage(newChatMessage, title, threadId)
+                    }
+                    // 챗봇 대답
+                    CoroutineScope(Dispatchers.IO).launch {
+                        Log.d("UserPrompt", "CoroutineScope launched")
+                        // user의 message를 assistant에게 전달
+                        openAI.message(
+                            threadId = threadId,
+                            request = MessageRequest(
+                                role = Role.User,
+                                content = input
+                            )
                         )
-                        if (input.isNotEmpty()) {
-                            val newChatMessage =
-                                ChatMessage(
-                                    message = input,
-                                    userId = user?.uid,
-                                    userName = user?.displayName,
-                                    uploadDate = currentDate
-                                )
-                            saveChatMessage(newChatMessage, title, threadId)
-                        }
+                        Log.d("threadId", "threadId: $threadId")
+                        // assistant가 작성한 novel을 가져옴
+                        val run = openAI.createRun(
+                            threadId,
+                            request = RunRequest(
+                                assistantId = assistantId ?: return@launch,
+                                instructions = instructions,
+                            )
+                        )
 
-                        // 챗봇 대답
-                        CoroutineScope(Dispatchers.IO).launch {
-                            Log.d("UserPrompt", "CoroutineScope launched")
-                            // user의 message를 assistant에게 전달
-                            openAI.message(
+                        setInput("")
+                        isAnimationRunning = true
+
+                        var retrievedRun: Run
+                        do {
+                            delay(150)
+                            retrievedRun = openAI.getRun(
                                 threadId = threadId,
-                                request = MessageRequest(
-                                    role = Role.User,
-                                    content = input
-                                )
+                                runId = run.id
                             )
-                            Log.d("threadId", "threadId: $threadId")
-
-                            // assistant가 작성한 novel을 가져옴
-                            val run = openAI.createRun(
-                                threadId,
-                                request = RunRequest(
-                                    assistantId = assistantId ?: return@launch,
-                                    instructions = instructions,
-                                )
-                            )
-
-                            setInput("")
-
-                            var retrievedRun: Run
-                            isAnimationRunning = true
-                            do {
-                                delay(150)
-                                retrievedRun = openAI.getRun(threadId = threadId, runId = run.id)
-                            } while (retrievedRun.status != Status.Completed)
-//                            isAnimationRunning = false
+                        } while (retrievedRun.status != Status.Completed)
 
 
-                            // 챗봇이 내준 마지막 문장을 가져옴
-                            val assistantMessages = openAI.messages(threadId)
-                            val lastAssistantMessage = assistantMessages
-                                .filter { it.role == Role.Assistant }  // Assistant의 메시지만 필터링
-                                .firstOrNull()  // 마지막 메시지만 가져옴 .lastOrNull 이렇게 하면 첫문장만 가져옴
+                        // 챗봇이 내준 마지막 문장을 가져옴
+                        val assistantMessages = openAI.messages(threadId)
+                        val lastAssistantMessage = assistantMessages
+                            .filter { it.role == Role.Assistant }  // Assistant의 메시지만 필터링
+                            .firstOrNull()  // 마지막 메시지만 가져옴 .lastOrNull 이렇게 하면 첫문장만 가져옴
 
-                            val response = if (lastAssistantMessage != null) {
-                                val textContent =
-                                    lastAssistantMessage.content.first() as? MessageContent.Text
-                                textContent?.text?.value ?: ""
-                            } else {
-                                ""
-                            }
-
-                            Log.d("UserPrompt", "response: $response")
-
-                            val newChatbotMessage =
-                                ChatbotMessage(
-                                    message = response,
-                                    uploadDate = currentDate
-                                )
-                            saveChatbotMessage(newChatbotMessage, title, threadId)
-                            isAnimationRunning = false
+                        val response = if (lastAssistantMessage != null) {
+                            val textContent =
+                                lastAssistantMessage.content.first() as? MessageContent.Text
+                            textContent?.text?.value ?: ""
+                        } else {
+                            ""
                         }
+
+                        Log.d("UserPrompt", "response: $response")
+
+                        val newChatbotMessage =
+                            ChatbotMessage(
+                                message = response,
+                                uploadDate = currentDate
+                            )
+                        saveChatbotMessage(newChatbotMessage, title, threadId)
+                        isAnimationRunning = false
+
                     }
                 }
             }
@@ -264,6 +271,7 @@ fun ChattingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .addFocusCleaner(focusManager)
         ) {
             // 챗봇 메시지의 응답이 올 때 까지 로딩 애니메이션 작동...
             item {
@@ -389,35 +397,77 @@ private fun GenerateResponse(loadingAnimation: LottieComposition?) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
     onSendClick: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .heightIn(50.dp, 50.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier
-                .weight(1f) // 여기서 비율을 조정
-                .padding(horizontal = 8.dp, vertical = 8.dp),
-            textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
-            singleLine = false
-        )
-        // send 버튼 이미지 수정했음
-        IconButton(
-            onClick = { onSendClick() }
+    var isTextFieldFocused by remember { mutableStateOf(false) }
+    val focusRequester by remember { mutableStateOf(FocusRequester()) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    Column {
+        Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.send),
-                contentDescription = "메시지 전송 버튼"
+            TextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier
+                    .weight(1f) // 여기서 비율을 조정
+                    .width(350.dp)
+                    .height(IntrinsicSize.Min) // 높이를 내부 내용에 맞게 자동 조정
+                    .focusRequester(focusRequester = focusRequester)
+                    .onFocusChanged {
+                        isTextFieldFocused = it.isFocused
+                    },
+                textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
+                placeholder = {
+                    if (!isTextFieldFocused) {
+                        Text(
+                            text = "당신의 이야기를 써주세요 :)",
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color(0xFFBBBBBB)
+                            )
+                        )
+                    } else {
+                        Text(
+                            text =
+                            "작가의 마당 : 지금 작업중인 소설의 설정을 써주세요.\n" +
+                                    "꿈의 마당 : 지금 생각나는 이야기를 써주세요.",
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color(0xFFBBBBBB)
+                            )
+                        )
+                    }
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                singleLine = false
             )
+            // send 버튼 이미지 수정했음IconButton(
+            IconButton(
+                onClick = {
+                    onSendClick()
+                    keyboardController?.hide()
+                }
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.send),
+                    contentDescription = "메시지 전송 버튼"
+                )
+            }
         }
     }
 }
@@ -446,13 +496,12 @@ fun ChatItemBubble(
                 bottomStart = 28.dp
             )
         }
-    // 챗봇 메시지
+// 챗봇 메시지
     ChatbotResponse(isCurrentUserMessage, message, bubbleColor, bubbleShape)
-
     // 유저가 보낸 메시지
     UserResponse(isCurrentUserMessage, message, bubbleColor, bubbleShape)
-}
 
+}
 @Composable
 private fun UserResponse(
     isCurrentUserMessage: Boolean,
@@ -565,6 +614,7 @@ private fun ChatbotResponse(
 }
 
 
+
 // Firebase에서 특정 제목 아래에 채팅 메시지 저장하는 함수
 @OptIn(BetaOpenAI::class)
 fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
@@ -648,4 +698,3 @@ fun loadChatBotMessages(
         }
     })
 }
-

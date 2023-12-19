@@ -4,18 +4,19 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.villainlp.view.CreativeYardScreen
+import com.example.villainlp.view.ChattingListScreen
 import com.example.villainlp.view.ChattingScreen
+import com.example.villainlp.view.CommentScreen
+import com.example.villainlp.view.CreativeYardScreen
 import com.example.villainlp.view.LibraryScreen
 import com.example.villainlp.view.LoginScreen
-import com.example.villainlp.view.MyBookScreen
-import com.example.villainlp.view.ChattingListScreen
-import com.example.villainlp.view.RatingScreen
-import com.example.villainlp.view.ReadMyBookScreen
 import com.example.villainlp.view.LottieScreen
+import com.example.villainlp.view.MyBookScreen
+import com.example.villainlp.view.RatingScreen
 import com.example.villainlp.view.ReadLibraryBookScreen
-import com.google.firebase.auth.FirebaseAuth
+import com.example.villainlp.view.ReadMyBookScreen
 import com.example.villainlp.view.UserProfileScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun VillainNavigation(
@@ -70,6 +71,11 @@ fun VillainNavigation(
             val script = it.arguments?.getString("script")?: "script"
             val documentId = it.arguments?.getString("documentId")?: "documentId"
             ReadLibraryBookScreen(navController, title, script, documentId)
+        }
+
+        composable(Screen.Comment.route){
+            val documentId = it.arguments?.getString("documentId")?: "documentId"
+            CommentScreen(navController, auth, documentId)
         }
 
         // 설정-프로필화면

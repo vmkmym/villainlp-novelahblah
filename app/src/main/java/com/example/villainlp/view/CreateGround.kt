@@ -138,7 +138,7 @@ fun Header() {
     }
 }
 
-@OptIn(BetaOpenAI::class, ExperimentalMaterial3Api::class)
+@OptIn(BetaOpenAI::class)
 @Composable
 fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
     val context = LocalContext.current

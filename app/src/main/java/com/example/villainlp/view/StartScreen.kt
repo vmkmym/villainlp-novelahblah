@@ -134,7 +134,7 @@ private fun Descriptions(content: TextContent) {
             style = TextStyle(
                 fontSize = 24.sp,
                 lineHeight = 40.sp,
-                fontWeight = FontWeight(900),
+                fontWeight = FontWeight(700),
                 color = Color(0xFFFFFFFF),
             )
         )

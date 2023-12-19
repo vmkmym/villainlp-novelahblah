@@ -1,20 +1,16 @@
 package com.example.villainlp.view
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -23,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,9 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
+import com.example.villainlp.model.FirebaseTools
 import com.example.villainlp.model.FirebaseTools.updateBookRating
 import com.example.villainlp.ui.theme.Blue789
+import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun RatingScreen(navController: NavHostController, documentId: String) {
     var artistryRate by remember { mutableStateOf(0) }
@@ -45,7 +45,7 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
     var commercialViabilityRate by remember { mutableStateOf(0) }
     var literaryMeritRate by remember { mutableStateOf(0) }
     var completenessRate by remember { mutableStateOf(0) }
-    var averageRate by remember { mutableStateOf(0.0f) }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -66,9 +66,6 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
             }
         }
 
-        averageRate =
-            (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
-
         Row(
             horizontalArrangement = Arrangement.Center, // 버튼들을 수평 가운데로 정렬
             modifier = Modifier
@@ -76,7 +73,9 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
                 .padding(vertical = 16.dp, horizontal = 16.dp) // 상하 여백 추가
         ) {
             Button(
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    navController.popBackStack()
+                          },
                 colors = ButtonDefaults.buttonColors(Color.White)
             )
             {
@@ -92,9 +91,16 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
             }
             Button(
                 onClick = {
-                updateBookRating(documentId, averageRate)
-                navController.popBackStack()
-            },
+                    scope.launch {
+                        val book = FirebaseTools.getLibraryBookFromFirestore(documentId)
+                        var averageRate = book[0].totalRate
+                        var starCount = book[0].starCount
+                        averageRate += (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
+                        starCount += 1
+                        updateBookRating(documentId, averageRate, starCount)
+                    }
+                    navController.popBackStack()
+                },
                 colors = ButtonDefaults.buttonColors(Color.White)
             ) {
                 Text(
@@ -116,7 +122,6 @@ fun RatingBar(question: String): Int {
     var rating by remember { mutableStateOf(0) }
 
     Text(text = question)
-
     Row(
         modifier = Modifier
             .padding(16.dp)
