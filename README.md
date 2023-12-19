@@ -3,7 +3,8 @@
 # TOUR: Tales Of Unexplored Realms
 
 **Introduction**:
-TOUR offers a collaborative novel-writing experience where users and AI embark on creative storytelling journeys together. The app enables users to unfold their story, followed by AI generating subsequent sections. This iterative process allows users to collectively create a novel, alternating between human creativity and AI contribution.
+노블라블라(novelah blah)은 사용자와 AI가 함께 창의적인 이야기를 만들어 나가는 협업 소설 쓰기 경험을 제공하는 앱입니다. 이 앱을 통해 사용자는 자신의 이야기를 전개한 뒤, AI가 그 다음 부분을 생성합니다. 이 반복적인 과정을 통해 사용자는 인간의 창의력과 AI의 기여를 번갈아가며 소설을 공동으로 만들어 갈 수 있습니다.
+
 
 **Project Overview**:
 Explore the [Figma Presentation](https://www.canva.com/design/DAF27hz9WL0/_vFM7Fe1oJhl3RITjSwxpA/edit?utm_content=DAF27hz9WL0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
