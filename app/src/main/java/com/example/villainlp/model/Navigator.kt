@@ -25,7 +25,7 @@ fun VillainNavigation(
     navController: NavHostController,
     auth: FirebaseAuth,
 ) {
-    NavHost(navController = navController, startDestination = Screen.Lottie.route) {
+    NavHost(navController = navController, startDestination = Screen.Library.route) {
         // 초기화면
         composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
 

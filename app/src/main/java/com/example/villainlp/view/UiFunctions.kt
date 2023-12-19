@@ -50,9 +50,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
@@ -293,7 +295,7 @@ fun MyBookCards(
         Card(
             modifier = Modifier
                 .width(360.dp)
-                .height(120.dp)
+                .height(133.dp)
                 .offset {
                     IntOffset(
                         swipeableState.offset.value.roundToInt(),
@@ -317,26 +319,30 @@ fun MyBookCards(
                     ) {
                         Text(
                             modifier = Modifier
-                                .width(300.dp)
+                                .width(270.dp)
                                 .height(30.dp),
                             text = book.title,
                             style = TextStyle(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight(600),
                                 color = Color(0xFF212121),
-                            )
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Spacer(modifier = Modifier.padding(top = 2.dp))
                         Text(
                             modifier = Modifier
-                                .width(300.dp)
-                                .height(20.dp),
+                                .width(270.dp)
+                                .height(45.dp),
                             text = book.script,
                             style = TextStyle(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight(500),
                                 color = Color(0xFF2C2C2C),
-                            )
+                            ),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                     Image(
@@ -355,7 +361,7 @@ fun MyBookCards(
                 {
                     Text(
                         modifier = Modifier
-                            .padding(top = 8.dp, bottom = 8.dp)
+                            .padding(bottom = 8.dp)
                             .height(16.dp),
                         text = book.author,
                         style = TextStyle(
@@ -373,11 +379,11 @@ fun MyBookCards(
             modifier = Modifier
                 .offset {
                     IntOffset(
-                        620 - swipeableState.offset.value.roundToInt(),
+                        775,
                         0
                     )
                 } // Use the same offset as the Card
-                .size(67.dp, 120.dp)
+                .size(65.dp, 133.dp)
                 .border(
                     1.dp, Color(0xFFF5F5F5),
                     RoundedCornerShape(
@@ -448,7 +454,7 @@ fun LibraryBookCards(
                 modifier = Modifier
 //                .border(2.dp, color = Blue789)
                     .width(360.dp)
-                    .height(120.dp)
+                    .height(133.dp)
                     .offset {
                         IntOffset(
                             swipeableState.offset.value.roundToInt(),
@@ -477,34 +483,43 @@ fun LibraryBookCards(
                         ) {
                             Text(
                                 modifier = Modifier
-                                    .width(300.dp)
+                                    .width(270.dp)
                                     .height(30.dp),
                                 text = book.title,
                                 style = TextStyle(
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight(600),
                                     color = Color(0xFF212121),
-                                )
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                             Text(
                                 modifier = Modifier
-                                    .width(300.dp)
-                                    .height(20.dp),
+                                    .width(270.dp)
+                                    .height(45.dp),
                                 text = book.description,
                                 style = TextStyle(
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight(500),
                                     color = Color(0xFF2C2C2C),
-                                )
+                                ),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
-                        Image(
-                            modifier = Modifier
-                                .size(33.dp)
-                                .padding(5.dp),
-                            painter = painterResource(id = R.drawable.arrow_right),
-                            contentDescription = "Front Arrow"
-                        )
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            Image(
+                                modifier = Modifier
+                                    .size(33.dp)
+                                    .padding(5.dp),
+                                painter = painterResource(id = R.drawable.arrow_right),
+                                contentDescription = "Front Arrow"
+                            )
+                        }
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -520,50 +535,75 @@ fun LibraryBookCards(
                                 textAlign = TextAlign.Start,
                             )
                         )
-                        Row {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
                             Image(
-                                painter = painterResource(id = R.drawable.ic_star_filled),
+                                modifier = Modifier.size(15.dp),
+                                painter = painterResource(id = R.drawable.star_sky),
                                 contentDescription = "stars"
                             )
                             Spacer(modifier = Modifier.size(2.dp))
-                            Text(text = "${formatRating(book.rating)}")
-                            Spacer(modifier = Modifier.size(6.dp))
+                            Text(
+                                text = "${formatRating(book.rating)}",
+                                style = TextStyle(
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight(500),
+                                    color = Color(0xFF9E9E9E),
+                                    textAlign = TextAlign.Start,
+                                )
+                            )
+                            Spacer(modifier = Modifier.size(9.dp))
                             Image(
-                                painter = painterResource(id = R.drawable.views),
+                                modifier = Modifier.size(15.dp),
+                                painter = painterResource(id = R.drawable.views_black),
                                 contentDescription = "views"
                             )
                             Spacer(modifier = Modifier.size(2.dp))
-                            Text(text = "${book.views}")
-                            Spacer(modifier = Modifier.size(2.dp))
+                            Text(
+                                text = "${book.views}",
+                                style = TextStyle(
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight(500),
+                                    color = Color(0xFF9E9E9E),
+                                    textAlign = TextAlign.Start,
+                                )
+                            )
+                            Spacer(modifier = Modifier.size(9.dp))
                             Image(
+                                modifier = Modifier.size(15.dp),
                                 painter = painterResource(id = R.drawable.message),
                                 contentDescription = "댓글"
                             )
                             Spacer(modifier = Modifier.size(2.dp))
-                            Text(text = "$commentCount")
+                            Text(
+                                text = "$commentCount",
+                                style = TextStyle(
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight(500),
+                                    color = Color(0xFF9E9E9E),
+                                    textAlign = TextAlign.Start,
+                                )
+                            )
                         }
                     }
                 }
             }
             Column(
                 modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            620 - swipeableState.offset.value.roundToInt(),
-                            0
-                        )
-                    } // Use the same offset as the Card
-                    .size(67.dp, 120.dp)
+                    .size(360.dp, 133.dp)
                     .border(
                         1.dp, Color(0xFFF5F5F5),
                         RoundedCornerShape(
-                            topStart = 0.dp,
-                            bottomStart = 0.dp,
+                            topStart = 16.dp,
+                            bottomStart = 16.dp,
                             topEnd = 16.dp,
                             bottomEnd = 16.dp
                         )
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    )
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.Center
             ) {
                 AnimatedVisibility(
@@ -582,68 +622,91 @@ fun LibraryBookCards(
             }
         }
     } else {
-        Box {
-            Card(
+        Card(
+            modifier = Modifier
+//                .border(2.dp, color = Blue789)
+                .width(360.dp)
+                .height(133.dp)
+                .clickable {
+                    viewCount += 1
+                    updateBookViews(book.documentID ?: "ERROR", viewCount)
+                    navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}")
+                },
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+        ) {
+            Column(
                 modifier = Modifier
-                    .width(360.dp)
-                    .height(120.dp)
-                    .clickable {
-                        viewCount += 1
-                        updateBookViews(book.documentID ?: "ERROR", viewCount)
-                        navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}")
-                    },
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+                    .padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .width(300.dp)
-                                    .height(30.dp),
-                                text = book.title,
-                                style = TextStyle(
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight(600),
-                                    color = Color(0xFF212121),
-                                )
-                            )
-                            Text(
-                                modifier = Modifier
-                                    .width(300.dp)
-                                    .height(20.dp),
-                                text = book.description,
-                                style = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight(500),
-                                    color = Color(0xFF2C2C2C),
-                                )
-                            )
-                        }
-                        Image(
+                        Text(
                             modifier = Modifier
-                                .size(33.dp)
-                                .padding(5.dp),
-                            painter = painterResource(id = R.drawable.arrow_right),
-                            contentDescription = "Front Arrow"
+                                .width(270.dp)
+                                .height(30.dp),
+                            text = book.title,
+                            style = TextStyle(
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight(600),
+                                color = Color(0xFF212121),
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            modifier = Modifier
+                                .width(270.dp)
+                                .height(45.dp),
+                            text = book.description,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight(500),
+                                color = Color(0xFF2C2C2C),
+                            ),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
+                    Image(
+                        modifier = Modifier
+                            .size(33.dp)
+                            .padding(5.dp),
+                        painter = painterResource(id = R.drawable.arrow_right),
+                        contentDescription = "Front Arrow"
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = book.author,
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight(500),
+                            color = Color(0xFF9E9E9E),
+                            textAlign = TextAlign.Start,
+                        )
+                    )
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        Image(
+                            modifier = Modifier.size(15.dp),
+                            painter = painterResource(id = R.drawable.star_sky),
+                            contentDescription = "stars"
+                        )
+                        Spacer(modifier = Modifier.size(2.dp))
                         Text(
-                            text = book.author,
+                            text = "${formatRating(book.rating)}",
                             style = TextStyle(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight(500),
@@ -651,28 +714,38 @@ fun LibraryBookCards(
                                 textAlign = TextAlign.Start,
                             )
                         )
-                        Row {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_star_filled),
-                                contentDescription = "stars"
+                        Spacer(modifier = Modifier.size(9.dp))
+                        Image(
+                            modifier = Modifier.size(15.dp),
+                            painter = painterResource(id = R.drawable.views_black),
+                            contentDescription = "views"
+                        )
+                        Spacer(modifier = Modifier.size(2.dp))
+                        Text(
+                            text = "${book.views}",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight(500),
+                                color = Color(0xFF9E9E9E),
+                                textAlign = TextAlign.Start,
                             )
-                            Spacer(modifier = Modifier.size(2.dp))
-                            Text(text = "${formatRating(book.rating)}")
-                            Spacer(modifier = Modifier.size(6.dp))
-                            Image(
-                                painter = painterResource(id = R.drawable.views),
-                                contentDescription = "views"
+                        )
+                        Spacer(modifier = Modifier.size(9.dp))
+                        Image(
+                            modifier = Modifier.size(15.dp),
+                            painter = painterResource(id = R.drawable.message),
+                            contentDescription = "댓글"
+                        )
+                        Spacer(modifier = Modifier.size(2.dp))
+                        Text(
+                            text = "$commentCount",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight(500),
+                                color = Color(0xFF9E9E9E),
+                                textAlign = TextAlign.Start,
                             )
-                            Spacer(modifier = Modifier.size(2.dp))
-                            Text(text = "${book.views}")
-                            Spacer(modifier = Modifier.size(2.dp))
-                            Image(
-                                painter = painterResource(id = R.drawable.message),
-                                contentDescription = "댓글"
-                            )
-                            Spacer(modifier = Modifier.size(2.dp))
-                            Text(text = "$commentCount")
-                        }
+                        )
                     }
                 }
             }
@@ -737,51 +810,69 @@ fun ReadLibraryBookScaffold(
                 enter = slideInVertically(initialOffsetY = { it }),
                 exit = slideOutVertically(targetOffsetY = { it })
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(65.dp)
-                        .background(color = Color(0xFFF4F4F4))
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(painter = painterResource(id = R.drawable.star), contentDescription = "별")
-                    Spacer(modifier = Modifier.size(7.dp))
-                    Text(
-                        text = "$rating",
-                        color = Color(0xFFDD2424)
-                    )
-                    Spacer(modifier = Modifier.size(15.dp))
+                Column {
+                    Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
                     Row(
-                        modifier = Modifier.clickable { navController.navigate("CommentScreen/${documentId}") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(65.dp)
+                            .background(color = Color.White)
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.message),
-                            contentDescription = "댓글"
+                            painter = painterResource(id = R.drawable.star),
+                            contentDescription = "별"
                         )
-                        Spacer(modifier = Modifier.size(10.dp))
-                        Text(text = "$commentCount")
-                    }
-                    Box(modifier = Modifier
-                        .weight(1f, fill = false)
-                        .fillMaxWidth()
-                    ) {
-                        Button(
-                            modifier = Modifier.align(Alignment.CenterEnd).width(65.dp).border(1.dp, Color(0xFFBBBBBB), RoundedCornerShape(5.dp)).padding(5.dp),
-                            onClick = { navController.navigate("RatingScreen/${documentId}") },
-                            colors = ButtonDefaults.primaryButtonColors(
-                                backgroundColor = Color.Transparent
-                            ),
-                            shape = RectangleShape
+                        Spacer(modifier = Modifier.size(7.dp))
+                        Text(
+                            text = "$rating",
+                            color = Color(0xFFDD2424)
+                        )
+                        Spacer(modifier = Modifier.size(15.dp))
+                        Row(
+                            modifier = Modifier.clickable { navController.navigate("CommentScreen/${documentId}") },
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.message),
+                                contentDescription = "댓글"
+                            )
+                            Spacer(modifier = Modifier.size(10.dp))
                             Text(
-                                text = "별점주기",
+                                text = "$commentCount",
                                 style = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF000000)
+                                    color = Color(0xFFAFAFAF),
+                                    fontSize = 18.sp
                                 )
                             )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .fillMaxWidth()
+                        ) {
+                            Button(
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .width(65.dp)
+                                    .border(1.dp, Color(0xFFBBBBBB), RoundedCornerShape(5.dp))
+                                    .padding(5.dp),
+                                onClick = { navController.navigate("RatingScreen/${documentId}") },
+                                colors = ButtonDefaults.primaryButtonColors(
+                                    backgroundColor = Color.Transparent
+                                ),
+                                shape = RectangleShape
+                            ) {
+                                Text(
+                                    text = "별점주기",
+                                    style = TextStyle(
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color(0xFF000000)
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -996,14 +1087,16 @@ fun NovelChatCards(
                     ) {
                         Text(
                             modifier = Modifier
-                                .width(222.dp)
+                                .width(200.dp)
                                 .height(22.dp),
                             text = novelInfo.title,
                             style = TextStyle(
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight(600),
                                 color = Color(0xFF212121),
-                            )
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Spacer(modifier = Modifier.size(10.dp))
                         Text(
@@ -1036,11 +1129,11 @@ fun NovelChatCards(
             modifier = Modifier
                 .offset {
                     IntOffset(
-                        650 - swipeableState.offset.value.roundToInt(),
+                        800,
                         0
                     )
                 } // Use the same offset as the Card
-                .size(70.dp, 100.dp)
+                .size(65.dp, 100.dp)
                 .border(
                     1.dp, Color(0xFFF5F5F5),
                     RoundedCornerShape(

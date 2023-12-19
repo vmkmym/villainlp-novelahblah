@@ -63,7 +63,9 @@ fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
     var isViewClicked by remember{ mutableStateOf(false)}
     var isUpdateClicked by remember{ mutableStateOf(false)}
 
-    val starIcon = if(isRateClicked) R.drawable.ic_star_filled2 else R.drawable.ic_star_filled
+    val starIcon = if(isRateClicked) R.drawable.star_white else R.drawable.star_sky
+    val viewIcon = if(isViewClicked) R.drawable.views_white else R.drawable.views
+    val updateIcon = if(isUpdateClicked) R.drawable.clock_white else R.drawable.clock
 
     scope.launch {
         books = FirebaseTools.novelDataSortingByRatingFromFirestore()
@@ -94,7 +96,7 @@ fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
                     }
                 }
                 SortOptionButton(
-                    image = R.drawable.views,
+                    image = viewIcon,
                     backColor = if (isViewClicked) Color(0xFF17C3CE) else Color.White
                 ) {
                     scope.launch {
@@ -105,7 +107,7 @@ fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
                     }
                 }
                 SortOptionButton(
-                    image = R.drawable.clock,
+                    image = updateIcon,
                     backColor = if (isUpdateClicked) Color(0xFF17C3CE) else Color.White
                 ) {
                     scope.launch {
