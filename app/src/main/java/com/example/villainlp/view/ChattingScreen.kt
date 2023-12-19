@@ -64,6 +64,7 @@ import com.aallam.openai.api.run.Run
 import com.aallam.openai.api.run.RunRequest
 import com.aallam.openai.api.thread.ThreadId
 import com.aallam.openai.client.OpenAI
+import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -76,6 +77,7 @@ import com.example.villainlp.model.RelayChatToNovelBook
 import com.example.villainlp.model.Screen
 import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -105,7 +107,6 @@ fun ChattingScreen(
     val openAI by lazy { OpenAI(token) }
     var assistantId by remember { mutableStateOf<AssistantId?>(null) }
     val threadId = ThreadId(threadID)
-
     var instructions by remember { mutableStateOf("") }
 
     var sentMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
@@ -114,7 +115,13 @@ fun ChattingScreen(
     var showDialog by remember { mutableStateOf(false) }
     val user = auth.currentUser
 
-    val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
+    var isAnimationRunning by remember { mutableStateOf(false) }
+    val firePuppleLottie by rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(R.raw.loading)
+    )
+    val loadingAnimation by rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(R.raw.loading)
+    )
 
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
@@ -126,11 +133,12 @@ fun ChattingScreen(
             )
             assistantId = assistantResponse.id
             instructions = assistantResponse.instructions ?: ""
+//            isAnimationRunning = true
         }
-
         // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
         loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
         loadChatBotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
+
     }
 
     Scaffold(
@@ -191,6 +199,7 @@ fun ChattingScreen(
                                 )
                             saveChatMessage(newChatMessage, title, threadId)
                         }
+
                         // 챗봇 대답
                         CoroutineScope(Dispatchers.IO).launch {
                             Log.d("UserPrompt", "CoroutineScope launched")
@@ -203,6 +212,7 @@ fun ChattingScreen(
                                 )
                             )
                             Log.d("threadId", "threadId: $threadId")
+
                             // assistant가 작성한 novel을 가져옴
                             val run = openAI.createRun(
                                 threadId,
@@ -215,14 +225,12 @@ fun ChattingScreen(
                             setInput("")
 
                             var retrievedRun: Run
-                            // assistant가 작성한 novel이 완성될 때까지 기다리면서 응답 중 이미지 띄우기
+                            isAnimationRunning = true
                             do {
                                 delay(150)
-                                retrievedRun = openAI.getRun(
-                                    threadId = threadId,
-                                    runId = run.id
-                                )
+                                retrievedRun = openAI.getRun(threadId = threadId, runId = run.id)
                             } while (retrievedRun.status != Status.Completed)
+//                            isAnimationRunning = false
 
 
                             // 챗봇이 내준 마지막 문장을 가져옴
@@ -247,7 +255,7 @@ fun ChattingScreen(
                                     uploadDate = currentDate
                                 )
                             saveChatbotMessage(newChatbotMessage, title, threadId)
-
+                            isAnimationRunning = false
                         }
                     }
                 }
@@ -260,6 +268,12 @@ fun ChattingScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            // 챗봇 메시지의 응답이 올 때 까지 로딩 애니메이션 작동...
+            item {
+                if (isAnimationRunning) {
+                    GenerateResponse(loadingAnimation)
+                }
+            }
             items(sentMessages.reversed()) { message ->
                 ChatItemBubble(
                     message = message,
@@ -268,7 +282,38 @@ fun ChattingScreen(
             }
         }
     }
-    if (showDialog) {
+    DialogCard(showDialog, firePuppleLottie, title, openAI, threadId, user, navController)
+}
+
+@Composable
+private fun GenerateResponse(loadingAnimation: LottieComposition?) {
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxSize()
+    ) {
+        LottieAnimation(
+            composition = loadingAnimation,
+            modifier = Modifier.fillMaxWidth(),
+            iterations = LottieConstants.IterateForever
+        )
+    }
+}
+
+@Composable
+@OptIn(BetaOpenAI::class)
+private fun DialogCard(
+    showDialog: Boolean,
+    firePuppleLottie: LottieComposition?,
+    title: String,
+    openAI: OpenAI,
+    threadId: ThreadId,
+    user: FirebaseUser?,
+    navController: NavController,
+) {
+    var showDialog1 = showDialog
+    if (showDialog1) {
         AlertDialog(
             icon = {
                 LottieAnimation(
@@ -277,7 +322,7 @@ fun ChattingScreen(
                     iterations = LottieConstants.IterateForever
                 )
             },
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { showDialog1 = false },
             containerColor = Color.White,
             title = {
                 Text(
@@ -326,7 +371,7 @@ fun ChattingScreen(
                             )
                             saveChatToNovel(myRelayNovel)
                         }
-                        showDialog = false
+                        showDialog1 = false
                         navController.navigate(Screen.MyBook.route)
                     }
                 ) {
@@ -343,7 +388,7 @@ fun ChattingScreen(
             },
             dismissButton = {
                 IconButton(
-                    onClick = { showDialog = false }
+                    onClick = { showDialog1 = false }
                 ) {
                     Text(
                         text = "취소",
@@ -420,6 +465,60 @@ fun ChatItemBubble(
             )
         }
     // 챗봇 메시지
+    ChatbotResponse(isCurrentUserMessage, message, bubbleColor, bubbleShape)
+
+    // 유저가 보낸 메시지
+    UserResponse(isCurrentUserMessage, message, bubbleColor, bubbleShape)
+}
+
+@Composable
+private fun UserResponse(
+    isCurrentUserMessage: Boolean,
+    message: ChatMessage,
+    bubbleColor: Color,
+    bubbleShape: RoundedCornerShape,
+) {
+    if (isCurrentUserMessage) {
+        Column(
+            modifier = Modifier.padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = message.uploadDate ?: "",
+                    fontSize = 9.sp,
+                    modifier = Modifier.padding(end = 3.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = bubbleColor,
+                            shape = bubbleShape
+                        )
+                        .padding(6.dp)
+                ) {
+                    Text(
+                        text = message.message ?: "",
+                        color = Color(0xFFFFFFFF),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChatbotResponse(
+    isCurrentUserMessage: Boolean,
+    message: ChatMessage,
+    bubbleColor: Color,
+    bubbleShape: RoundedCornerShape,
+) {
     if (!isCurrentUserMessage) {
         Column {
             Row(
@@ -476,40 +575,6 @@ fun ChatItemBubble(
                         text = message.uploadDate ?: "",
                         fontSize = 9.sp,
                         modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
-                    )
-                }
-            }
-        }
-    }
-
-    // 유저가 보낸 메시지
-    if (isCurrentUserMessage) {
-        Column(
-            modifier = Modifier.padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = message.uploadDate ?: "",
-                    fontSize = 9.sp,
-                    modifier = Modifier.padding(end = 3.dp)
-                )
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = bubbleColor,
-                            shape = bubbleShape
-                        )
-                        .padding(6.dp)
-                ) {
-                    Text(
-                        text = message.message ?: "",
-                        color = Color(0xFFFFFFFF),
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(6.dp)
                     )
                 }
             }
@@ -601,3 +666,4 @@ fun loadChatBotMessages(
         }
     })
 }
+

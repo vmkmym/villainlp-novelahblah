@@ -39,6 +39,7 @@ fun ChattingListScreen(navController: NavHostController, auth: FirebaseAuth) {
     var documentID by remember { mutableStateOf("") }
     var novelInfo by remember { mutableStateOf<List<NovelInfo>>(emptyList()) }
     val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
+
     val scope = rememberCoroutineScope()
 
     scope.launch {
