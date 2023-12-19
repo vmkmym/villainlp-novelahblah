@@ -41,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -49,6 +50,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -121,7 +123,7 @@ fun ChattingScreen(
 
     var isAnimationRunning by remember { mutableStateOf(false) }
     val firePuppleLottie by rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.loading)
+        spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple)
     )
     val loadingAnimation by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.loading)
@@ -223,16 +225,16 @@ fun ChattingScreen(
                         )
 
                         setInput("")
+                        isAnimationRunning = true
 
                         var retrievedRun: Run
-                        isAnimationRunning = true
                         do {
                             delay(150)
                             retrievedRun = openAI.getRun(
                                 threadId = threadId,
                                 runId = run.id
                             )
-                        } while (retrievedRun.status != Status.Completed)//                            isAnimationRunning = false
+                        } while (retrievedRun.status != Status.Completed)
 
 
                         // 챗봇이 내준 마지막 문장을 가져옴
@@ -285,38 +287,7 @@ fun ChattingScreen(
             }
         }
     }
-    DialogCard(showDialog, firePuppleLottie, title, openAI, threadId, user, navController)
-}
-
-@Composable
-private fun GenerateResponse(loadingAnimation: LottieComposition?) {
-    Box(
-        contentAlignment = Alignment.BottomCenter,
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .fillMaxSize()
-    ) {
-        LottieAnimation(
-            composition = loadingAnimation,
-            modifier = Modifier.fillMaxWidth(),
-            iterations = LottieConstants.IterateForever
-        )
-    }
-}
-
-@Composable
-@OptIn(BetaOpenAI::class)
-private fun DialogCard(
-    showDialog: Boolean,
-    firePuppleLottie: LottieComposition?,
-    title: String,
-    openAI: OpenAI,
-    threadId: ThreadId,
-    user: FirebaseUser?,
-    navController: NavController,
-) {
-    var showDialog1 = showDialog
-    if (showDialog1) {
+    if (showDialog) {
         AlertDialog(
             icon = {
                 LottieAnimation(
@@ -325,7 +296,7 @@ private fun DialogCard(
                     iterations = LottieConstants.IterateForever
                 )
             },
-            onDismissRequest = { showDialog1 = false },
+            onDismissRequest = { showDialog = false },
             containerColor = Color.White,
             title = {
                 Text(
@@ -374,7 +345,7 @@ private fun DialogCard(
                             )
                             saveChatToNovel(myRelayNovel)
                         }
-                        showDialog1 = false
+                        showDialog = false
                         navController.navigate(Screen.MyBook.route)
                     }
                 ) {
@@ -391,7 +362,7 @@ private fun DialogCard(
             },
             dismissButton = {
                 IconButton(
-                    onClick = { showDialog1 = false }
+                    onClick = { showDialog = false }
                 ) {
                     Text(
                         text = "취소",
@@ -410,7 +381,23 @@ private fun DialogCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GenerateResponse(loadingAnimation: LottieComposition?) {
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxSize()
+    ) {
+        LottieAnimation(
+            composition = loadingAnimation,
+            modifier = Modifier.fillMaxWidth(),
+            iterations = LottieConstants.IterateForever
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CustomTextField(
     value: String,
@@ -419,12 +406,12 @@ fun CustomTextField(
 ) {
     var isTextFieldFocused by remember { mutableStateOf(false) }
     val focusRequester by remember { mutableStateOf(FocusRequester()) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column {
         Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
         Row(
-            modifier = Modifier
-//            .heightIn(50.dp, 50.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(
@@ -432,7 +419,6 @@ fun CustomTextField(
                 onValueChange = onValueChange,
                 modifier = Modifier
                     .weight(1f) // 여기서 비율을 조정
-//                .padding(horizontal = 8.dp, vertical = 8.dp)
                     .width(350.dp)
                     .height(IntrinsicSize.Min) // 높이를 내부 내용에 맞게 자동 조정
                     .focusRequester(focusRequester = focusRequester)
@@ -471,7 +457,11 @@ fun CustomTextField(
                 singleLine = false
             )
             // send 버튼 이미지 수정했음IconButton(
-            IconButton(onClick = { onSendClick() }
+            IconButton(
+                onClick = {
+                    onSendClick()
+                    keyboardController?.hide()
+                }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.send),
