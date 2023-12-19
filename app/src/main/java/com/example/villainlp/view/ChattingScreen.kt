@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -23,10 +22,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -282,38 +279,7 @@ fun ChattingScreen(
             }
         }
     }
-    DialogCard(showDialog, firePuppleLottie, title, openAI, threadId, user, navController)
-}
-
-@Composable
-private fun GenerateResponse(loadingAnimation: LottieComposition?) {
-    Box(
-        contentAlignment = Alignment.BottomCenter,
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .fillMaxSize()
-    ) {
-        LottieAnimation(
-            composition = loadingAnimation,
-            modifier = Modifier.fillMaxWidth(),
-            iterations = LottieConstants.IterateForever
-        )
-    }
-}
-
-@Composable
-@OptIn(BetaOpenAI::class)
-private fun DialogCard(
-    showDialog: Boolean,
-    firePuppleLottie: LottieComposition?,
-    title: String,
-    openAI: OpenAI,
-    threadId: ThreadId,
-    user: FirebaseUser?,
-    navController: NavController,
-) {
-    var showDialog1 = showDialog
-    if (showDialog1) {
+    if (showDialog) {
         AlertDialog(
             icon = {
                 LottieAnimation(
@@ -322,7 +288,7 @@ private fun DialogCard(
                     iterations = LottieConstants.IterateForever
                 )
             },
-            onDismissRequest = { showDialog1 = false },
+            onDismissRequest = { showDialog = false },
             containerColor = Color.White,
             title = {
                 Text(
@@ -371,7 +337,7 @@ private fun DialogCard(
                             )
                             saveChatToNovel(myRelayNovel)
                         }
-                        showDialog1 = false
+                        showDialog = false
                         navController.navigate(Screen.MyBook.route)
                     }
                 ) {
@@ -388,7 +354,7 @@ private fun DialogCard(
             },
             dismissButton = {
                 IconButton(
-                    onClick = { showDialog1 = false }
+                    onClick = { showDialog = false }
                 ) {
                     Text(
                         text = "취소",
@@ -403,6 +369,22 @@ private fun DialogCard(
             },
             modifier = Modifier
                 .padding(16.dp)
+        )
+    }
+}
+
+@Composable
+private fun GenerateResponse(loadingAnimation: LottieComposition?) {
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxSize()
+    ) {
+        LottieAnimation(
+            composition = loadingAnimation,
+            modifier = Modifier.fillMaxWidth(),
+            iterations = LottieConstants.IterateForever
         )
     }
 }
