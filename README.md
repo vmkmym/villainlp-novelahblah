@@ -58,6 +58,8 @@ Explore the [Figma design](https://www.figma.com/file/yLlkNlmPgHXLpMU3t4GYN1/Vil
   - Compose Material
 
 ---
+## 앱 시연영상은 링크를 통해 보실 수 있습니다.
+[노블라블라](https://www.canva.com/design/DAF3Z9CKLW0/Em1h_Rv1IQZmfpDE_BedtA/edit?utm_content=DAF3Z9CKLW0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ## Thanks ![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?filename=README.md%2Fhit-counter&url=https%3A%2F%2Fgithub.com%2Fhttps%3A%2F%2Fgithub.com%2FKDT-villainlp%2Fvillainlp%2Fnew%2Fmaster&count_bg=%23F77BB9&title_bg=%232AC0A7&icon=&icon_color=%23E7E7E7&title=Villainlp&edge_flat=false)
 
