@@ -33,7 +33,7 @@ object FirebaseTools {
         // 업데이트할 문서의 참조 가져오기
         val documentReference = db.collection("Library").document(documentId)
         // 문서가져오기
-        documentReference.get().addOnSuccessListener { documet ->
+        documentReference.get().addOnSuccessListener { _ ->
             // 업데이트할 데이터 생성
             val rate = totalRate / starCount
 
@@ -440,7 +440,6 @@ object FirebaseTools {
                     continuation.resumeWithException(exception)
                 }
         }
-
 
     suspend fun novelDataSortingByViewsUpFromFirestore(): List<Book> =
         suspendCoroutine { continuation ->
