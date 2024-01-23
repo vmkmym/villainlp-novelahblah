@@ -20,9 +20,12 @@ class ReadMyBookViewModel : ViewModel() {
 
     var showDialog by mutableStateOf(false)
     var description by mutableStateOf("")
+
+    // auth를 선언해 navigation에서 할당하지 않아도됨
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val user = auth.currentUser
 
+    // Alert 내부값들
     fun onDialogClicked(){
         showDialog = true
     }
