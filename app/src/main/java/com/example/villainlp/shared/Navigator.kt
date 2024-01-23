@@ -84,7 +84,7 @@ fun VillainNavigation(
 
         // 설정-프로필화면
         composable(Screen.Profile.route) {
-            UserProfileScreen(viewModel, auth, navController)
+            UserProfileScreen(auth, navController)
         }
     }
 }
