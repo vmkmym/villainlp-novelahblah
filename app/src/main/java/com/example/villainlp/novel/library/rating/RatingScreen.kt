@@ -16,6 +16,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,19 +33,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
-import com.example.villainlp.server.FirebaseTools
-import com.example.villainlp.server.FirebaseTools.updateBookRating
 import com.example.villainlp.ui.theme.Blue789
 import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun RatingScreen(navController: NavHostController, documentId: String) {
-    var artistryRate by remember { mutableStateOf(0) }
-    var originalityRate by remember { mutableStateOf(0) }
-    var commercialViabilityRate by remember { mutableStateOf(0) }
-    var literaryMeritRate by remember { mutableStateOf(0) }
-    var completenessRate by remember { mutableStateOf(0) }
+fun RatingScreen(
+    navController: NavHostController,
+    documentId: String,
+    viewModel: RatingViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+) {
+    // rating요소 5개의 상태를 나타냄
+    val ratingViewState by viewModel.ratingViewState.collectAsState()
+
     val scope = rememberCoroutineScope()
 
     Column(
@@ -58,11 +59,31 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
-                artistryRate = RatingBar(question = "작품성 (문장력과 구성력)")
-                originalityRate = RatingBar(question = "독창성 (창조성과 기발함)")
-                commercialViabilityRate = RatingBar(question = "상업성 (몰입도와 호소력)")
-                literaryMeritRate = RatingBar(question = "문학성 (철학과 감명)")
-                completenessRate = RatingBar(question = "완성도 (문체의 가벼움과 진지함)")
+                RatingBar(
+                    question = "작품성 (문장력과 구성력)",
+                    rating = ratingViewState.artistryRate,
+                    onRatingChanged = { viewModel.setArtistryRate(it) }
+                )
+                RatingBar(
+                    question = "독창성 (창조성과 기발함)",
+                    rating = ratingViewState.originalityRate,
+                    onRatingChanged = { viewModel.setOriginalityRate(it) }
+                )
+                RatingBar(
+                    question = "상업성 (몰입도와 호소력)",
+                    rating = ratingViewState.commercialViabilityRate,
+                    onRatingChanged = { viewModel.setCommercialViabilityRate(it) }
+                )
+                RatingBar(
+                    question = "문학성 (철학과 감명)",
+                    rating = ratingViewState.literaryMeritRate,
+                    onRatingChanged = { viewModel.setLiteraryMeritRate(it) }
+                )
+                RatingBar(
+                    question = "완성도 (문체의 가벼움과 진지함)",
+                    rating = ratingViewState.completenessRate,
+                    onRatingChanged = { viewModel.setCompletenessRate(it) }
+                )
             }
         }
 
@@ -75,7 +96,7 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
             Button(
                 onClick = {
                     navController.popBackStack()
-                          },
+                },
                 colors = ButtonDefaults.buttonColors(Color.White)
             )
             {
@@ -91,14 +112,7 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
             }
             Button(
                 onClick = {
-                    scope.launch {
-                        val book = FirebaseTools.getLibraryBookFromFirestore(documentId)
-                        var averageRate = book[0].totalRate
-                        var starCount = book[0].starCount
-                        averageRate += (artistryRate + originalityRate + commercialViabilityRate + literaryMeritRate + completenessRate) / 5.0f
-                        starCount += 1
-                        updateBookRating(documentId, averageRate, starCount)
-                    }
+                    scope.launch { viewModel.submitRating(documentId) }
                     navController.popBackStack()
                 },
                 colors = ButtonDefaults.buttonColors(Color.White)
@@ -118,8 +132,13 @@ fun RatingScreen(navController: NavHostController, documentId: String) {
 }
 
 @Composable
-fun RatingBar(question: String): Int {
-    var rating by remember { mutableStateOf(0) }
+fun RatingBar(
+    question: String,
+    rating: Int,
+    onRatingChanged: (Int) -> Unit,
+) {
+    //전달 받은 rating을 지역변수로 사용함
+    var localRating by remember { mutableStateOf(rating) }
 
     Text(text = question)
     Row(
@@ -131,7 +150,7 @@ fun RatingBar(question: String): Int {
     ) {
         // Display stars based on the selected rating
         (0 until 5).forEach { index ->
-            val isSelected = index < rating
+            val isSelected = index < localRating
             val starIcon: Painter = if (isSelected) {
                 painterResource(id = R.drawable.ic_star_filled)
             } else {
@@ -144,12 +163,11 @@ fun RatingBar(question: String): Int {
                 modifier = Modifier
                     .size(48.dp)
                     .clickable {
-                        rating = index + 1
+                        localRating = index + 1
+                        onRatingChanged(localRating) // Int값을 반환하기 우해
                     }
             )
         }
     }
     Divider()
-
-    return rating
 }
