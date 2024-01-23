@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ReadMyBookViewModel : ViewModel() {
+class ReadMyNovelViewModel : ViewModel() {
 
     // 필요한 데이터 및 메서드를 정의
     // 예시로서 필요한 데이터와 메서드만 추가, 실제로 필요한 것에 따라 수정 가능

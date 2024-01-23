@@ -36,7 +36,7 @@ fun ReadMyBookScreen(
     navController: NavHostController,
     title: String,
     script: String,
-    viewModel: ReadMyBookViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: ReadMyNovelViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     ReadMyBookScaffold(
         title, navController,
