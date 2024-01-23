@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
 import com.example.villainlp.shared.MyScaffoldBottomBar
 import com.example.villainlp.shared.MyScaffoldTopBar
@@ -61,10 +63,12 @@ fun UserProfileScreen(
     val context = LocalContext.current
 
     // ViewModel 인스턴스 생성
-    val viewModel: SettingViewModel = viewModel()
+    val viewModel: SettingViewModel = viewModel(factory = GenNovelViewModelFactory(auth))
 
-    // 사용자 데이터 가져오기
-    viewModel.fetchUserData(auth)
+    // StateFlow의 값을 가져오기 위해 collectAsState 함수를 사용합니다.
+    val userImage by viewModel.userImage.collectAsState()
+    val userName by viewModel.userName.collectAsState()
+    val userEmail by viewModel.userEmail.collectAsState()
 
     MyScaffoldProfile(
         title = "설정",
@@ -78,20 +82,20 @@ fun UserProfileScreen(
             Spacer(modifier = Modifier.padding(vertical = 30.dp))
 
             // Display user profile image
-            DisplayUserProfileImage(viewModel.userImage.value)
+            DisplayUserProfileImage(userImage)
 
             Spacer(modifier = Modifier.padding(vertical = 20.dp))
 
             // Display user fields
             DisplayUserFields(
-                userName = viewModel.userName.value ?: "",
+                userName = userName ?: "",
                 onUserNameChange = {},
-                userEmail = viewModel.userEmail.value ?: "",
+                userEmail = userEmail ?: "",
                 onUserEmailChange = {}
             )
 
             // Display sign out button
-            DisplaySignOutButton { viewModel.signOut(auth) }
+            DisplaySignOutButton { viewModel.signOut() }
             // Display customer inquiry
             DisplayCustomerInquiry(url, context)
         }

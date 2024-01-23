@@ -1,22 +1,39 @@
 package com.example.villainlp.setting
 
 import android.net.Uri
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class SettingViewModel : ViewModel() {
-    val userImage = MutableLiveData<Uri>()
-    val userName = MutableLiveData<String>()
-    val userEmail = MutableLiveData<String>()
+class SettingViewModel(private val auth: FirebaseAuth) : ViewModel() {
+    private val _userImage = MutableStateFlow<Uri?>(null)
+    val userImage: StateFlow<Uri?> = _userImage.asStateFlow()
 
-    fun fetchUserData(auth: FirebaseAuth) {
-        userImage.value = auth.currentUser?.photoUrl
-        userName.value = auth.currentUser?.displayName ?: ""
-        userEmail.value = auth.currentUser?.email ?: ""
+    private val _userName = MutableStateFlow<String?>(null)
+    val userName: StateFlow<String?> = _userName.asStateFlow()
+
+    private val _userEmail = MutableStateFlow<String?>(null)
+    val userEmail: StateFlow<String?> = _userEmail.asStateFlow()
+
+    init {
+        fetchUserData()
     }
 
-    fun signOut(auth: FirebaseAuth) {
-        auth.signOut()
+    private fun fetchUserData() {
+        viewModelScope.launch {
+            _userImage.value = auth.currentUser?.photoUrl
+            _userName.value = auth.currentUser?.displayName
+            _userEmail.value = auth.currentUser?.email
+        }
+    }
+
+    fun signOut() {
+        viewModelScope.launch {
+            auth.signOut()
+        }
     }
 }
