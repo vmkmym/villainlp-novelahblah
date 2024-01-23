@@ -15,6 +15,7 @@ import com.example.villainlp.library.MyBookScreen
 import com.example.villainlp.library.RatingScreen
 import com.example.villainlp.library.ReadLibraryBookScreen
 import com.example.villainlp.library.ReadMyBookScreen
+import com.example.villainlp.setting.SettingViewModel
 import com.example.villainlp.setting.UserProfileScreen
 import com.example.villainlp.shared.Screen
 import com.google.firebase.auth.FirebaseAuth
@@ -26,7 +27,9 @@ fun VillainNavigation(
     navController: NavHostController,
     auth: FirebaseAuth,
 ) {
-    NavHost(navController = navController, startDestination = Screen.Lottie.route) {
+    val viewModel = SettingViewModel()
+
+    NavHost(navController = navController, startDestination = Screen.Login.route) {
         // 초기화면
         composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
 
@@ -81,7 +84,7 @@ fun VillainNavigation(
 
         // 설정-프로필화면
         composable(Screen.Profile.route) {
-            UserProfileScreen(auth, signOutClicked = { signOutClicked()}, navController)
+            UserProfileScreen(viewModel, auth, navController)
         }
     }
 }
