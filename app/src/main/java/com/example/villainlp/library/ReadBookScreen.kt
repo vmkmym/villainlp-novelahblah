@@ -1,4 +1,4 @@
-package com.example.villainlp.view
+package com.example.villainlp.library
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.villainlp.shared.ReadLibraryBookScaffold
 
 @Composable
 fun ReadLibraryBookScreen(

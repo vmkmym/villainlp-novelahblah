@@ -1,7 +1,11 @@
-package com.example.villainlp.model
+package com.example.villainlp.server
 
 import android.content.ContentValues
 import android.util.Log
+import com.example.villainlp.library.Book
+import com.example.villainlp.library.Comment
+import com.example.villainlp.library.NovelInfo
+import com.example.villainlp.library.RelayChatToNovelBook
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query

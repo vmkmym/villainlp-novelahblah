@@ -1,4 +1,4 @@
-package com.example.villainlp.view
+package com.example.villainlp.shared
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
@@ -54,7 +54,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
@@ -68,12 +67,11 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.model.Book
-import com.example.villainlp.model.FirebaseTools
-import com.example.villainlp.model.FirebaseTools.updateBookViews
-import com.example.villainlp.model.NovelInfo
-import com.example.villainlp.model.RelayChatToNovelBook
-import com.example.villainlp.model.Screen
+import com.example.villainlp.library.Book
+import com.example.villainlp.server.FirebaseTools
+import com.example.villainlp.server.FirebaseTools.updateBookViews
+import com.example.villainlp.library.NovelInfo
+import com.example.villainlp.library.RelayChatToNovelBook
 import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch

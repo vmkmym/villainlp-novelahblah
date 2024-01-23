@@ -1,4 +1,4 @@
-package com.example.villainlp.model
+package com.example.villainlp.library
 
 data class RelayChatToNovelBook(
     val title: String = "",

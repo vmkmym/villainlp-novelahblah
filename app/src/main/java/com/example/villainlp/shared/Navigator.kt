@@ -1,21 +1,22 @@
-package com.example.villainlp.model
+package com.example.villainlp.shared
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.villainlp.view.ChattingListScreen
-import com.example.villainlp.view.ChattingScreen
-import com.example.villainlp.view.CommentScreen
-import com.example.villainlp.view.CreativeYardScreen
-import com.example.villainlp.view.LibraryScreen
-import com.example.villainlp.view.LoginScreen
-import com.example.villainlp.view.LottieScreen
-import com.example.villainlp.view.MyBookScreen
-import com.example.villainlp.view.RatingScreen
-import com.example.villainlp.view.ReadLibraryBookScreen
-import com.example.villainlp.view.ReadMyBookScreen
-import com.example.villainlp.view.UserProfileScreen
+import com.example.villainlp.chat.ChattingListScreen
+import com.example.villainlp.chat.ChattingScreen
+import com.example.villainlp.library.CommentScreen
+import com.example.villainlp.chat.CreativeYardScreen
+import com.example.villainlp.library.LibraryScreen
+import com.example.villainlp.socialLogin.LoginScreen
+import com.example.villainlp.socialLogin.LottieScreen
+import com.example.villainlp.library.MyBookScreen
+import com.example.villainlp.library.RatingScreen
+import com.example.villainlp.library.ReadLibraryBookScreen
+import com.example.villainlp.library.ReadMyBookScreen
+import com.example.villainlp.setting.UserProfileScreen
+import com.example.villainlp.shared.Screen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable

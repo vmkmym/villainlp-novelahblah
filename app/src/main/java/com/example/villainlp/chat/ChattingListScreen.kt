@@ -1,4 +1,4 @@
-package com.example.villainlp.view
+package com.example.villainlp.chat
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Row
@@ -26,9 +26,11 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.model.FirebaseTools
-import com.example.villainlp.model.NovelInfo
+import com.example.villainlp.server.FirebaseTools
+import com.example.villainlp.library.NovelInfo
 import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.shared.MyScaffold
+import com.example.villainlp.shared.ShowChats
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 

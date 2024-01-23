@@ -1,4 +1,4 @@
-package com.example.villainlp.view
+package com.example.villainlp.socialLogin
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,14 +29,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.model.Screen
-import com.example.villainlp.model.TextContent
+import com.example.villainlp.shared.Screen
+import com.example.villainlp.chat.TextContent
 import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers

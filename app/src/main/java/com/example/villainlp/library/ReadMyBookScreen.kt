@@ -1,4 +1,4 @@
-package com.example.villainlp.view
+package com.example.villainlp.library
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +14,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,10 +32,10 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.model.Book
-import com.example.villainlp.model.FirebaseTools
-import com.example.villainlp.model.Screen
+import com.example.villainlp.server.FirebaseTools
+import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.shared.ReadMyBookScaffold
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Date

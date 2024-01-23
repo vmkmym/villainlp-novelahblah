@@ -1,4 +1,4 @@
-package com.example.villainlp.view
+package com.example.villainlp.socialLogin
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

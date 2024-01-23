@@ -1,4 +1,4 @@
-package com.example.villainlp.model
+package com.example.villainlp.shared
 
 sealed class Screen(val route: String) {
     object Profile : Screen("UserProfileScreen")

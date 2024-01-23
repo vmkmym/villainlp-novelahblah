@@ -1,4 +1,4 @@
-package com.example.villainlp.view
+package com.example.villainlp.library
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
-import com.example.villainlp.model.FirebaseTools
-import com.example.villainlp.model.FirebaseTools.updateBookRating
+import com.example.villainlp.server.FirebaseTools
+import com.example.villainlp.server.FirebaseTools.updateBookRating
 import com.example.villainlp.ui.theme.Blue789
 import kotlinx.coroutines.launch
 
