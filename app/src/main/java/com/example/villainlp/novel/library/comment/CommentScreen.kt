@@ -1,4 +1,4 @@
-package com.example.villainlp.library
+package com.example.villainlp.novel.library.comment
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
@@ -68,6 +68,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
+import com.example.villainlp.novel.Comment
 import com.example.villainlp.server.FirebaseTools
 import com.example.villainlp.server.FirebaseTools.uploadComment
 import com.google.firebase.auth.FirebaseAuth

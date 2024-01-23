@@ -1,4 +1,4 @@
-package com.example.villainlp.library
+package com.example.villainlp.novel.library.rating
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image

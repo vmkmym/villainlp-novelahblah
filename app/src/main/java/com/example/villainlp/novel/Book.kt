@@ -1,4 +1,4 @@
-package com.example.villainlp.library
+package com.example.villainlp.novel
 
 data class Book(
     val title: String = "",
