@@ -15,6 +15,7 @@ import com.example.villainlp.novel.myNovel.MyBookScreen
 import com.example.villainlp.novel.library.rating.RatingScreen
 import com.example.villainlp.novel.library.ReadLibraryBookScreen
 import com.example.villainlp.novel.myNovel.ReadMyBookScreen
+import com.example.villainlp.novel.myNovel.ReadMyBookViewModel
 import com.example.villainlp.setting.SettingViewModel
 import com.example.villainlp.setting.UserProfileScreen
 import com.google.firebase.auth.FirebaseAuth
@@ -62,7 +63,7 @@ fun VillainNavigation(
         composable(Screen.ReadMyBook.route) {
             val title = it.arguments?.getString("title")?: "title"
             val script = it.arguments?.getString("script")?: "script"
-            ReadMyBookScreen(navController, title, script, auth)
+            ReadMyBookScreen(navController, title, script)
         }
 
         // 도서관화면
