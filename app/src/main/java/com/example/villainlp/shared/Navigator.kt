@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import com.example.villainlp.chat.openAichat.ChatListScreen
 import com.example.villainlp.chat.openAichat.ChatScreen
 import com.example.villainlp.library.CommentScreen
-import com.example.villainlp.chat.CreativeYardScreen
+import com.example.villainlp.chat.ground.CreativeYardScreen
 import com.example.villainlp.library.LibraryScreen
 import com.example.villainlp.socialLogin.LoginScreen
 import com.example.villainlp.socialLogin.LottieScreen

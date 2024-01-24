@@ -3,7 +3,7 @@
     ExperimentalMaterial3Api::class
 )
 
-package com.example.villainlp.chat
+package com.example.villainlp.chat.ground
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
