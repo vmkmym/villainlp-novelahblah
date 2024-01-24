@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -82,11 +83,6 @@ import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Blue789
 import com.example.villainlp.library.addFocusCleaner
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -94,7 +90,6 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
 
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
@@ -425,27 +420,20 @@ fun CustomTextField(
                     },
                 textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
                 placeholder = {
-                    if (!isTextFieldFocused) {
-                        Text(
-                            text = "당신의 이야기를 써주세요 :)",
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color(0xFFBBBBBB)
-                            )
-                        )
+                    val placeholderText = if (!isTextFieldFocused) {
+                        "당신의 이야기를 써주세요 :)"
                     } else {
-                        Text(
-                            text =
-                            "작가의 마당 : 지금 작업중인 소설의 설정을 써주세요.\n" +
-                                    "꿈의 마당 : 지금 생각나는 이야기를 써주세요.",
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color(0xFFBBBBBB)
-                            )
-                        )
+                        "작가의 마당 : 지금 작업중인 소설의 설정을 써주세요.\n꿈의 마당 : 지금 생각나는 이야기를 써주세요."
                     }
+
+                    Text(
+                        text = placeholderText,
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color(0xFFBBBBBB)
+                        )
+                    )
                 },
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = Color.Transparent,
@@ -454,19 +442,24 @@ fun CustomTextField(
                 ),
                 singleLine = false
             )
-            // send 버튼 이미지 수정했음IconButton(
-            IconButton(
-                onClick = {
-                    onSendClick()
-                    keyboardController?.hide()
-                }
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.send),
-                    contentDescription = "메시지 전송 버튼"
-                )
-            }
+            SendButton(onSendClick = onSendClick, keyboardController = keyboardController)
         }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun SendButton(onSendClick: () -> Unit, keyboardController: SoftwareKeyboardController?) {
+    IconButton(
+        onClick = {
+            onSendClick()
+            keyboardController?.hide()
+        }
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.send),
+            contentDescription = "메시지 전송 버튼"
+        )
     }
 }
 
@@ -477,65 +470,55 @@ fun ChatItemBubble(
 ) {
     val isCurrentUserMessage = userId == message.userId
     val bubbleColor = if (isCurrentUserMessage) Color(0xFF3CDEE9) else Color(0xFFFFFFFF)
-    val horizontalArrangement = if (isCurrentUserMessage) Arrangement.End else Arrangement.Start
     val bubbleShape =
-        if (isCurrentUserMessage) {
-            RoundedCornerShape(
-                topEnd = 28.dp,
-                topStart = 28.dp,
-                bottomEnd = 28.dp,
-                bottomStart = 28.dp
-            )
-        } else {
-            RoundedCornerShape(
-                topEnd = 28.dp,
-                topStart = 28.dp,
-                bottomEnd = 28.dp,
-                bottomStart = 28.dp
-            )
-        }
-// 챗봇 메시지
-    ChatbotResponse(isCurrentUserMessage, message, bubbleColor, bubbleShape)
-    // 유저가 보낸 메시지
-    UserResponse(isCurrentUserMessage, message, bubbleColor, bubbleShape)
+        RoundedCornerShape(
+            topEnd = 28.dp,
+            topStart = 28.dp,
+            bottomEnd = 28.dp,
+            bottomStart = 28.dp
+        )
+
+    if (isCurrentUserMessage) {
+        UserResponse(message, bubbleColor, bubbleShape)
+    } else {
+        ChatbotResponse(message, bubbleColor, bubbleShape)
+    }
 
 }
+
 @Composable
 private fun UserResponse(
-    isCurrentUserMessage: Boolean,
     message: ChatMessage,
     bubbleColor: Color,
     bubbleShape: RoundedCornerShape,
 ) {
-    if (isCurrentUserMessage) {
-        Column(
-            modifier = Modifier.padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
+    Column(
+        modifier = Modifier.padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth()
+            Text(
+                text = message.uploadDate ?: "",
+                fontSize = 9.sp,
+                modifier = Modifier.padding(end = 3.dp)
+            )
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = bubbleColor,
+                        shape = bubbleShape
+                    )
+                    .padding(6.dp)
             ) {
                 Text(
-                    text = message.uploadDate ?: "",
-                    fontSize = 9.sp,
-                    modifier = Modifier.padding(end = 3.dp)
+                    text = message.message ?: "",
+                    color = Color(0xFFFFFFFF),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(6.dp)
                 )
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = bubbleColor,
-                            shape = bubbleShape
-                        )
-                        .padding(6.dp)
-                ) {
-                    Text(
-                        text = message.message ?: "",
-                        color = Color(0xFFFFFFFF),
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(6.dp)
-                    )
-                }
             }
         }
     }
@@ -543,156 +526,68 @@ private fun UserResponse(
 
 @Composable
 private fun ChatbotResponse(
-    isCurrentUserMessage: Boolean,
     message: ChatMessage,
     bubbleColor: Color,
     bubbleShape: RoundedCornerShape,
 ) {
-    if (!isCurrentUserMessage) {
-        Column {
+    Column {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(3.dp),
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.userimage),
+                contentDescription = "프로필 이미지",
+                modifier = Modifier
+                    .padding(start = 3.dp)
+                    .size(35.dp)
+                    .clip(CircleShape)
+            )
+            Text(
+                text = message.userName ?: "",
+                modifier = Modifier.padding(start = 4.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+            )
+        }
+        // 말풍선
+        Column(
+            modifier = Modifier.padding(start = 25.dp, end = 50.dp, bottom = 20.dp)
+        ) {
             Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(3.dp),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.userimage),
-                    contentDescription = "프로필 이미지",
+                Box(
                     modifier = Modifier
-                        .padding(start = 3.dp)
-                        .size(35.dp)
-                        .clip(CircleShape)
-                )
-                Text(
-                    text = message.userName ?: "",
-                    modifier = Modifier.padding(start = 4.dp),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-            }
-            // 말풍선
-            Column(
-                modifier = Modifier.padding(start = 25.dp, end = 50.dp, bottom = 20.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .background(
-                                color = bubbleColor,
-                                shape = bubbleShape
-                            )
-                            .border(
-                                width = 2.dp,
-                                color = Color(0xFF3CDEE9),
-                                shape = bubbleShape
-                            )
-                            .padding(6.dp)
-                    ) {
-                        Text(
-                            text = message.message ?: "",
-                            color = Color(0xFF646E6F),
-                            fontSize = 14.sp,
-                            modifier = Modifier.padding(6.dp)
+                        .weight(1f)
+                        .background(
+                            color = bubbleColor,
+                            shape = bubbleShape
                         )
-                    }
+                        .border(
+                            width = 2.dp,
+                            color = Color(0xFF3CDEE9),
+                            shape = bubbleShape
+                        )
+                        .padding(6.dp)
+                ) {
                     Text(
-                        text = message.uploadDate ?: "",
-                        fontSize = 9.sp,
-                        modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
+                        text = message.message ?: "",
+                        color = Color(0xFF646E6F),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(6.dp)
                     )
                 }
+                Text(
+                    text = message.uploadDate ?: "",
+                    fontSize = 9.sp,
+                    modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
+                )
             }
         }
     }
 }
 
-
-
-// Firebase에서 특정 제목 아래에 채팅 메시지 저장하는 함수
-@OptIn(BetaOpenAI::class)
-fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
-    val database = Firebase.database
-    val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
-    val newMessageRef = chatRef.push()
-    newMessageRef.setValue(chatMessage)
-
-    // 해당 대화에 대한 threadId도 저장
-    newMessageRef.child("threadId").setValue(threadId.toString())
-}
-
-@OptIn(BetaOpenAI::class)
-fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: ThreadId?) {
-    val database = Firebase.database
-    val chatRef = database.getReference("cute/$title") // title은 채팅방 이름
-    val newMessageRef = chatRef.push()
-    newMessageRef.setValue(chatbotMessage)
-
-    // 해당 대화에 대한 threadId도 저장
-    newMessageRef.child("threadId").setValue(threadId.toString())
-}
-
-
-@OptIn(BetaOpenAI::class)
-fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threadId: ThreadId?) {
-    val database = Firebase.database
-    val chatRef = database.getReference("cute/$title")
-
-    // 대화 스레드에 대한 쿼리를 추가하여 해당 스레드의 메시지만 가져옵니다.
-    val query = chatRef.orderByChild("threadId").equalTo(threadId.toString())
-
-    // 쿼리를 이용해서 데이터베이스에서 데이터를 가져오는 로직
-    query.addValueEventListener(object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            val messages = mutableListOf<ChatMessage>()
-            for (childSnapshot in snapshot.children) {
-                val chatMessage = childSnapshot.getValue(ChatMessage::class.java)
-                chatMessage?.let {
-                    messages.add(it)
-                }
-            }
-            listener(messages)
-        }
-
-        override fun onCancelled(error: DatabaseError) {
-            // Failed to read value
-            Log.w("Load Chat Message", "채팅 내용 로드하기 실패!!", error.toException())
-        }
-    })
-}
-
-@OptIn(BetaOpenAI::class)
-fun loadChatBotMessages(
-    listener: (List<ChatbotMessage>) -> Unit,
-    title: String,
-    threadId: ThreadId?,
-) {
-    val database = Firebase.database
-    val chatRef = database.getReference("cute/$title")
-
-    // 대화 스레드에 대한 쿼리를 추가하여 해당 스레드의 메시지만 가져옵니다.
-    val query = chatRef.orderByChild("threadId").equalTo(threadId.toString())
-
-    // 쿼리를 이용해서 데이터베이스에서 데이터를 가져오는 로직
-    query.addValueEventListener(object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            val messages = mutableListOf<ChatbotMessage>()
-            for (childSnapshot in snapshot.children) {
-                val chatMessage = childSnapshot.getValue(ChatbotMessage::class.java)
-                chatMessage?.let {
-                    messages.add(it)
-                }
-            }
-            listener(messages)
-        }
-
-        override fun onCancelled(error: DatabaseError) {
-            // Failed to read value
-            Log.w("Load Chat Message", "채팅 내용 로드하기 실패!!", error.toException())
-        }
-    })
-}
