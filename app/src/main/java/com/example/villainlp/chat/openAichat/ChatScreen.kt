@@ -1,11 +1,14 @@
-@file:OptIn(BetaOpenAI::class)
+@file:OptIn(BetaOpenAI::class, ExperimentalFoundationApi::class)
 
 package com.example.villainlp.chat.openAichat
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,9 +21,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -40,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -48,11 +56,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -121,8 +131,11 @@ fun ChatScreen(
     val loadingAnimation by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.loading)
     )
-
     val focusManager = LocalFocusManager.current
+
+    // chatModel과 ChatViewModel의 인스턴스를 생성한다.
+    val chatModel = ChatModel()
+    val chatViewModel = ChatViewModel(chatModel)
 
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
@@ -137,8 +150,15 @@ fun ChatScreen(
         }
 
         // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
-        loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
-        loadChatBotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
+        chatViewModel.loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
+        chatViewModel.loadChatbotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
+    }
+
+    val listState = rememberLazyListState()
+    LaunchedEffect(isAnimationRunning) {
+        if (isAnimationRunning) {
+            listState.animateScrollToItem(index = 0)
+        }
     }
 
     Scaffold(
@@ -194,7 +214,8 @@ fun ChatScreen(
                                 userName = user?.displayName,
                                 uploadDate = currentDate
                             )
-                        saveChatMessage(newChatMessage, title, threadId)
+                        // chatViewModel의 saveChatMessage 함수를 호출하여 채팅 메시지를 저장한다.
+                        chatViewModel.saveChatMessage(newChatMessage, title, threadId)
                     }
                     // 챗봇 대답
                     CoroutineScope(Dispatchers.IO).launch {
@@ -250,7 +271,8 @@ fun ChatScreen(
                                 message = response,
                                 uploadDate = currentDate
                             )
-                        saveChatbotMessage(newChatbotMessage, title, threadId)
+                        // chatViewModel의 saveChatbotMessage 함수를 호출하여 챗봇 메시지를 저장한다.
+                        chatViewModel.saveChatbotMessage(newChatbotMessage, title, threadId)
                         isAnimationRunning = false
 
                     }
@@ -259,6 +281,7 @@ fun ChatScreen(
         }
     ) { innerPadding ->
         LazyColumn(
+            state = listState,
             reverseLayout = true,
             modifier = Modifier
                 .fillMaxSize()
@@ -466,10 +489,7 @@ private fun SendButton(onSendClick: () -> Unit, keyboardController: SoftwareKeyb
 }
 
 @Composable
-fun ChatItemBubble(
-    message: ChatMessage,
-    userId: String?,
-) {
+fun ChatItemBubble(message: ChatMessage, userId: String?) {
     val isCurrentUserMessage = userId == message.userId
     val bubbleColor = if (isCurrentUserMessage) Color(0xFF3CDEE9) else Color(0xFFFFFFFF)
     val bubbleShape =
@@ -479,13 +499,11 @@ fun ChatItemBubble(
             bottomEnd = 28.dp,
             bottomStart = 28.dp
         )
-
     if (isCurrentUserMessage) {
         UserResponse(message, bubbleColor, bubbleShape)
     } else {
         ChatbotResponse(message, bubbleColor, bubbleShape)
     }
-
 }
 
 @Composable
@@ -494,8 +512,11 @@ private fun UserResponse(
     bubbleColor: Color,
     bubbleShape: RoundedCornerShape,
 ) {
+    val clipboardManager = LocalClipboardManager.current
+
     Column(
-        modifier = Modifier.padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
+        modifier = Modifier
+            .padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
     ) {
         Row(
             verticalAlignment = Alignment.Bottom,
@@ -509,11 +530,14 @@ private fun UserResponse(
             )
             Box(
                 modifier = Modifier
-                    .background(
-                        color = bubbleColor,
-                        shape = bubbleShape
-                    )
+                    .background(color = bubbleColor, shape = bubbleShape)
                     .padding(6.dp)
+                    .combinedClickable(
+                        onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
+                        onLongClick = { // 말풍선을 꾹 누르면 발생하는 이벤트입니다.
+                            clipboardManager.setText(AnnotatedString(message.message ?: "")) // 클립보드에 텍스트를 복사합니다.
+                        }
+                    )
             ) {
                 Text(
                     text = message.message ?: "",
@@ -532,6 +556,8 @@ private fun ChatbotResponse(
     bubbleColor: Color,
     bubbleShape: RoundedCornerShape,
 ) {
+    val clipboardManager = LocalClipboardManager.current
+
     Column {
         Row(
             horizontalArrangement = Arrangement.Start,
@@ -575,6 +601,12 @@ private fun ChatbotResponse(
                             shape = bubbleShape
                         )
                         .padding(6.dp)
+                        .combinedClickable(
+                            onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
+                            onLongClick = { // 말풍선을 꾹 누르면 발생하는 이벤트입니다.
+                                clipboardManager.setText(AnnotatedString(message.message ?: "")) // 클립보드에 텍스트를 복사합니다.
+                            }
+                        )
                 ) {
                     Text(
                         text = message.message ?: "",
