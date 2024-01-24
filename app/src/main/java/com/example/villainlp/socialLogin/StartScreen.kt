@@ -125,28 +125,40 @@ private fun Descriptions(content: TextContent) {
     Column(
         modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 60.dp)
     ) {
-        Text(
+        CustomText(
             text = content.subtitle,
-            modifier = Modifier
-                .width(378.dp)
-                .height(80.dp),
-            style = TextStyle(
-                fontSize = 24.sp,
-                lineHeight = 40.sp,
-                fontWeight = FontWeight(700),
-                color = Color(0xFFFFFFFF),
-            )
+            fontSize = 24,
+            lineHeight = 40,
+            fontWeight = 700,
+            color = Color(0xFFFFFFFF)
         )
-        Text(
+        CustomText(
             text = content.body,
-            style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 24.sp,
-                fontWeight = FontWeight(500),
-                color = Color(0xFFFFFFFF),
-            )
+            fontSize = 16,
+            lineHeight = 24,
+            fontWeight = 500,
+            color = Color(0xFFFFFFFF)
         )
     }
+}
+
+@Composable
+fun CustomText(
+    text: String,
+    fontSize: Int,
+    lineHeight: Int,
+    fontWeight: Int,
+    color: Color
+) {
+    Text(
+        text = text,
+        style = TextStyle(
+            fontSize = fontSize.sp,
+            lineHeight = lineHeight.sp,
+            fontWeight = FontWeight(fontWeight),
+            color = color,
+        )
+    )
 }
 
 val textList = listOf(
