@@ -64,7 +64,6 @@ fun LoginScreen(signInClicked: () -> Unit) {
         // 헤더
         Text(
             text = "노블라블라 서비스 이용을 위한 로그인을 해주세요",
-//            modifier = Modifier.padding(bottom = 44.dp),
             style = TextStyle(
                 fontSize = 14.sp,
                 lineHeight = 22.sp,
@@ -74,18 +73,21 @@ fun LoginScreen(signInClicked: () -> Unit) {
             )
         )
 
-        // 아이디, 비번 입력
-        CreateLoginFields(
-            idValue = idValue,
-            onIdValueChange = { newValue ->
+        CustomOutlinedTextField(
+            value = idValue,
+            onValueChange = { newValue ->
                 idValue = newValue
                 // 여기에 아이디 입력 값 변경 시 수행할 작업 추가
             },
-            pwValue = pwValue,
-            onPwValueChange = { newValue ->
+            label = "아이디를 입력하세요."
+        )
+        CustomOutlinedTextField(
+            value = pwValue,
+            onValueChange = { newValue ->
                 pwValue = newValue
                 // 여기에 비밀번호 입력 값 변경 시 수행할 작업 추가
-            }
+            },
+            label = "비밀번호를 입력하세요."
         )
 
         // check box and Remember me
@@ -208,35 +210,21 @@ fun LoginScreen(signInClicked: () -> Unit) {
     }
 }
 
+
 @Composable
-fun CreateLoginFields(
-    idValue: String,
-    onIdValueChange: (String) -> Unit,
-    pwValue: String,
-    onPwValueChange: (String) -> Unit,
+fun CustomOutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String
 ) {
     OutlinedTextField(
-        value = idValue,
-        onValueChange = onIdValueChange,
+        value = value,
+        onValueChange = onValueChange,
         modifier = Modifier
             .width(320.dp)
             .height(80.dp)
             .padding(8.dp), // 추가적으로 padding 적용 가능
-        label = { Text("아이디를 입력하세요.") },
-        singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Blue789,
-            unfocusedBorderColor = Blue789
-        )
-    )
-    OutlinedTextField(
-        value = pwValue,
-        onValueChange = onPwValueChange,
-        modifier = Modifier
-            .width(320.dp)
-            .height(80.dp)
-            .padding(8.dp), // 추가적으로 padding 적용 가능
-        label = { Text("비밀번호를 입력하세요.") },
+        label = { Text(label) },
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Blue789,
