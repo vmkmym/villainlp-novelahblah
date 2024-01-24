@@ -49,6 +49,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
+import com.example.villainlp.chat.openAichat.ChatModel
 import com.example.villainlp.shared.MyScaffoldBottomBar
 import com.example.villainlp.shared.MyScaffoldTopBar
 import com.example.villainlp.ui.theme.Blue789
@@ -64,7 +65,7 @@ fun SettingScreen(
     val context = LocalContext.current
 
     // ViewModel 인스턴스 생성
-    val viewModel: SettingViewModel = viewModel(factory = GenNovelViewModelFactory(auth))
+    val viewModel: SettingViewModel = viewModel(factory = GenNovelViewModelFactory(auth, ChatModel()))
 
     // StateFlow의 값을 가져오기 위해 collectAsState 함수를 사용합니다.
     val userImage by viewModel.userImage.collectAsState()
