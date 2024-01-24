@@ -1,6 +1,6 @@
 @file:OptIn(BetaOpenAI::class)
 
-package com.example.villainlp.chat
+package com.example.villainlp.chat.openAichat
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -93,7 +93,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
-fun ChattingScreen(
+fun ChatScreen(
     navController: NavController,
     auth: FirebaseAuth,
     title: String,

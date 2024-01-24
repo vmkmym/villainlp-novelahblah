@@ -35,7 +35,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.shared.Screen
-import com.example.villainlp.chat.TextContent
+import com.example.villainlp.chat.openAichat.TextContent
 import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers

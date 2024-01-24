@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.villainlp.chat.ChattingListScreen
-import com.example.villainlp.chat.ChattingScreen
+import com.example.villainlp.chat.openAichat.ChatListScreen
+import com.example.villainlp.chat.openAichat.ChatScreen
 import com.example.villainlp.library.CommentScreen
 import com.example.villainlp.chat.CreativeYardScreen
 import com.example.villainlp.library.LibraryScreen
@@ -15,9 +15,7 @@ import com.example.villainlp.library.MyBookScreen
 import com.example.villainlp.library.RatingScreen
 import com.example.villainlp.library.ReadLibraryBookScreen
 import com.example.villainlp.library.ReadMyBookScreen
-import com.example.villainlp.setting.SettingViewModel
 import com.example.villainlp.setting.UserProfileScreen
-import com.example.villainlp.shared.Screen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -38,14 +36,14 @@ fun VillainNavigation(
         composable(Screen.CreativeYard.route) { CreativeYardScreen(navController, auth) }
 
         // 릴레이소설이 채팅리스트화면
-        composable(Screen.ChattingList.route) { ChattingListScreen(navController, auth) }
+        composable(Screen.ChattingList.route) { ChatListScreen(navController, auth) }
 
         // 채팅 화면
         composable(Screen.Chatting.route) {
             val title = it.arguments?.getString("title")?: "title"
             val threadId = it.arguments?.getString("threadId")?: "threadId"
             val assistantKey = it.arguments?.getString("assistantKey")?: "assistantKey"
-            ChattingScreen(navController, auth, title, threadId, assistantKey)
+            ChatScreen(navController, auth, title, threadId, assistantKey)
         }
 
         // 별점화면

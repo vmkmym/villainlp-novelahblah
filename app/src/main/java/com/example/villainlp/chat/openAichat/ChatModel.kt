@@ -1,4 +1,4 @@
-package com.example.villainlp.chat
+package com.example.villainlp.chat.openAichat
 
 import android.util.Log
 import com.aallam.openai.api.BetaOpenAI

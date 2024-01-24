@@ -1,4 +1,4 @@
-package com.example.villainlp.chat
+package com.example.villainlp.chat.openAichat
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Row
@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun ChattingListScreen(navController: NavHostController, auth: FirebaseAuth) {
+fun ChatListScreen(navController: NavHostController, auth: FirebaseAuth) {
     var showDialog by remember { mutableStateOf(false) }
     var documentID by remember { mutableStateOf("") }
     var novelInfo by remember { mutableStateOf<List<NovelInfo>>(emptyList()) }

@@ -1,6 +1,6 @@
 @file:OptIn(BetaOpenAI::class)
 
-package com.example.villainlp.chat
+package com.example.villainlp.chat.openAichat
 
 import com.aallam.openai.api.BetaOpenAI
 

@@ -1,4 +1,4 @@
-package com.example.villainlp.chat
+package com.example.villainlp.chat.openAichat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
