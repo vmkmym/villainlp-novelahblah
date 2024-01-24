@@ -1,35 +1,24 @@
 package com.example.villainlp.chat.openAichat
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.thread.ThreadId
 
-class ChatViewModel : ViewModel() {
-    private val _uiState: MutableStateFlow<List<ChatMessage>> = MutableStateFlow(emptyList())
-    val uiState: StateFlow<List<ChatMessage>> = _uiState.asStateFlow()
-
-    fun sendMessage(userMessage: String) {
-        viewModelScope.launch {
-            val newMessage = ChatMessage(
-                message = userMessage,
-                userId = "user_id",  // TODO: Replace with actual user id
-                userName = "user_name",  // TODO: Replace with actual user name
-                uploadDate = "upload_date"  // TODO: Replace with actual upload date
-            )
-            _uiState.value = _uiState.value + newMessage
-
-            // TODO: Implement sending the message to the server and receiving a response
-            // For now, we simulate a bot response
-            val botResponse = ChatMessage(
-                message = "Bot response to: $userMessage",
-                userId = "bot_id",
-                userName = "bot_name",
-                uploadDate = "upload_date"  // TODO: Replace with actual upload date
-            )
-            _uiState.value = _uiState.value + botResponse
-        }
+@OptIn(BetaOpenAI::class)
+class ChatViewModel(private val model: ChatModel) {
+    fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
+        model.saveChatMessage(chatMessage, title, threadId)
     }
+
+    fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: ThreadId?) {
+        model.saveChatbotMessage(chatbotMessage, title, threadId)
+    }
+
+    fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threadId: ThreadId?) {
+        model.loadChatMessages(listener, title, threadId)
+    }
+
+    fun loadChatbotMessages(listener: (List<ChatbotMessage>) -> Unit, title: String, threadId: ThreadId?) {
+        model.loadChatBotMessages(listener, title, threadId)
+    }
+
 }
