@@ -11,13 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,22 +36,15 @@ import com.example.villainlp.shared.Screen
 import com.example.villainlp.chat.openAichat.TextContent
 import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun LottieScreen(navController: NavController, auth: FirebaseAuth) {
     val user = auth.currentUser
     val startDestination = if (user == null) Screen.Login.route else Screen.CreativeYard.route
 
-    // 로그인 상태 확인
     if (user != null) {
-        // 로그인한 상태라면 바로 메인 화면으로 이동
         navController.navigate(startDestination)
     } else {
-        // 로그인하지 않은 상태라면 StartLottie 화면을 보여줌
         StartLottie(navController, auth)
     }
 }
@@ -64,7 +55,7 @@ private fun StartLottie(navController: NavController, auth: FirebaseAuth) {
     val robotlottie by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.robot)
     )
-    var index by remember { mutableStateOf(0) }
+    var index by remember { mutableIntStateOf(0) }
     val user = auth.currentUser
 
     val startDestination = if (user == null) Screen.Login.route else Screen.CreativeYard.route
