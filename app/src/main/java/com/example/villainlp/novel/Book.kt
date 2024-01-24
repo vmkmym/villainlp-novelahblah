@@ -15,10 +15,3 @@ data class Book(
     val documentID: String? = null,
 )
 
-data class Comment(
-    val author: String = "",
-    val uploadDate: String = "",
-    val script: String = "",
-    val userID: String = "",
-    val documentID: String? = null
-)
