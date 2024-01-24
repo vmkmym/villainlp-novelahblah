@@ -45,7 +45,17 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun LottieScreen(navController: NavController, auth: FirebaseAuth) {
-    StartLottie(navController, auth)
+    val user = auth.currentUser
+    val startDestination = if (user == null) Screen.Login.route else Screen.CreativeYard.route
+
+    // 로그인 상태 확인
+    if (user != null) {
+        // 로그인한 상태라면 바로 메인 화면으로 이동
+        navController.navigate(startDestination)
+    } else {
+        // 로그인하지 않은 상태라면 StartLottie 화면을 보여줌
+        StartLottie(navController, auth)
+    }
 }
 
 @Composable
@@ -55,7 +65,6 @@ private fun StartLottie(navController: NavController, auth: FirebaseAuth) {
         spec = LottieCompositionSpec.RawRes(R.raw.robot)
     )
     var index by remember { mutableStateOf(0) }
-    val coroutineScope = rememberCoroutineScope()
     val user = auth.currentUser
 
     val startDestination = if (user == null) Screen.Login.route else Screen.CreativeYard.route
