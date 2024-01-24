@@ -8,6 +8,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,11 +21,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
 import com.example.villainlp.server.FirebaseTools
 import com.example.villainlp.library.NovelInfo
@@ -37,21 +40,17 @@ import kotlinx.coroutines.launch
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ChatListScreen(navController: NavHostController, auth: FirebaseAuth) {
-    var showDialog by remember { mutableStateOf(false) }
-    var documentID by remember { mutableStateOf("") }
-    var novelInfo by remember { mutableStateOf<List<NovelInfo>>(emptyList()) }
+    val chatListViewModel: ChatListViewModel = viewModel(factory = GenNovelViewModelFactory(auth, ChatModel()))
+
+    val showDialog by chatListViewModel.showDialog.collectAsState()
+    val documentID by chatListViewModel.documentID.collectAsState()
+    val novelInfo by chatListViewModel.novelInfo.collectAsState()
+
     val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
-
-    val scope = rememberCoroutineScope()
-
-    scope.launch {
-        novelInfo = FirebaseTools.fetchNovelInfoDataFromFirestore(auth.currentUser?.uid ?: "")
-    }
 
     MyScaffold("내 작업 공간", navController) {
         ShowChats(it, navController, novelInfo) { selectedChatting ->
-            documentID = selectedChatting.documentID ?: "ERROR"
-            showDialog = true
+            chatListViewModel.showDialog(selectedChatting.documentID ?: "ERROR")
         }
     }
 
@@ -65,7 +64,7 @@ fun ChatListScreen(navController: NavHostController, auth: FirebaseAuth) {
                 )
             },
             containerColor = Color.White,
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { chatListViewModel.hideDialog() },
             title = {
                 Text(
                     text = "정말로 삭제하시겠습니까?",
@@ -95,10 +94,7 @@ fun ChatListScreen(navController: NavHostController, auth: FirebaseAuth) {
             },
             confirmButton = {
                 IconButton(
-                    onClick = {
-                        FirebaseTools.deleteChattingFromFirestore(documentID)
-                        showDialog = false
-                    }
+                    onClick = { chatListViewModel.deleteChatting()  }
                 ) {
                     Text(
                         text = "확인",
@@ -113,7 +109,7 @@ fun ChatListScreen(navController: NavHostController, auth: FirebaseAuth) {
             },
             dismissButton = {
                 IconButton(
-                    onClick = { showDialog = false }
+                    onClick = { chatListViewModel.hideDialog() }
                 ) {
                     Text(
                         text = "취소",
