@@ -32,11 +32,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -68,28 +67,25 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.novel.Comment
-import com.example.villainlp.server.FirebaseTools
-import com.example.villainlp.server.FirebaseTools.uploadComment
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun CommentScreen(navController: NavHostController, auth: FirebaseAuth, documentId: String) {
-    var comment by remember { mutableStateOf("") }
-    val user = auth.currentUser
-    val scope = rememberCoroutineScope()
-    var commentList by remember { mutableStateOf<List<Comment>>(emptyList()) }
+fun CommentScreen(
+    navController: NavHostController,
+    auth: FirebaseAuth,
+    documentId: String,
+    viewModel: CommentViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+) {
+    val commentList by viewModel.commentList.collectAsState()
+    val commentCount by viewModel.commentCount.collectAsState()
+    val showDialog by viewModel.showDialog.collectAsState()
+    val comment by viewModel.commentText.collectAsState()
+
     val reloadLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.reload))
     var isAnimationPlaying by remember { mutableStateOf(false) } // 애니메이션 재생 상태 추적
-    var commentDocumentId by remember { mutableStateOf("") }
-    var commentCount by remember { mutableStateOf(0) }
 
     //TextField 포커스 여부를 체크하는 것들
     var isTextFieldFocused by remember { mutableStateOf(false) }
@@ -100,13 +96,8 @@ fun CommentScreen(navController: NavHostController, auth: FirebaseAuth, document
 
     val keyboardController = LocalSoftwareKeyboardController.current // 키보드 컨트롤러 가져오기
 
-    var showDialog by remember { mutableStateOf(false) }
-    val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
-
-    LaunchedEffect(Unit) {
-        commentList = FirebaseTools.fetchCommentsFromFirestore(documentId)
-        commentCount = commentList.size
-    }
+    // Comment들을 불러옴
+    viewModel.loadComments(documentId)
 
     Scaffold(
         topBar = {
@@ -137,11 +128,7 @@ fun CommentScreen(navController: NavHostController, auth: FirebaseAuth, document
                             .size(50.dp)
                             .clickable {
                                 isAnimationPlaying = !isAnimationPlaying
-                                scope.launch {
-                                    commentList =
-                                        FirebaseTools.fetchCommentsFromFirestore(documentId)
-                                    commentCount = commentList.size
-                                }
+                                viewModel.loadComments(documentId)
                             }, // 클릭 이벤트에서 애니메이션 재생
                         composition = reloadLottie,
                         isPlaying = isAnimationPlaying, // 재생 상태에 따라 애니메이션 재생
@@ -172,7 +159,7 @@ fun CommentScreen(navController: NavHostController, auth: FirebaseAuth, document
                             value = comment,
                             onValueChange = {
                                 if (it.length <= maxCharacterCount) {
-                                    comment = it
+                                    viewModel.onCommentChanged(it)
                                 }
                             },
                             placeholder = {
@@ -221,26 +208,7 @@ fun CommentScreen(navController: NavHostController, auth: FirebaseAuth, document
                     Spacer(modifier = Modifier.size(5.dp))
                     Button(
                         onClick = {
-                            val currentDate =
-                                SimpleDateFormat(
-                                    "yyyy-MM-dd HH:mm",
-                                    Locale.getDefault()
-                                ).format(
-                                    Date()
-                                )
-                            val myComment = Comment(
-                                author = user?.displayName ?: "ERROR",
-                                uploadDate = currentDate,
-                                script = comment,
-                                userID = user?.uid ?: "ERROR"
-                            )
-                            uploadComment(documentId, myComment)
-                            scope.launch {
-                                commentList =
-                                    FirebaseTools.fetchCommentsFromFirestore(documentId)
-                                commentCount = commentList.size
-                            }
-                            comment = ""
+                            viewModel.onCommentSubmit(documentId)
                             keyboardController?.hide()
                             isTextFieldFocused = false
                         },
@@ -263,53 +231,58 @@ fun CommentScreen(navController: NavHostController, auth: FirebaseAuth, document
                 .addFocusCleaner(focusManager), //Textfield 포커스를 위한 모디파이어
             commentList, auth
         ) { comment ->
-            commentDocumentId = comment.documentID ?: "ERROR"
-            showDialog = true
+            viewModel.onCommentClicked(comment)
         }
     }
     if (showDialog) {
-        AlertDialog(
-            containerColor = Color.White,
-            onDismissRequest = { showDialog = false },
-            text = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    LottieAnimation(
-                        modifier = Modifier.size(40.dp),
-                        composition = firePuppleLottie,
-                        iterations = LottieConstants.IterateForever
-                    )
-                    Text(text = "댓글을 삭제하시겠습니까?")
-                    LottieAnimation(
-                        modifier = Modifier.size(40.dp),
-                        composition = firePuppleLottie,
-                        iterations = LottieConstants.IterateForever
-                    )
-                }
-            },
-            confirmButton = {
-                IconButton(
-                    onClick = {
-                        FirebaseTools.deleteCommentFromFirestore(documentId, commentDocumentId)
-                        scope.launch {
-                            commentCount = commentList.size
-                            commentList = FirebaseTools.fetchCommentsFromFirestore(documentId)
-                            FirebaseTools.updateCommentCount(documentId, commentList.size)
-                        }
-                        showDialog = false
-                    }
-                ) { Text(text = "확인") }
-            },
-            dismissButton = {
-                IconButton(
-                    onClick = { showDialog = false }
-                ) {
-                    Text(text = "취소")
-                }
-            },
-            modifier = Modifier
-                .padding(16.dp)
-        )
+        DeletCommentsAlert(
+            onDismiss = { viewModel.onDismissDialog() },
+            onConfirm = { viewModel.deleteComment(documentId) }
+            )
     }
+}
+
+@Composable
+fun DeletCommentsAlert(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+){
+    val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
+
+    AlertDialog(
+        containerColor = Color.White,
+        onDismissRequest = { onDismiss() },
+        text = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                LottieAnimation(
+                    modifier = Modifier.size(40.dp),
+                    composition = firePuppleLottie,
+                    iterations = LottieConstants.IterateForever
+                )
+                Text(text = "댓글을 삭제하시겠습니까?")
+                LottieAnimation(
+                    modifier = Modifier.size(40.dp),
+                    composition = firePuppleLottie,
+                    iterations = LottieConstants.IterateForever
+                )
+            }
+        },
+        confirmButton = {
+            IconButton(
+                onClick = { onConfirm() }
+            ) { Text(text = "확인") }
+        },
+        dismissButton = {
+            IconButton(
+                onClick = { onDismiss() }
+            ) {
+                Text(text = "취소")
+            }
+        },
+        modifier = Modifier
+            .padding(16.dp)
+    )
+
 }
 
 
@@ -371,41 +344,7 @@ fun CommentBox(
                         .then(swipeableModifier)
                         .padding(12.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = comment.author,
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF000000)
-                            )
-                        )
-                        Spacer(modifier = Modifier.size(20.dp))
-                        Text(
-                            text = comment.uploadDate,
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color(0xFFBBBBBB)
-                            )
-                        )
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                    ) {
-                        Text(
-                            text = comment.script,
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color(0xFF000000)
-                            )
-                        )
-                    }
+                    CommentRow(comment)
                 }
                 Divider()
             }
@@ -437,42 +376,59 @@ fun CommentBox(
                     .fillMaxWidth()
                     .padding(12.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = comment.author,
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF000000)
-                        )
-                    )
-                    Spacer(modifier = Modifier.size(20.dp))
-                    Text(
-                        text = comment.uploadDate,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
-                            color = Color(0xFFBBBBBB)
-                        )
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp)
-                ) {
-                    Text(
-                        text = comment.script,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color(0xFF000000)
-                        )
-                    )
-                }
+                CommentRow(comment)
             }
             Divider()
         }
+    }
+}
+
+@Composable
+fun CommentRow(comment: Comment){
+    CommentInfo(comment = comment)
+    CommentScript(comment = comment)
+}
+
+@Composable
+fun CommentInfo(comment: Comment){
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = comment.author,
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF000000)
+            )
+        )
+        Spacer(modifier = Modifier.size(20.dp))
+        Text(
+            text = comment.uploadDate,
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Light,
+                color = Color(0xFFBBBBBB)
+            )
+        )
+    }
+}
+
+@Composable
+fun CommentScript(comment: Comment){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+    ) {
+        Text(
+            text = comment.script,
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color(0xFF000000)
+            )
+        )
     }
 }
 
