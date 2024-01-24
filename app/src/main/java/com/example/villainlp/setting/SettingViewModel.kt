@@ -19,6 +19,7 @@ class SettingViewModel(private val auth: FirebaseAuth) : ViewModel() {
     private val _userEmail = MutableStateFlow<String?>(null)
     val userEmail: StateFlow<String?> = _userEmail.asStateFlow()
 
+
     init {
         fetchUserData()
     }
@@ -28,12 +29,6 @@ class SettingViewModel(private val auth: FirebaseAuth) : ViewModel() {
             _userImage.value = auth.currentUser?.photoUrl
             _userName.value = auth.currentUser?.displayName
             _userEmail.value = auth.currentUser?.email
-        }
-    }
-
-    fun signOut() {
-        viewModelScope.launch {
-            auth.signOut()
         }
     }
 }

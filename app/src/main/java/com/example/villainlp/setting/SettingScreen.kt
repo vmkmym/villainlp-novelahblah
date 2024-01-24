@@ -55,9 +55,10 @@ import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun UserProfileScreen(
+fun SettingScreen(
     auth: FirebaseAuth,
-    navController: NavHostController
+    navController: NavHostController,
+    signOutClicked: () -> Unit
 ) {
     val url = "https://github.com/KDT-villainlp/villainlp" // 임시로 깃허브 주소 넣어둠
     val context = LocalContext.current
@@ -95,7 +96,7 @@ fun UserProfileScreen(
             )
 
             // Display sign out button
-            DisplaySignOutButton { viewModel.signOut() }
+            DisplaySignOutButton { signOutClicked() }
             // Display customer inquiry
             DisplayCustomerInquiry(url, context)
         }
