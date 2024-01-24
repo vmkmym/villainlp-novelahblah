@@ -7,7 +7,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,13 +20,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -47,7 +43,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -70,6 +65,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.assistant.AssistantId
@@ -86,12 +83,14 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
 import com.example.villainlp.server.FirebaseTools.saveChatToNovel
 import com.example.villainlp.library.RelayChatToNovelBook
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Blue789
 import com.example.villainlp.library.addFocusCleaner
+import com.example.villainlp.setting.SettingViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -110,6 +109,9 @@ fun ChatScreen(
     threadID: String,
     assistantKey: String,
 ) {
+    val chatModel = ChatModel()
+    val viewModel: ChatViewModel = viewModel(factory = GenNovelViewModelFactory(auth, chatModel))
+
     val context = LocalContext.current
     val (input, setInput) = remember { mutableStateOf("") }
     val token = getString(context, R.string.api_key)
@@ -133,10 +135,6 @@ fun ChatScreen(
     )
     val focusManager = LocalFocusManager.current
 
-    // chatModel과 ChatViewModel의 인스턴스를 생성한다.
-    val chatModel = ChatModel()
-    val chatViewModel = ChatViewModel(chatModel)
-
     LaunchedEffect(Unit) {
         // assistantId 가져와서 사용하기
         val assistantResponse = openAI.assistant(AssistantId(assistantKey))
@@ -150,8 +148,8 @@ fun ChatScreen(
         }
 
         // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
-        chatViewModel.loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
-        chatViewModel.loadChatbotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
+        viewModel.loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
+        viewModel.loadChatbotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
     }
 
     val listState = rememberLazyListState()
@@ -215,7 +213,7 @@ fun ChatScreen(
                                 uploadDate = currentDate
                             )
                         // chatViewModel의 saveChatMessage 함수를 호출하여 채팅 메시지를 저장한다.
-                        chatViewModel.saveChatMessage(newChatMessage, title, threadId)
+                        viewModel.saveChatMessage(newChatMessage, title, threadId)
                     }
                     // 챗봇 대답
                     CoroutineScope(Dispatchers.IO).launch {
@@ -272,7 +270,7 @@ fun ChatScreen(
                                 uploadDate = currentDate
                             )
                         // chatViewModel의 saveChatbotMessage 함수를 호출하여 챗봇 메시지를 저장한다.
-                        chatViewModel.saveChatbotMessage(newChatbotMessage, title, threadId)
+                        viewModel.saveChatbotMessage(newChatbotMessage, title, threadId)
                         isAnimationRunning = false
 
                     }
