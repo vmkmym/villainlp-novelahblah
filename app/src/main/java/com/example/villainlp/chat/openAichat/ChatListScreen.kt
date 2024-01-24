@@ -94,7 +94,10 @@ fun ChatListScreen(navController: NavHostController, auth: FirebaseAuth) {
             },
             confirmButton = {
                 IconButton(
-                    onClick = { chatListViewModel.deleteChatting()  }
+                    onClick = {
+                        chatListViewModel.deleteChatting()
+                        chatListViewModel.fetchChatList()  // 채팅 삭제 후 채팅 목록을 다시 불러옵니다.
+                    }
                 ) {
                     Text(
                         text = "확인",

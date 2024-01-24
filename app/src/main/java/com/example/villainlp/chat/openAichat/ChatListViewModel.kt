@@ -51,4 +51,11 @@ class ChatListViewModel(private val auth: FirebaseAuth) : ViewModel() {
     fun hideDialog() {
         _showDialog.value = false
     }
+
+    // Firestore에서 채팅 목록을 불러오는 함수
+    fun fetchChatList() {
+        viewModelScope.launch {
+            _novelInfo.value = FirebaseTools.fetchNovelInfoDataFromFirestore(auth.currentUser?.uid ?: "")
+        }
+    }
 }
