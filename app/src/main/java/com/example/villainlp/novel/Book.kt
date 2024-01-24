@@ -1,5 +1,6 @@
 package com.example.villainlp.novel
 
+// LibraryScreen, ReadMyBookScreen에서 사용중
 data class Book(
     val title: String = "",
     val author: String = "",
