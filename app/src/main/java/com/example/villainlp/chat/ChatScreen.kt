@@ -83,6 +83,7 @@ import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Blue789
 import com.example.villainlp.library.addFocusCleaner
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -314,44 +315,7 @@ fun ChattingScreen(
                 )
             },
             confirmButton = {
-                IconButton(
-                    onClick = {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
-                            val assistantMessages = openAI.messages(threadId)
-                            val reversedMessages = assistantMessages.reversed()
-                            val response = reversedMessages.joinToString("\n\n") { message ->
-                                val textContent =
-                                    message.content.first() as? MessageContent.Text
-                                textContent?.text?.value ?: ""
-                            }
-                            val currentDate =
-                                SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
-                                    Date()
-                                )
-                            val myRelayNovel = RelayChatToNovelBook(
-                                title = title,
-                                author = user?.displayName ?: "ERROR",
-                                script = response,
-                                userID = user?.uid ?: "ERROR",
-                                createdDate = currentDate
-                            )
-                            saveChatToNovel(myRelayNovel)
-                        }
-                        showDialog = false
-                        navController.navigate(Screen.MyBook.route)
-                    }
-                ) {
-                    Text(
-                        text = "확인",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Blue789
-                        )
-                    )
-                }
+                SaveNovel(openAI, threadId, title, user, showDialog, navController)
             },
             dismissButton = {
                 IconButton(
@@ -370,6 +334,57 @@ fun ChattingScreen(
             },
             modifier = Modifier
                 .padding(16.dp)
+        )
+    }
+}
+
+@Composable
+@OptIn(BetaOpenAI::class)
+private fun SaveNovel(
+    openAI: OpenAI,
+    threadId: ThreadId,
+    title: String,
+    user: FirebaseUser?,
+    showDialog: Boolean,
+    navController: NavController,
+) {
+    var showDialog1 = showDialog
+    IconButton(
+        onClick = {
+            CoroutineScope(Dispatchers.IO).launch {
+                // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
+                val assistantMessages = openAI.messages(threadId)
+                val reversedMessages = assistantMessages.reversed()
+                val response = reversedMessages.joinToString("\n\n") { message ->
+                    val textContent =
+                        message.content.first() as? MessageContent.Text
+                    textContent?.text?.value ?: ""
+                }
+                val currentDate =
+                    SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
+                        Date()
+                    )
+                val myRelayNovel = RelayChatToNovelBook(
+                    title = title,
+                    author = user?.displayName ?: "ERROR",
+                    script = response,
+                    userID = user?.uid ?: "ERROR",
+                    createdDate = currentDate
+                )
+                saveChatToNovel(myRelayNovel)
+            }
+            showDialog1 = false
+            navController.navigate(Screen.MyBook.route)
+        }
+    ) {
+        Text(
+            text = "확인",
+            style = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Blue789
+            )
         )
     }
 }
