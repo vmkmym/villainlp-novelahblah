@@ -83,7 +83,6 @@ import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Blue789
 import com.example.villainlp.library.addFocusCleaner
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -233,9 +232,8 @@ fun ChattingScreen(
 
                         // 챗봇이 내준 마지막 문장을 가져옴
                         val assistantMessages = openAI.messages(threadId)
-                        val lastAssistantMessage = assistantMessages
-                            .filter { it.role == Role.Assistant }  // Assistant의 메시지만 필터링
-                            .firstOrNull()  // 마지막 메시지만 가져옴 .lastOrNull 이렇게 하면 첫문장만 가져옴
+                        val lastAssistantMessage =
+                            assistantMessages.firstOrNull { it.role == Role.Assistant }  // 마지막 메시지만 가져옴 .lastOrNull 이렇게 하면 첫문장만 가져옴
 
                         val response = if (lastAssistantMessage != null) {
                             val textContent =
@@ -315,7 +313,44 @@ fun ChattingScreen(
                 )
             },
             confirmButton = {
-                SaveNovel(openAI, threadId, title, user, showDialog, navController)
+                IconButton(
+                    onClick = {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
+                            val assistantMessages = openAI.messages(threadId)
+                            val reversedMessages = assistantMessages.reversed()
+                            val response = reversedMessages.joinToString("\n\n") { message ->
+                                val textContent =
+                                    message.content.first() as? MessageContent.Text
+                                textContent?.text?.value ?: ""
+                            }
+                            val currentDate =
+                                SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
+                                    Date()
+                                )
+                            val myRelayNovel = RelayChatToNovelBook(
+                                title = title,
+                                author = user?.displayName ?: "ERROR",
+                                script = response,
+                                userID = user?.uid ?: "ERROR",
+                                createdDate = currentDate
+                            )
+                            saveChatToNovel(myRelayNovel)
+                        }
+                        showDialog = false
+                        navController.navigate(Screen.MyBook.route)
+                    }
+                ) {
+                    Text(
+                        text = "확인",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue789
+                        )
+                    )
+                }
             },
             dismissButton = {
                 IconButton(
@@ -338,56 +373,6 @@ fun ChattingScreen(
     }
 }
 
-@Composable
-@OptIn(BetaOpenAI::class)
-private fun SaveNovel(
-    openAI: OpenAI,
-    threadId: ThreadId,
-    title: String,
-    user: FirebaseUser?,
-    showDialog: Boolean,
-    navController: NavController,
-) {
-    var showDialog1 = showDialog
-    IconButton(
-        onClick = {
-            CoroutineScope(Dispatchers.IO).launch {
-                // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
-                val assistantMessages = openAI.messages(threadId)
-                val reversedMessages = assistantMessages.reversed()
-                val response = reversedMessages.joinToString("\n\n") { message ->
-                    val textContent =
-                        message.content.first() as? MessageContent.Text
-                    textContent?.text?.value ?: ""
-                }
-                val currentDate =
-                    SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
-                        Date()
-                    )
-                val myRelayNovel = RelayChatToNovelBook(
-                    title = title,
-                    author = user?.displayName ?: "ERROR",
-                    script = response,
-                    userID = user?.uid ?: "ERROR",
-                    createdDate = currentDate
-                )
-                saveChatToNovel(myRelayNovel)
-            }
-            showDialog1 = false
-            navController.navigate(Screen.MyBook.route)
-        }
-    ) {
-        Text(
-            text = "확인",
-            style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Blue789
-            )
-        )
-    }
-}
 
 @Composable
 private fun GenerateResponse(loadingAnimation: LottieComposition?) {
@@ -405,7 +390,7 @@ private fun GenerateResponse(loadingAnimation: LottieComposition?) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CustomTextField(
     value: String,
@@ -450,10 +435,12 @@ fun CustomTextField(
                         )
                     )
                 },
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.Transparent,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    unfocusedIndicatorColor = Color.Transparent,
                 ),
                 singleLine = false
             )
