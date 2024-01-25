@@ -407,63 +407,6 @@ object FirebaseTools {
                 }
         }
 
-    suspend fun novelDataSortingByRatingUpFromFirestore(): List<Book> =
-        suspendCoroutine { continuation ->
-            val db = FirebaseFirestore.getInstance()
-            val result = mutableListOf<Book>()
-
-            db.collection("Library")
-                .orderBy("rating", Query.Direction.ASCENDING)
-                .get().addOnSuccessListener { querySnapshot ->
-                    for (document in querySnapshot) {
-                        val bookWithId = convertDocumentToBook(document)
-                        result.add(bookWithId)
-                    }
-                    continuation.resume(result)
-                }.addOnFailureListener { exception ->
-                    println("Error getting documents: $exception")
-                    continuation.resumeWithException(exception)
-                }
-        }
-
-    suspend fun novelDataSortingByUploadDateUpFromFirestore(): List<Book> =
-        suspendCoroutine { continuation ->
-            val db = FirebaseFirestore.getInstance()
-            val result = mutableListOf<Book>()
-
-            db.collection("Library")
-                .orderBy("uploadDate", Query.Direction.ASCENDING)
-                .get().addOnSuccessListener { querySnapshot ->
-                    for (document in querySnapshot) {
-                        val bookWithId = convertDocumentToBook(document)
-                        result.add(bookWithId)
-                    }
-                    continuation.resume(result)
-                }.addOnFailureListener { exception ->
-                    println("Error getting documents: $exception")
-                    continuation.resumeWithException(exception)
-                }
-        }
-
-    suspend fun novelDataSortingByViewsUpFromFirestore(): List<Book> =
-        suspendCoroutine { continuation ->
-            val db = FirebaseFirestore.getInstance()
-            val result = mutableListOf<Book>()
-
-            db.collection("Library")
-                .orderBy("views", Query.Direction.ASCENDING)
-                .get().addOnSuccessListener { querySnapshot ->
-                    for (document in querySnapshot) {
-                        val bookWithId = convertDocumentToBook(document)
-                        result.add(bookWithId)
-                    }
-                    continuation.resume(result)
-                }.addOnFailureListener { exception ->
-                    println("Error getting documents: $exception")
-                    continuation.resumeWithException(exception)
-                }
-        }
-
     private fun convertDocumentToBook(document: DocumentSnapshot): Book {
         val bookData = document.toObject(Book::class.java)!!
         return Book(
