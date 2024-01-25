@@ -4,18 +4,18 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.villainlp.chat.ground.CreativeYardScreen
 import com.example.villainlp.chat.openAichat.ChatListScreen
 import com.example.villainlp.chat.openAichat.ChatScreen
-import com.example.villainlp.novel.library.comment.CommentScreen
-import com.example.villainlp.chat.ground.CreativeYardScreen
 import com.example.villainlp.novel.library.LibraryScreen
-import com.example.villainlp.socialLogin.LoginScreen
-import com.example.villainlp.socialLogin.LottieScreen
-import com.example.villainlp.novel.myNovel.MyBookScreen
-import com.example.villainlp.novel.library.rating.RatingScreen
 import com.example.villainlp.novel.library.ReadLibraryBookScreen
+import com.example.villainlp.novel.library.comment.CommentScreen
+import com.example.villainlp.novel.library.rating.RatingScreen
+import com.example.villainlp.novel.myNovel.MyBookScreen
 import com.example.villainlp.novel.myNovel.readMyNovel.ReadMyBookScreen
 import com.example.villainlp.setting.SettingScreen
+import com.example.villainlp.socialLogin.LoginScreen
+import com.example.villainlp.socialLogin.LottieScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -25,7 +25,7 @@ fun VillainNavigation(
     navController: NavHostController,
     auth: FirebaseAuth,
 ) {
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+    NavHost(navController = navController, startDestination = Screen.CreativeYard.route) {
         // 초기화면
         composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
 
