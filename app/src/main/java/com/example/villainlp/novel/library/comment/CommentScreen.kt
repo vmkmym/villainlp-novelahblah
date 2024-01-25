@@ -23,10 +23,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -67,6 +65,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
+import com.example.villainlp.novel.DeleteAlert
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.math.roundToInt
 
@@ -235,56 +234,14 @@ fun CommentScreen(
         }
     }
     if (showDialog) {
-        DeletCommentsAlert(
+        DeleteAlert(
+            title = "댓글을 삭제하시겠습니까?",
+            warningMessage = "주제와 무관한 내용 및 악플은 삭제하는게 좋습니다",
             onDismiss = { viewModel.onDismissDialog() },
             onConfirm = { viewModel.deleteComment(documentId) }
             )
     }
 }
-
-@Composable
-fun DeletCommentsAlert(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-){
-    val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
-
-    AlertDialog(
-        containerColor = Color.White,
-        onDismissRequest = { onDismiss() },
-        text = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                LottieAnimation(
-                    modifier = Modifier.size(40.dp),
-                    composition = firePuppleLottie,
-                    iterations = LottieConstants.IterateForever
-                )
-                Text(text = "댓글을 삭제하시겠습니까?")
-                LottieAnimation(
-                    modifier = Modifier.size(40.dp),
-                    composition = firePuppleLottie,
-                    iterations = LottieConstants.IterateForever
-                )
-            }
-        },
-        confirmButton = {
-            IconButton(
-                onClick = { onConfirm() }
-            ) { Text(text = "확인") }
-        },
-        dismissButton = {
-            IconButton(
-                onClick = { onDismiss() }
-            ) {
-                Text(text = "취소")
-            }
-        },
-        modifier = Modifier
-            .padding(16.dp)
-    )
-
-}
-
 
 @Composable
 fun Comments(
