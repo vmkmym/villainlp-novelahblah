@@ -1,17 +1,24 @@
 package com.example.villainlp.novel.myNovel
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,7 +37,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.shared.ReadMyBookScaffold
 import com.example.villainlp.ui.theme.Blue789
 
 @Composable
@@ -174,4 +181,65 @@ fun UploadMyBookToLibrary(
             .padding(16.dp)
     )
 
+}
+
+// ReadMyNovel
+@Composable
+fun ReadMyBookScaffold(
+    title: String,
+    navController: NavHostController,
+    content: @Composable (Modifier) -> Unit,
+    onClicked: () -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            ReadMyBookScaffoldTopBar(title, navController) { onClicked() }
+        },
+    ) {
+        content(
+            Modifier
+                .fillMaxSize()
+                .padding(it)
+        )
+    }
+}
+
+@Composable
+fun ReadMyBookScaffoldTopBar(
+    title: String,
+    navController: NavHostController,
+    onClicked: () -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                modifier = Modifier
+                    .clickable { navController.popBackStack() }
+                    .size(20.dp),
+                painter = painterResource(id = R.drawable.arrow_left),
+                contentDescription = "back"
+            )
+            Text(
+                text = title,
+                style = TextStyle(
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight(500),
+                    color = Color(0xFF212121),
+                )
+            )
+            Image(
+                modifier = Modifier.clickable { onClicked() },
+                painter = painterResource(id = R.drawable.file_upload),
+                contentDescription = "upload"
+            )
+        }
+        Divider(color = Color(0xFF9E9E9E))
+    }
 }

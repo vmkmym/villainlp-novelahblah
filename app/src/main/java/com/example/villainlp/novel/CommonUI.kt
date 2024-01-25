@@ -100,3 +100,9 @@ fun DeleteAlert(
         modifier = Modifier.padding(16.dp)
     )
 }
+
+// LibraryScreen, ReadBookScreen
+fun formatRating(rating: Float): Float {
+    val formattedString = String.format("%.2f", rating)
+    return formattedString.toFloat()
+}
