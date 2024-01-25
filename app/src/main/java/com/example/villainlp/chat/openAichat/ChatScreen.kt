@@ -86,9 +86,10 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
 import com.example.villainlp.server.FirebaseTools.saveChatToNovel
-import com.example.villainlp.library.RelayChatToNovelBook
+import com.example.villainlp.novel.RelayChatToNovelBook
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.novel.library.comment.addFocusCleaner
 import com.example.villainlp.library.addFocusCleaner
 import com.example.villainlp.setting.SettingViewModel
 import com.google.firebase.auth.FirebaseAuth

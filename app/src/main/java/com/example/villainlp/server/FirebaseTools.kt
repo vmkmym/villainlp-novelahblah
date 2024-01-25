@@ -2,10 +2,10 @@ package com.example.villainlp.server
 
 import android.content.ContentValues
 import android.util.Log
-import com.example.villainlp.library.Book
-import com.example.villainlp.library.Comment
-import com.example.villainlp.library.NovelInfo
-import com.example.villainlp.library.RelayChatToNovelBook
+import com.example.villainlp.novel.Book
+import com.example.villainlp.novel.NovelInfo
+import com.example.villainlp.novel.RelayChatToNovelBook
+import com.example.villainlp.novel.library.comment.Comment
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query

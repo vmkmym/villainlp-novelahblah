@@ -1,5 +1,6 @@
-package com.example.villainlp.library
+package com.example.villainlp.novel
 
+// Chatting, MyNovel에서 사용중
 data class RelayChatToNovelBook(
     val title: String = "",
     val author: String = "",

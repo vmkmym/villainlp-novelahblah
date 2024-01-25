@@ -1,5 +1,6 @@
-package com.example.villainlp.library
+package com.example.villainlp.novel
 
+// ChattingList, CreateGrount에서 사용중
 data class NovelInfo(
     val title: String = "",
     val assistId: String = "",

@@ -1,5 +1,6 @@
-package com.example.villainlp.library
+package com.example.villainlp.novel
 
+// LibraryScreen, ReadMyBookScreen에서 사용중
 data class Book(
     val title: String = "",
     val author: String = "",
@@ -15,10 +16,3 @@ data class Book(
     val documentID: String? = null,
 )
 
-data class Comment(
-    val author: String = "",
-    val uploadDate: String = "",
-    val script: String = "",
-    val userID: String = "",
-    val documentID: String? = null
-)

@@ -6,15 +6,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.villainlp.chat.openAichat.ChatListScreen
 import com.example.villainlp.chat.openAichat.ChatScreen
-import com.example.villainlp.library.CommentScreen
+import com.example.villainlp.novel.library.comment.CommentScreen
 import com.example.villainlp.chat.ground.CreativeYardScreen
-import com.example.villainlp.library.LibraryScreen
+import com.example.villainlp.novel.library.LibraryScreen
 import com.example.villainlp.socialLogin.LoginScreen
 import com.example.villainlp.socialLogin.LottieScreen
-import com.example.villainlp.library.MyBookScreen
-import com.example.villainlp.library.RatingScreen
-import com.example.villainlp.library.ReadLibraryBookScreen
-import com.example.villainlp.library.ReadMyBookScreen
+import com.example.villainlp.novel.myNovel.MyBookScreen
+import com.example.villainlp.novel.library.rating.RatingScreen
+import com.example.villainlp.novel.library.ReadLibraryBookScreen
+import com.example.villainlp.novel.myNovel.ReadMyBookScreen
 import com.example.villainlp.setting.SettingScreen
 import com.google.firebase.auth.FirebaseAuth
 
@@ -59,7 +59,7 @@ fun VillainNavigation(
         composable(Screen.ReadMyBook.route) {
             val title = it.arguments?.getString("title")?: "title"
             val script = it.arguments?.getString("script")?: "script"
-            ReadMyBookScreen(navController, title, script, auth)
+            ReadMyBookScreen(navController, title, script)
         }
 
         // 도서관화면
