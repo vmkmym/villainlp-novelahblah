@@ -1,7 +1,6 @@
 package com.example.villainlp.chat.openAichat
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.scaleIn
@@ -49,7 +48,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.FractionalThreshold
-import androidx.wear.compose.material.SwipeableState
 import androidx.wear.compose.material.rememberSwipeableState
 import androidx.wear.compose.material.swipeable
 import com.airbnb.lottie.compose.LottieAnimation
@@ -58,7 +56,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
-import com.example.villainlp.library.NovelInfo
+import com.example.villainlp.novel.NovelInfo
 import com.example.villainlp.ui.theme.Blue789
 import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.shared.Screen
@@ -162,7 +160,6 @@ fun ShowAlertDialog(chatListViewModel: ChatListViewModel) {
     }
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ShowChats(
