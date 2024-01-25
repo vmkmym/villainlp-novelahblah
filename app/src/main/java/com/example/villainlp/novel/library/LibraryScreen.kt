@@ -20,11 +20,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,33 +36,30 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.novel.Book
-import com.example.villainlp.server.FirebaseTools
-import com.example.villainlp.ui.theme.Blue789
 import com.example.villainlp.shared.MyLibraryScaffold
 import com.example.villainlp.shared.ShowAllBooks
+import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
-    var showDialog by remember { mutableStateOf(false) }
-    val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
-    var documentID by remember { mutableStateOf("") }
-    var books by remember { mutableStateOf<List<Book>>(emptyList()) }
-    val scope = rememberCoroutineScope()
-    var isRateClicked by remember{ mutableStateOf(true)}
-    var isViewClicked by remember{ mutableStateOf(false)}
-    var isUpdateClicked by remember{ mutableStateOf(false)}
+fun LibraryScreen(
+    navController: NavHostController,
+    auth: FirebaseAuth,
+    viewModel: LibraryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+) {
+    val novelList by viewModel.novelList.collectAsState()
+    val showDialog by viewModel.showDialog.collectAsState()
+    val isRateClicked by viewModel.isRateClicked.collectAsState()
+    val isViewClicked by viewModel.isViewClicked.collectAsState()
+    val isUpdateClicked by viewModel.isUpdateClicked.collectAsState()
 
     val starIcon = if(isRateClicked) R.drawable.star_white else R.drawable.star_sky
     val viewIcon = if(isViewClicked) R.drawable.views_white else R.drawable.views
     val updateIcon = if(isUpdateClicked) R.drawable.clock_white else R.drawable.clock
 
-    scope.launch {
-        books = FirebaseTools.novelDataSortingByRatingFromFirestore()
-    }
+    // 정렬이 바뀔때마다 Novels를 로드하는 방식이 달라짐
+    viewModel.loadNovels()
 
     MyLibraryScaffold(
         "도서관", navController
@@ -82,123 +76,120 @@ fun LibraryScreen(navController: NavHostController, auth: FirebaseAuth) {
             ) {
                 SortOptionButton(
                     image = starIcon,
-                    backColor = if (isRateClicked) Color(0xFF17C3CE) else Color.White
-                    ) {
-                    scope.launch {
-                        books = FirebaseTools.novelDataSortingByRatingFromFirestore()
-                        isRateClicked = true
-                        isViewClicked = false
-                        isUpdateClicked = false
-                    }
-                }
+                    backColor = if (isRateClicked) Color(0xFF17C3CE) else Color.White,
+                    onClicked = { viewModel.rateClicked() }
+                )
                 SortOptionButton(
                     image = viewIcon,
-                    backColor = if (isViewClicked) Color(0xFF17C3CE) else Color.White
-                ) {
-                    scope.launch {
-                        books = FirebaseTools.novelDataSortingByViewsFromFirestore()
-                        isRateClicked = false
-                        isViewClicked = true
-                        isUpdateClicked = false
-                    }
-                }
+                    backColor = if (isViewClicked) Color(0xFF17C3CE) else Color.White,
+                    onClicked = { viewModel.viewClicked() }
+                )
                 SortOptionButton(
                     image = updateIcon,
-                    backColor = if (isUpdateClicked) Color(0xFF17C3CE) else Color.White
-                ) {
-                    scope.launch {
-                        books = FirebaseTools.novelDataSortingByUploadDateFromFirestore()
-                        isRateClicked = false
-                        isViewClicked = false
-                        isUpdateClicked = true
-                    }
-                }
+                    backColor = if (isUpdateClicked) Color(0xFF17C3CE) else Color.White,
+                    onClicked = { viewModel.updateClicked() }
+                )
             }
-            ShowAllBooks(navController, books, auth) { selectedBook ->
-                documentID = selectedBook.documentID ?: "ERROR"
-                showDialog = true
-            }
+            ShowAllBooks(navController, novelList, auth) { selectedNovel -> viewModel.onDeleteClicked(selectedNovel) }
         }
     }
 
     if (showDialog) {
-        AlertDialog(
-            icon = {
-                LottieAnimation(
-                    modifier = Modifier.size(40.dp),
-                    composition = firePuppleLottie,
-                    iterations = LottieConstants.IterateForever
-                )
-            },
-            containerColor = Color.White,
-            onDismissRequest = { showDialog = false },
-            title = {
-                Text(
-                    text = "정말로 삭제하시겠습니까?",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        lineHeight = 28.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-            },
-            text = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "선택한 소설이 삭제됩니다.",
-                        style = TextStyle(
-                            fontSize = 15.sp,
-                            lineHeight = 24.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color.Black
-                        )
-                    )
-                }
-            },
-            confirmButton = {
-                IconButton(
-                    onClick = {
-                        FirebaseTools.deleteLibraryBookFromFirestore(documentID)
-                        showDialog = false
-                    }
-                ) {
-                    Text(
-                        text = "확인",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Blue789
-                        )
-                    )
-                }
-            },
-            dismissButton = {
-                IconButton(
-                    onClick = { showDialog = false }
-                ) {
-                    Text(
-                        text = "취소",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Blue789
-                        )
-                    )
-                }
-            },
-            modifier = Modifier.padding(16.dp)
+        DeleteAlert(
+            title = "정말로 삭제하시겠습니까?",
+            warningMessage = "선택한 소설이 삭제됩니다.",
+            onDismiss = { viewModel.onDismissDialog() },
+            onConfirm = { viewModel.onConfirmClicked() }
         )
     }
 }
 
 @Composable
-fun SortOptionButton(image: Int, backColor: Color,onClicked: () -> Unit) {
+fun DeleteAlert(
+    title: String,
+    warningMessage: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+){
+    val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
+    AlertDialog(
+        icon = {
+            LottieAnimation(
+                modifier = Modifier.size(40.dp),
+                composition = firePuppleLottie,
+                iterations = LottieConstants.IterateForever
+            )
+        },
+        containerColor = Color.White,
+        onDismissRequest = { onDismiss() },
+        title = {
+            Text(
+                text = title,
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    lineHeight = 28.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Black
+                )
+            )
+        },
+        text = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = warningMessage,
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        lineHeight = 24.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            IconButton(
+                onClick = { onConfirm() }
+            ) {
+                Text(
+                    text = "확인",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue789
+                    )
+                )
+            }
+        },
+        dismissButton = {
+            IconButton(
+                onClick = { onDismiss() }
+            ) {
+                Text(
+                    text = "취소",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue789
+                    )
+                )
+            }
+        },
+        modifier = Modifier.padding(16.dp)
+    )
+}
+
+
+@Composable
+fun SortOptionButton(
+    image: Int,
+    backColor: Color,
+    onClicked: () -> Unit
+) {
     Box(
         modifier = Modifier
             .border(
