@@ -14,6 +14,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +39,9 @@ fun ReadMyBookScreen(
     script: String,
     viewModel: ReadMyNovelViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+    val showDialog by viewModel.showDialog.collectAsState()
+    val description by viewModel.description.collectAsState()
+
     ReadMyBookScaffold(
         title, navController,
         content = {
@@ -59,13 +63,13 @@ fun ReadMyBookScreen(
             viewModel.onDialogClicked()
         }
     )
-    if (viewModel.showDialog){
+    if (showDialog){
         UploadMyBookToLibrary(
             onDismiss = { viewModel.onDismissDialog() },
             onConfirm = { viewModel.onConfirmClicked(navController, title, script) },
             onDescriptionChange = { newDescription -> viewModel.onDescriptionChanged(newDescription) },
             title = title,
-            description = viewModel.description
+            description = description
         )
     }
 }
