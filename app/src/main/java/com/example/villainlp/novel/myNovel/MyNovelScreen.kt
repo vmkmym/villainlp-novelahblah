@@ -50,7 +50,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.novel.DeleteAlert
+import com.example.villainlp.novel.AlertPopup
 import com.example.villainlp.novel.RelayChatToNovelBook
 import com.example.villainlp.shared.MyScaffold
 import com.google.firebase.auth.FirebaseAuth
@@ -74,9 +74,9 @@ fun MyBookScreen(
         }
 
         if (showDialog) {
-            DeleteAlert(
+            AlertPopup(
                 title = "정말로 삭제하시겠습니까?",
-                warningMessage = "내 작업 공간에서 선택한 소설이 삭제가 됩니다.",
+                message = "내 작업 공간에서 선택한 소설이 삭제가 됩니다.",
                 onDismiss = { viewModel.onDismissDialog() },
                 onConfirm = { viewModel.onConfirmClicked(auth) }
             )

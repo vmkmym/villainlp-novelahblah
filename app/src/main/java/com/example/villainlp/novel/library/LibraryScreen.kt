@@ -58,8 +58,8 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
+import com.example.villainlp.novel.AlertPopup
 import com.example.villainlp.novel.Book
-import com.example.villainlp.novel.DeleteAlert
 import com.example.villainlp.novel.formatRating
 import com.example.villainlp.server.FirebaseTools
 import com.example.villainlp.shared.MyScaffoldBottomBar
@@ -121,9 +121,9 @@ fun LibraryScreen(
     }
 
     if (showDialog) {
-        DeleteAlert(
+        AlertPopup(
             title = "정말로 삭제하시겠습니까?",
-            warningMessage = "선택한 소설이 삭제됩니다.",
+            message = "선택한 소설이 삭제됩니다.",
             onDismiss = { viewModel.onDismissDialog() },
             onConfirm = { viewModel.onConfirmClicked() }
         )

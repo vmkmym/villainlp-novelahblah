@@ -65,7 +65,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.novel.DeleteAlert
+import com.example.villainlp.novel.AlertPopup
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.math.roundToInt
 
@@ -234,9 +234,9 @@ fun CommentScreen(
         }
     }
     if (showDialog) {
-        DeleteAlert(
+        AlertPopup(
             title = "댓글을 삭제하시겠습니까?",
-            warningMessage = "주제와 무관한 내용 및 악플은 삭제하는게 좋습니다",
+            message = "주제와 무관한 내용 및 악플은 삭제하는게 좋습니다",
             onDismiss = { viewModel.onDismissDialog() },
             onConfirm = { viewModel.deleteComment(documentId) }
             )

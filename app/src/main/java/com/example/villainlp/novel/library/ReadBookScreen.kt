@@ -47,6 +47,7 @@ import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import com.example.villainlp.R
+import com.example.villainlp.novel.ReadTopBar
 import com.example.villainlp.novel.formatRating
 import com.example.villainlp.server.FirebaseTools
 import kotlinx.coroutines.launch
@@ -104,7 +105,7 @@ fun ReadLibraryBookScaffold(
                 enter = slideInVertically(),
                 exit = slideOutVertically()
             ) {
-                ReadLibraryBookScaffoldTopBar(title, navController)
+                ReadTopBar(title, navController)
             }
         },
         bottomBar = {
@@ -193,40 +194,5 @@ fun ReadLibraryBookScaffold(
                 },
             listState
         )
-    }
-}
-
-@Composable
-fun ReadLibraryBookScaffoldTopBar(
-    title: String,
-    navController: NavHostController,
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Image(
-                modifier = Modifier
-                    .clickable { navController.popBackStack() }
-                    .size(20.dp),
-                painter = painterResource(id = R.drawable.arrow_left),
-                contentDescription = "back"
-            )
-            Text(
-                text = title,
-                style = TextStyle(
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight(600),
-                    color = Color(0xFF212121),
-                )
-            )
-            Spacer(modifier = Modifier.size(1.dp))
-        }
-        Divider(color = Color(0xFF9E9E9E))
     }
 }
