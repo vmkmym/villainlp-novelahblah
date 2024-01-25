@@ -28,7 +28,8 @@ fun ReadMyBookScreen(
     val description by viewModel.description.collectAsState()
 
     ReadMyBookScaffold(
-        title, navController,
+        title = title,
+        navController = navController,
         content = {
             LazyColumn(
                 modifier = it,
@@ -50,14 +51,14 @@ fun ReadMyBookScreen(
     )
     if (showDialog){
         AlertPopup(
-            title = "작성한 소설 업로드",
+            title = AlertStrings.Title.script,
             message = description,
             onDismiss = { viewModel.onDismissDialog() },
             onConfirm = { viewModel.onConfirmClicked(navController, title, script) },
             novelTitle = title,
-            warningMessage = "이 작품을 도서관에 출품하시겠습니까?",
+            warningMessage = AlertStrings.WarningMessage.script,
             hasTextField = true,
-            tfLabel = "작품을 요약해서 써주세요",
+            tfLabel = AlertStrings.TfLabel.script,
             onTextFieldValueChange = { newDescription -> viewModel.onDescriptionChanged(newDescription) }
         )
     }
@@ -77,14 +78,11 @@ fun ReadMyBookScaffold(
                 title = title,
                 navController = navController,
                 onClicked = { onClicked() },
-                hasIcon = true)
+                hasIcon = true
+            )
         },
     ) {
-        content(
-            Modifier
-                .fillMaxSize()
-                .padding(it)
-        )
+        content(Modifier.fillMaxSize().padding(it))
     }
 }
 
