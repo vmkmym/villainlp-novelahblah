@@ -105,4 +105,8 @@ dependencies {
 
     // Swipe
     implementation("androidx.wear.compose:compose-material:1.2.1")
+
+    // gemini api
+    implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
+
 }
