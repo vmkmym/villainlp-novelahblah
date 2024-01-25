@@ -1,4 +1,4 @@
-package com.example.villainlp.novel.myNovel
+package com.example.villainlp.novel.myNovel.readMyNovel
 
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController

@@ -1,4 +1,4 @@
-package com.example.villainlp.novel.myNovel
+package com.example.villainlp.novel.myNovel.readMyNovel
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

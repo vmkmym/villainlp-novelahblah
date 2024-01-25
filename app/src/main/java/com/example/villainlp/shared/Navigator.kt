@@ -14,7 +14,7 @@ import com.example.villainlp.socialLogin.LottieScreen
 import com.example.villainlp.novel.myNovel.MyBookScreen
 import com.example.villainlp.novel.library.rating.RatingScreen
 import com.example.villainlp.novel.library.ReadLibraryBookScreen
-import com.example.villainlp.novel.myNovel.ReadMyBookScreen
+import com.example.villainlp.novel.myNovel.readMyNovel.ReadMyBookScreen
 import com.example.villainlp.setting.SettingScreen
 import com.google.firebase.auth.FirebaseAuth
 
