@@ -21,18 +21,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,14 +38,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import com.example.villainlp.R
 import com.example.villainlp.novel.ReadTopBar
-import com.example.villainlp.novel.formatRating
-import com.example.villainlp.server.FirebaseTools
-import kotlinx.coroutines.launch
 
 @Composable
 fun ReadLibraryBookScreen(
@@ -58,23 +51,29 @@ fun ReadLibraryBookScreen(
     title: String,
     script: String,
     documentId: String,
+    viewModel: ReadBookViewModel = viewModel(),
 ) {
-    ReadLibraryBookScaffold(title, navController, documentId) { modifier, listState ->
-        LazyColumn(
-            modifier = modifier,
-            state = listState,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            item {
-                Text(
-                    text = script,
-                    modifier = Modifier.padding(26.dp),
-                    color = Color.Black,
-                )
+    ReadLibraryBookScaffold(
+        title = title,
+        navController = navController,
+        documentId = documentId,
+        viewModel = viewModel,
+        content = {
+            LazyColumn(
+                modifier = it,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                item {
+                    Text(
+                        text = script,
+                        modifier = Modifier.padding(26.dp),
+                        color = Color.Black,
+                    )
+                }
             }
         }
-    }
+    )
 }
 
 // ReadBook
@@ -84,19 +83,14 @@ fun ReadLibraryBookScaffold(
     title: String,
     navController: NavHostController,
     documentId: String,
-    content: @Composable (Modifier, LazyListState) -> Unit,
+    viewModel: ReadBookViewModel,
+    content: @Composable (Modifier) -> Unit,
 ) {
-    var barVisible by remember { mutableStateOf(true) }
-    // 레이지컬럼에 상태 추적
-    val listState = rememberLazyListState()
-    var commentCount by remember { mutableStateOf(0) }
-    var rating by remember { mutableStateOf(0.0f) }
-    val scope = rememberCoroutineScope()
+    val commentCount by viewModel.commentCount.collectAsState()
+    val rating by viewModel.rating.collectAsState()
+    val barVisible by viewModel.barVisible.collectAsState()
 
-    scope.launch {
-        commentCount = FirebaseTools.getCommentCount(documentId)
-        rating = formatRating(FirebaseTools.getRatingFromFirestore(documentId)!!)
-    }
+    viewModel.reloadCommentRating(documentId)
 
     Scaffold(
         topBar = {
@@ -126,7 +120,7 @@ fun ReadLibraryBookScaffold(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.star),
-                            contentDescription = "별"
+                            contentDescription = BottomBarString.StarImageDescription.string
                         )
                         Spacer(modifier = Modifier.size(7.dp))
                         Text(
@@ -140,7 +134,7 @@ fun ReadLibraryBookScaffold(
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.message),
-                                contentDescription = "댓글"
+                                contentDescription = BottomBarString.CommentImageDescription.string
                             )
                             Spacer(modifier = Modifier.size(10.dp))
                             Text(
@@ -169,7 +163,7 @@ fun ReadLibraryBookScaffold(
                                 shape = RectangleShape
                             ) {
                                 Text(
-                                    text = "별점주기",
+                                    text = BottomBarString.RatingText.string,
                                     style = TextStyle(
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
@@ -187,12 +181,7 @@ fun ReadLibraryBookScaffold(
             Modifier
                 .fillMaxSize()
                 .padding(it)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        barVisible = !barVisible
-                    })
-                },
-            listState
+                .pointerInput(Unit) { detectTapGestures(onTap = { viewModel.onTap() }) },
         )
     }
 }
