@@ -69,10 +69,9 @@ fun MyBookScreen(
     viewModel.loadNovels(auth)
 
     MyScaffold("내서재", navController) {
-        ShowMyBooks(it, navController, novelList) { selectedNovel ->
+        MyNovels(it, navController, novelList) { selectedNovel ->
             viewModel.onDeleteClicked(selectedNovel)
         }
-
         if (showDialog) {
             AlertPopup(
                 title = "정말로 삭제하시겠습니까?",
@@ -84,10 +83,10 @@ fun MyBookScreen(
     }
 }
 
-// MyNovelScreen
+// 내 소설들을 모아둔 Column
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun ShowMyBooks(
+fun MyNovels(
     modifier: Modifier,
     navController: NavHostController,
     myBooks: List<RelayChatToNovelBook>,
@@ -100,152 +99,229 @@ fun ShowMyBooks(
     )
     {
         items(myBooks) { book ->
-            MyBookCards(book, navController) { selectedBook -> onClicked(selectedBook) }
+            NovelCardBox(book, navController) { selectedBook -> onClicked(selectedBook) }
             Spacer(modifier = Modifier.size(25.dp))
         }
     }
 }
 
+// 각각의 소설을 한눈에 보여주는 Card
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun MyBookCards(
+fun NovelCardBox(
     book: RelayChatToNovelBook,
     navController: NavHostController,
     onClicked: (RelayChatToNovelBook) -> Unit,
 ) {
+    val (swipeableState, swipeableModifier, imageVisibility) = createSwipeableParameters()
+
+    Box {
+        NovelCard(
+            offset = { IntOffset(swipeableState.offset.value.roundToInt(), 0) },
+            onClick = { navController.navigate("ReadMyBookScreen/${book.title}/${book.script}") },
+            swipeableModifier = swipeableModifier,
+            book = book
+        )
+        DeleteAnimation(
+            imageVisibility = imageVisibility,
+            book = book ,
+            onClicked = { onClicked(book) } // TODO : 여기서 swipeableState값을 0으로 조절하면 될듯?
+        )
+    }
+}
+
+// 소설 Card
+
+@Composable
+fun NovelCard(
+    offset: () -> IntOffset,
+    onClick: () -> Unit,
+    swipeableModifier: Modifier,
+    book: RelayChatToNovelBook
+){
+    Card(
+        modifier = Modifier
+            .width(360.dp)
+            .height(133.dp)
+            .offset { offset() } // Apply the offset
+            .then(swipeableModifier) // Apply the swipeable modifier
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+    ) {
+        NovelCardContent(book)
+    }
+}
+
+// 소설 카드 내부 내용 Column
+@Composable
+fun NovelCardContent(book: RelayChatToNovelBook){
+    Column(
+        modifier = Modifier.padding(16.dp)
+    ) {
+        NovelTitleAndScript(book)
+        NovelAuthor(book)
+    }
+}
+
+// 소설 제목, 내용 부분의 Row
+@Composable
+fun NovelTitleAndScript(book: RelayChatToNovelBook){
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            NovelTitleText(book.title)
+            Spacer(modifier = Modifier.padding(top = 2.dp))
+            NovelScriptText(book.script)
+        }
+        FrontArrowImage()
+    }
+}
+
+// 소설 제목 Text 함수
+@Composable
+fun NovelTitleText(
+    title: String
+){
+    Text(
+        modifier = Modifier
+            .width(270.dp)
+            .height(30.dp),
+        text = title,
+        style = TextStyle(
+            fontSize = 20.sp,
+            fontWeight = FontWeight(600),
+            color = Color(0xFF212121),
+        ),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+// 소설 내용 Text 함수
+@Composable
+fun NovelScriptText(
+    script: String
+){
+    Text(
+        modifier = Modifier
+            .width(270.dp)
+            .height(45.dp),
+        text = script,
+        style = TextStyle(
+            fontSize = 14.sp,
+            fontWeight = FontWeight(500),
+            color = Color(0xFF2C2C2C),
+        ),
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+// Card에 화살표 이미지
+@Composable
+fun FrontArrowImage(){
+    Image(
+        modifier = Modifier
+            .size(33.dp)
+            .padding(5.dp),
+        painter = painterResource(id = R.drawable.arrow_right),
+        contentDescription = "Front Arrow"
+    )
+}
+
+// 소설 저자 Text 함수
+@Composable
+fun NovelAuthorText(
+    author: String
+){
+    Text(
+        modifier = Modifier
+            .padding(bottom = 8.dp)
+            .height(16.dp),
+        text = author,
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontWeight = FontWeight(500),
+            color = Color(0xFF9E9E9E),
+            textAlign = TextAlign.Start
+        )
+    )
+}
+
+// 소설 저자를 나타내는 Row
+@Composable
+fun NovelAuthor(book: RelayChatToNovelBook){
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    )
+    {
+        NovelAuthorText(book.author)
+    }
+}
+
+// 소설 Card를 Swipe 했을 때 나오는 로티 애니메이션 Column
+@Composable
+fun DeleteAnimation(
+    imageVisibility: Boolean,
+    book: RelayChatToNovelBook,
+    onClicked: (RelayChatToNovelBook) -> Unit,
+    ){
+    val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
+
+    Column(
+        modifier = Modifier
+            .offset { IntOffset(775, 0) } // Use the same offset as the Card
+            .size(65.dp, 133.dp)
+            .border(
+                1.dp, Color(0xFFF5F5F5),
+                RoundedCornerShape(
+                    topStart = 0.dp,
+                    bottomStart = 0.dp,
+                    topEnd = 16.dp,
+                    bottomEnd = 16.dp
+                )
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        AnimatedVisibility(
+            visible = imageVisibility,
+            enter = scaleIn(),
+            exit = ExitTransition.None
+        ) {
+            LottieAnimation(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable { onClicked(book) },
+                composition = fireLottie,
+                iterations = LottieConstants.IterateForever
+            )
+        }
+    }
+}
+
+// Swipe 상태 관리에 필요한 Parameter들
+@Composable
+@OptIn(ExperimentalWearMaterialApi::class)
+private fun createSwipeableParameters(): SwipeableParameters {
     val swipeableState = rememberSwipeableState(initialValue = 0f)
 
     val swipeableModifier = Modifier.swipeable(
         state = swipeableState,
-        anchors = mapOf(0f to 0f, -150f to -150f), // Define the anchors
+        anchors = mapOf(0f to 0f, -150f to -150f),
         orientation = Orientation.Horizontal,
         thresholds = { _, _ -> FractionalThreshold(0.1f) },
         resistance = null
     )
 
-    // Define the AnimatedVisibility for the image
     val imageVisibility = swipeableState.offset.value <= -150f
 
-    val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
-
-    Box {
-        Card(
-            modifier = Modifier
-                .width(360.dp)
-                .height(133.dp)
-                .offset {
-                    IntOffset(
-                        swipeableState.offset.value.roundToInt(),
-                        0
-                    )
-                } // Apply the offset
-                .then(swipeableModifier) // Apply the swipeable modifier
-                .clickable { navController.navigate("ReadMyBookScreen/${book.title}/${book.script}") },
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .width(270.dp)
-                                .height(30.dp),
-                            text = book.title,
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight(600),
-                                color = Color(0xFF212121),
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Spacer(modifier = Modifier.padding(top = 2.dp))
-                        Text(
-                            modifier = Modifier
-                                .width(270.dp)
-                                .height(45.dp),
-                            text = book.script,
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight(500),
-                                color = Color(0xFF2C2C2C),
-                            ),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    Image(
-                        modifier = Modifier
-                            .size(33.dp)
-                            .padding(5.dp),
-                        painter = painterResource(id = R.drawable.arrow_right),
-                        contentDescription = "Front Arrow"
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                )
-                {
-                    Text(
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .height(16.dp),
-                        text = book.author,
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight(500),
-                            color = Color(0xFF9E9E9E),
-                            textAlign = TextAlign.Start
-                        )
-                    )
-                }
-            }
-        }
-        // The image that appears when swiped
-        Column(
-            modifier = Modifier
-                .offset {
-                    IntOffset(
-                        775,
-                        0
-                    )
-                } // Use the same offset as the Card
-                .size(65.dp, 133.dp)
-                .border(
-                    1.dp, Color(0xFFF5F5F5),
-                    RoundedCornerShape(
-                        topStart = 0.dp,
-                        bottomStart = 0.dp,
-                        topEnd = 16.dp,
-                        bottomEnd = 16.dp
-                    )
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            AnimatedVisibility(
-                visible = imageVisibility,
-                enter = scaleIn(),
-                exit = ExitTransition.None
-            ) {
-                LottieAnimation(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable { onClicked(book) },
-                    composition = fireLottie,
-                    iterations = LottieConstants.IterateForever
-                )
-            }
-        }
-    }
+    return SwipeableParameters(swipeableState, swipeableModifier, imageVisibility)
 }
