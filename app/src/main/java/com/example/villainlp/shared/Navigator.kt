@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.villainlp.chat.geminiChat.GeminiChatScreen
 import com.example.villainlp.chat.openAichat.ChatListScreen
 import com.example.villainlp.chat.openAichat.ChatScreen
 import com.example.villainlp.novel.library.comment.CommentScreen
@@ -80,6 +81,12 @@ fun VillainNavigation(
 
         // 설정-프로필화면
         composable(Screen.Profile.route) { SettingScreen(auth, navController, signOutClicked) }
+
+        // gemini chat
+        composable(Screen.GeminiChat.route) {
+            val title = it.arguments?.getString("title") ?: "title"
+            GeminiChatScreen(navController, auth, title)
+        }
     }
 }
 
