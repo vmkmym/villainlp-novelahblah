@@ -3,11 +3,17 @@ plugins {
     id("org.jetbrains.kotlin.android")
     // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+
 }
 
 android {
     namespace = "com.example.villainlp"
     compileSdk = 34
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.example.villainlp"
@@ -20,6 +26,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val apiKey = project.findProperty("apiKey") as String? ?: ""
+        buildConfigField("String", "apiKey", "\"$apiKey\"")
     }
 
     buildTypes {
