@@ -1,15 +1,12 @@
 @file:OptIn(BetaOpenAI::class)
-
 package com.example.villainlp.chat.openAichat
 
 import com.aallam.openai.api.BetaOpenAI
-
 
 data class TextContent(
     val subtitle: String,
     val body: String
 )
-
 
 data class ChatMessage(
     val message: String? = "message error",
