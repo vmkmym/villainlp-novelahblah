@@ -1,7 +1,4 @@
-@file:OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
-)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.villainlp.chat.ground
 
@@ -85,36 +82,40 @@ fun Creative(modifier: Modifier, navController: NavHostController, auth: Firebas
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.Start,
         ) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item {
-                    CategoryDefalutButton()
-                }
-                items(genreHappy.size) { index ->
-                    CategoryButton(genreHappy[index])
-                }
-            }
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(genreSad.size) { index ->
-                    CategoryButton(genreSad[index])
-                }
-            }
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(genreScary.size) { index ->
-                    CategoryButton(genreScary[index])
-                }
-            }
+            GenreButtonsWithDefault(genreHappy)
+            GenreButtons(genreSad)
+            GenreButtons(genreScary)
             LazyColumn {
                 item {
                     Header()
                     CreativeYard(navController, auth)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun GenreButtons(genres: List<String>) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(genres.size) { index ->
+            CategoryButton(genres[index])
+        }
+    }
+}
+
+@Composable
+fun GenreButtonsWithDefault(genres: List<String>) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            CategoryDefalutButton()
+        }
+        items(genres.size) { index ->
+            CategoryButton(genres[index])
         }
     }
 }
