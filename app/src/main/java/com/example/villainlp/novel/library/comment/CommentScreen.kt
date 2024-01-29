@@ -88,7 +88,6 @@ fun CommentScreen(
     val focusRequester by remember { mutableStateOf(FocusRequester()) }
     val focusManager = LocalFocusManager.current
 
-    val maxCharacterCount = 500 // 최대 글자수
     val keyboardController = LocalSoftwareKeyboardController.current // 키보드 컨트롤러 가져오기
 
     // Comment들을 불러옴
@@ -107,10 +106,10 @@ fun CommentScreen(
             CommentBottomBar(
                 comment = comment,
                 focusRequester = focusRequester,
-                maxCharacterCount = maxCharacterCount,
+                maxCharacterCount = LimitChar.Max.n,
                 isTextFieldFocused = isTextFieldFocused,
                 onFocusChanged = { isTextFieldFocused = it.isFocused },
-                onCommentChanged = { if (it.length <= maxCharacterCount) viewModel.onCommentChanged(it) },
+                onCommentChanged = { if (it.length <= LimitChar.Max.n) viewModel.onCommentChanged(it) },
                 onPlaceholder = { if (!isTextFieldFocused) FocuseText(BottomText.On.text) else FocuseText(BottomText.Off.text) },
                 onSubmitClicked = {
                     viewModel.onCommentSubmit(documentId)
