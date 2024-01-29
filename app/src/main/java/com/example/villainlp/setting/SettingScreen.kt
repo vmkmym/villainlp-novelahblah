@@ -158,6 +158,7 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
 @Composable
 fun DisplayCustomerInquiry(url: String, context: Context) {
     var isClicked by remember { mutableStateOf(false) }
+    Spacer(modifier = Modifier.padding(top = 70.dp))
     Box(
         modifier = Modifier
             .clickable {
@@ -165,7 +166,6 @@ fun DisplayCustomerInquiry(url: String, context: Context) {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 context.startActivity(intent)
             }
-            .padding(top = 70.dp)
     ) {
         Row {
             Image(
@@ -176,7 +176,7 @@ fun DisplayCustomerInquiry(url: String, context: Context) {
             Text(
                 text = "고객 문의 및 FAQ",
                 modifier = Modifier
-                    .padding(start = 3.dp, end = 12.dp, bottom = 30.dp),
+                    .padding(start = 3.dp, end = 12.dp),
                 style = TextStyle(
                     fontSize = 16.sp,
                     lineHeight = 20.sp,
@@ -185,6 +185,7 @@ fun DisplayCustomerInquiry(url: String, context: Context) {
                     letterSpacing = 0.28.sp,
                 )
             )
+            Spacer(modifier = Modifier.padding(bottom = 30.dp))
         }
     }
 }
