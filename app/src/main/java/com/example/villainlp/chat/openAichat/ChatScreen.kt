@@ -90,6 +90,7 @@ import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Blue789
 import com.example.villainlp.novel.library.comment.addFocusCleaner
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -98,7 +99,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
+@OptIn(BetaOpenAI::class)
 @Composable
 fun ChatScreen(
     navController: NavController,
@@ -147,7 +148,11 @@ fun ChatScreen(
 
         // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
         viewModel.loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
-        viewModel.loadChatbotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
+        viewModel.loadChatbotMessages(
+            { botmessages -> sentBotMessages = botmessages },
+            title,
+            threadId
+        )
     }
 
     val listState = rememberLazyListState()
@@ -159,121 +164,21 @@ fun ChatScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = title,
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp,
-                        fontFamily = FontFamily.SansSerif
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { /* 릴레이소설로 이동 */
-                        navController.navigate(Screen.ChattingList.route)
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "뒤로 가기(홈화면)"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showDialog = true }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.book_5),
-                            contentDescription = "save as book",
-                            modifier = Modifier.padding(end = 12.dp)
-                        )
-                    }
-                }
-            )
+            TopBar(title, navController, showDialog = { showDialog = it })
         },
         bottomBar = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                CustomTextField(
-                    value = input,
-                    onValueChange = { setInput(it) }
-                ) {
-                    val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-                        Date()
-                    )
-                    if (input.isNotEmpty()) {
-                        val newChatMessage =
-                            ChatMessage(
-                                message = input,
-                                userId = user?.uid,
-                                userName = user?.displayName,
-                                uploadDate = currentDate
-                            )
-                        // chatViewModel의 saveChatMessage 함수를 호출하여 채팅 메시지를 저장한다.
-                        viewModel.saveChatMessage(newChatMessage, title, threadId)
-                    }
-                    // 챗봇 대답
-                    CoroutineScope(Dispatchers.IO).launch {
-                        Log.d("UserPrompt", "CoroutineScope launched")
-                        // user의 message를 assistant에게 전달
-                        openAI.message(
-                            threadId = threadId,
-                            request = MessageRequest(
-                                role = Role.User,
-                                content = input
-                            )
-                        )
-                        Log.d("threadId", "threadId: $threadId")
-                        // assistant가 작성한 novel을 가져옴
-                        val run = openAI.createRun(
-                            threadId,
-                            request = RunRequest(
-                                assistantId = assistantId ?: return@launch,
-                                instructions = instructions,
-                            )
-                        )
-
-                        setInput("")
-                        isAnimationRunning = true
-
-                        var retrievedRun: Run
-                        do {
-                            delay(150)
-                            retrievedRun = openAI.getRun(
-                                threadId = threadId,
-                                runId = run.id
-                            )
-                        } while (retrievedRun.status != Status.Completed)
-
-
-                        // 챗봇이 내준 마지막 문장을 가져옴
-                        val assistantMessages = openAI.messages(threadId)
-                        val lastAssistantMessage =
-                            assistantMessages.firstOrNull { it.role == Role.Assistant }  // 마지막 메시지만 가져옴 .lastOrNull 이렇게 하면 첫문장만 가져옴
-
-                        val response = if (lastAssistantMessage != null) {
-                            val textContent =
-                                lastAssistantMessage.content.first() as? MessageContent.Text
-                            textContent?.text?.value ?: ""
-                        } else {
-                            ""
-                        }
-
-                        Log.d("UserPrompt", "response: $response")
-
-                        val newChatbotMessage =
-                            ChatbotMessage(
-                                message = response,
-                                uploadDate = currentDate
-                            )
-                        // chatViewModel의 saveChatbotMessage 함수를 호출하여 챗봇 메시지를 저장한다.
-                        viewModel.saveChatbotMessage(newChatbotMessage, title, threadId)
-                        isAnimationRunning = false
-
-                    }
-                }
-            }
+            BottomBar(
+                input,
+                setInput,
+                user,
+                viewModel,
+                title,
+                threadId,
+                openAI,
+                assistantId,
+                instructions,
+                isAnimationRunning = { isAnimationRunning = it },
+            )
         }
     ) { innerPadding ->
         LazyColumn(
@@ -299,97 +204,257 @@ fun ChatScreen(
         }
     }
     if (showDialog) {
-        AlertDialog(
-            icon = {
-                LottieAnimation(
-                    modifier = Modifier.size(40.dp),
-                    composition = firePuppleLottie,
-                    iterations = LottieConstants.IterateForever
-                )
-            },
-            onDismissRequest = { showDialog = false },
-            containerColor = Color.White,
-            title = {
-                Text(
-                    text = title,
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        lineHeight = 28.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-            },
-            text = {
-                Text(
-                    text = "작성한 소설을 저장하시겠습니까?",
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-            },
-            confirmButton = {
-                IconButton(
-                    onClick = {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
-                            val assistantMessages = openAI.messages(threadId)
-                            val reversedMessages = assistantMessages.reversed()
-                            val response = reversedMessages.joinToString("\n\n") { message ->
-                                val textContent =
-                                    message.content.first() as? MessageContent.Text
-                                textContent?.text?.value ?: ""
-                            }
-                            val currentDate =
-                                SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
-                                    Date()
-                                )
-                            val myRelayNovel = RelayChatToNovelBook(
-                                title = title,
-                                author = user?.displayName ?: "ERROR",
-                                script = response,
-                                userID = user?.uid ?: "ERROR",
-                                createdDate = currentDate
-                            )
-                            saveChatToNovel(myRelayNovel)
-                        }
-                        showDialog = false
-                        navController.navigate(Screen.MyBook.route)
-                    }
-                ) {
-                    Text(
-                        text = "확인",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Blue789
-                        )
-                    )
-                }
-            },
-            dismissButton = {
-                IconButton(
-                    onClick = { showDialog = false }
-                ) {
-                    Text(
-                        text = "취소",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Blue789
-                        )
-                    )
-                }
-            },
-            modifier = Modifier
-                .padding(16.dp)
+        RelayNovelSaveButton(
+            firePuppleLottie,
+            showDialog = { showDialog = it },
+            title,
+            openAI,
+            threadId,
+            user,
+            navController
         )
     }
+}
+
+@Composable
+@OptIn(BetaOpenAI::class)
+private fun RelayNovelSaveButton(
+    firePuppleLottie: LottieComposition?,
+    showDialog: (Boolean) -> Unit,
+    title: String,
+    openAI: OpenAI,
+    threadId: ThreadId,
+    user: FirebaseUser?,
+    navController: NavController,
+) {
+    AlertDialog(
+        icon = {
+            LottieAnimation(
+                modifier = Modifier.size(40.dp),
+                composition = firePuppleLottie,
+                iterations = LottieConstants.IterateForever
+            )
+        },
+        onDismissRequest = { showDialog(false) },
+        containerColor = Color.White,
+        title = {
+            Text(
+                text = title,
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    lineHeight = 28.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Black
+                )
+            )
+        },
+        text = {
+            Text(
+                text = "작성한 소설을 저장하시겠습니까?",
+                style = TextStyle(
+                    fontSize = 15.sp,
+                    lineHeight = 24.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Black
+                )
+            )
+        },
+        confirmButton = {
+            IconButton(
+                onClick = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        // thread의 채팅내역을 시간순으로 보여줌, 나 -> 봇 -> 나 -> 봇 이 순서로 작동
+                        val assistantMessages = openAI.messages(threadId)
+                        val reversedMessages = assistantMessages.reversed()
+                        val response = reversedMessages.joinToString("\n\n") { message ->
+                            val textContent =
+                                message.content.first() as? MessageContent.Text
+                            textContent?.text?.value ?: ""
+                        }
+                        val currentDate =
+                            SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
+                                Date()
+                            )
+                        val myRelayNovel = RelayChatToNovelBook(
+                            title = title,
+                            author = user?.displayName ?: "ERROR",
+                            script = response,
+                            userID = user?.uid ?: "ERROR",
+                            createdDate = currentDate
+                        )
+                        saveChatToNovel(myRelayNovel)
+                    }
+                    showDialog(false)
+                    navController.navigate(Screen.MyBook.route)
+                }
+            ) {
+                Text(
+                    text = "확인",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue789
+                    )
+                )
+            }
+        },
+        dismissButton = {
+            IconButton(
+                onClick = { showDialog(false) }
+            ) {
+                Text(
+                    text = "취소",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue789
+                    )
+                )
+            }
+        },
+        modifier = Modifier
+            .padding(16.dp)
+    )
+}
+
+
+@Composable
+@OptIn(BetaOpenAI::class)
+private fun BottomBar(
+    input: String,
+    setInput: (String) -> Unit,
+    user: FirebaseUser?,
+    viewModel: ChatViewModel,
+    title: String,
+    threadId: ThreadId,
+    openAI: OpenAI,
+    assistantId: AssistantId?,
+    instructions: String,
+    isAnimationRunning: (Boolean) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        CustomTextField(
+            value = input,
+            onValueChange = { setInput(it) }
+        ) {
+            val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+                Date()
+            )
+            if (input.isNotEmpty()) {
+                val newChatMessage =
+                    ChatMessage(
+                        message = input,
+                        userId = user?.uid,
+                        userName = user?.displayName,
+                        uploadDate = currentDate
+                    )
+                // chatViewModel의 saveChatMessage 함수를 호출하여 채팅 메시지를 저장한다.
+                viewModel.saveChatMessage(newChatMessage, title, threadId)
+            }
+            // 챗봇 대답
+            CoroutineScope(Dispatchers.IO).launch {
+                Log.d("UserPrompt", "CoroutineScope launched")
+                // user의 message를 assistant에게 전달
+                openAI.message(
+                    threadId = threadId,
+                    request = MessageRequest(
+                        role = Role.User,
+                        content = input
+                    )
+                )
+                Log.d("threadId", "threadId: $threadId")
+                // assistant가 작성한 novel을 가져옴
+                val run = openAI.createRun(
+                    threadId,
+                    request = RunRequest(
+                        assistantId = assistantId ?: return@launch,
+                        instructions = instructions,
+                    )
+                )
+
+                // input 초기화, 애니메이션 작동
+                setInput("")
+                isAnimationRunning(true)
+
+                // 챗봇이 작성한 novel을 가져옴
+                var retrievedRun: Run
+                do {
+                    delay(150)
+                    retrievedRun = openAI.getRun(
+                        threadId = threadId,
+                        runId = run.id
+                    )
+                } while (retrievedRun.status != Status.Completed)
+
+                // 챗봇이 내준 마지막 문장을 가져옴
+                val assistantMessages = openAI.messages(threadId)
+                val lastAssistantMessage =
+                    assistantMessages.firstOrNull { it.role == Role.Assistant }  // 마지막 메시지만 가져옴 .lastOrNull 이렇게 하면 첫문장만 가져옴
+                val response = if (lastAssistantMessage != null) {
+                    val textContent =
+                        lastAssistantMessage.content.first() as? MessageContent.Text
+                    textContent?.text?.value ?: ""
+                } else {
+                    ""
+                }
+
+                Log.d("UserPrompt", "response: $response")
+
+                val newChatbotMessage =
+                    ChatbotMessage(
+                        message = response,
+                        uploadDate = currentDate
+                    )
+                // chatViewModel의 saveChatbotMessage 함수를 호출하여 챗봇 메시지를 저장한다.
+                viewModel.saveChatbotMessage(newChatbotMessage, title, threadId)
+                isAnimationRunning(false)
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TopBar(
+    title: String,
+    navController: NavController,
+    showDialog: (Boolean) -> Unit,
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = title,
+                textAlign = TextAlign.Center,
+                fontSize = 18.sp,
+                fontFamily = FontFamily.SansSerif
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = { /* 릴레이소설로 이동 */
+                navController.navigate(Screen.ChattingList.route)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "뒤로 가기(홈화면)"
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = { showDialog(true) }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.book_5),
+                    contentDescription = "save as book",
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+            }
+        }
+    )
 }
 
 
@@ -531,7 +596,11 @@ private fun UserResponse(
                     .combinedClickable(
                         onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
                         onLongClick = { // 말풍선을 꾹 누르면 발생하는 이벤트입니다.
-                            clipboardManager.setText(AnnotatedString(message.message ?: "")) // 클립보드에 텍스트를 복사합니다.
+                            clipboardManager.setText(
+                                AnnotatedString(
+                                    message.message ?: ""
+                                )
+                            ) // 클립보드에 텍스트를 복사합니다.
                         }
                     )
             ) {
@@ -600,7 +669,11 @@ private fun ChatbotResponse(
                         .combinedClickable(
                             onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
                             onLongClick = { // 말풍선을 꾹 누르면 발생하는 이벤트입니다.
-                                clipboardManager.setText(AnnotatedString(message.message ?: "")) // 클립보드에 텍스트를 복사합니다.
+                                clipboardManager.setText(
+                                    AnnotatedString(
+                                        message.message ?: ""
+                                    )
+                                ) // 클립보드에 텍스트를 복사합니다.
                             }
                         )
                 ) {
