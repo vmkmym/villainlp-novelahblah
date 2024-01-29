@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.scaleIn
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,7 +45,10 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.novel.AlertPopup
+import com.example.villainlp.novel.DeleteAlert
+import com.example.villainlp.novel.FrontArrowImage
 import com.example.villainlp.novel.RelayChatToNovelBook
+import com.example.villainlp.novel.TopBarTitle
 import com.example.villainlp.novel.createSwipeableParameters
 import com.example.villainlp.shared.MyScaffold
 import com.google.firebase.auth.FirebaseAuth
@@ -65,14 +66,14 @@ fun MyBookScreen(
 
     viewModel.loadNovels(auth)
 
-    MyScaffold("내서재", navController) {
+    MyScaffold(TopBarTitle.MyNovel.title, navController) {
         MyNovels(it, navController, novelList) { selectedNovel ->
             viewModel.onDeleteClicked(selectedNovel)
         }
         if (showDialog) {
             AlertPopup(
-                title = "정말로 삭제하시겠습니까?",
-                message = "내 작업 공간에서 선택한 소설이 삭제가 됩니다.",
+                title = DeleteAlert.CommonTitle.text,
+                message = DeleteAlert.MyNovelMessage.text,
                 onDismiss = { viewModel.onDismissDialog() },
                 onConfirm = { viewModel.onConfirmClicked(auth) }
             )
@@ -128,7 +129,6 @@ fun NovelCardBox(
 }
 
 // 소설 Card
-
 @Composable
 fun NovelCard(
     offset: () -> IntOffset,
@@ -145,18 +145,12 @@ fun NovelCard(
             .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
     ) {
-        NovelCardContent(book)
-    }
-}
-
-// 소설 카드 내부 내용 Column
-@Composable
-fun NovelCardContent(book: RelayChatToNovelBook){
-    Column(
-        modifier = Modifier.padding(16.dp)
-    ) {
-        NovelTitleAndScript(book)
-        NovelAuthor(book)
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            NovelTitleAndScript(book)
+            NovelAuthor(book)
+        }
     }
 }
 
@@ -219,17 +213,7 @@ fun NovelScriptText(
     )
 }
 
-// Card에 화살표 이미지
-@Composable
-fun FrontArrowImage(){
-    Image(
-        modifier = Modifier
-            .size(33.dp)
-            .padding(5.dp),
-        painter = painterResource(id = R.drawable.arrow_right),
-        contentDescription = "Front Arrow"
-    )
-}
+
 
 // 소설 저자 Text 함수
 @Composable

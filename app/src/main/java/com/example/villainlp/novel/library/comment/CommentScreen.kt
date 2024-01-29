@@ -64,6 +64,8 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.novel.AlertPopup
+import com.example.villainlp.novel.DeleteAlert
+import com.example.villainlp.novel.TopBarTitle
 import com.example.villainlp.novel.createSwipeableParameters
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.math.roundToInt
@@ -133,8 +135,8 @@ fun CommentScreen(
     }
     if (showDialog) {
         AlertPopup(
-            title = Delete.Title.text,
-            message = Delete.Message.text,
+            title = DeleteAlert.CommentTitle.text,
+            message = DeleteAlert.CommentMessage.text,
             onDismiss = { viewModel.onDismissDialog() },
             onConfirm = { viewModel.deleteComment(documentId) }
         )
@@ -194,7 +196,7 @@ fun TopBarText(
 ){
     val commentCount by viewModel.commentCount.collectAsState()
 
-    Text(text = TopText.Comment.text)
+    Text(text = TopBarTitle.Comment.title)
     Text(text = "$commentCount")
 }
 

@@ -14,15 +14,6 @@ enum class BottomText(val text: String){
     Submit("등록")
 }
 
-enum class TopText(val text: String){
-    Comment("댓글")
-}
-
-enum class Delete(val text: String){
-    Title("댓글을 삭제하시겠습니까?"),
-    Message("주제와 무관한 내용 및 악플은 삭제하는게 좋습니다")
-}
-
 enum class LimitChar(var n: Int){
     Max(500)
 }
