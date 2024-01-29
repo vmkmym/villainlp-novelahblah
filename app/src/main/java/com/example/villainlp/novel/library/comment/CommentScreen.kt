@@ -485,8 +485,7 @@ fun DeleteCommentAnimation(
     val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
 
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Center
     ) {
@@ -511,9 +510,7 @@ fun DeleteCommentAnimation(
 fun AllCommentColumn(comment: Comment){
     Column {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
+            modifier = Modifier.fillMaxWidth().padding(12.dp)
         ) {
             CommentInfoAndScript(comment)
         }
