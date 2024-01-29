@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.villainlp.novel.AlertPopup
-import com.example.villainlp.novel.ReadTopBar
+import com.example.villainlp.novel.ReadScreenTopBar
 
 @Composable
 fun ReadMyBookScreen(
@@ -45,9 +45,7 @@ fun ReadMyBookScreen(
                 }
             }
         },
-        onClicked = {
-            viewModel.onDialogClicked()
-        }
+        onClicked = { viewModel.onDialogClicked() }
     )
     if (showDialog){
         AlertPopup(
@@ -74,7 +72,7 @@ fun ReadMyBookScaffold(
 ) {
     Scaffold(
         topBar = {
-            ReadTopBar(
+            ReadScreenTopBar(
                 title = title,
                 navController = navController,
                 onClicked = { onClicked() },
