@@ -77,5 +77,4 @@ class LibraryViewModel:ViewModel() {
         FirebaseTools.deleteLibraryBookFromFirestore(documentId.value)
         onDismissDialog()
     }
-
 }
