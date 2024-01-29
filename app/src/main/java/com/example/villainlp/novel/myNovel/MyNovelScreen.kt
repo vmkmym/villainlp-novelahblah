@@ -7,7 +7,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,9 +41,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.FractionalThreshold
-import androidx.wear.compose.material.rememberSwipeableState
-import androidx.wear.compose.material.swipeable
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -52,6 +48,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.novel.AlertPopup
 import com.example.villainlp.novel.RelayChatToNovelBook
+import com.example.villainlp.novel.createSwipeableParameters
 import com.example.villainlp.shared.MyScaffold
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.math.roundToInt
@@ -307,21 +304,3 @@ fun DeleteAnimation(
     }
 }
 
-// Swipe 상태 관리에 필요한 Parameter들
-@Composable
-@OptIn(ExperimentalWearMaterialApi::class)
-private fun createSwipeableParameters(): SwipeableParameters {
-    val swipeableState = rememberSwipeableState(initialValue = 0f)
-
-    val swipeableModifier = Modifier.swipeable(
-        state = swipeableState,
-        anchors = mapOf(0f to 0f, -150f to -150f),
-        orientation = Orientation.Horizontal,
-        thresholds = { _, _ -> FractionalThreshold(0.1f) },
-        resistance = null
-    )
-
-    val imageVisibility = swipeableState.offset.value <= -150f
-
-    return SwipeableParameters(swipeableState, swipeableModifier, imageVisibility)
-}

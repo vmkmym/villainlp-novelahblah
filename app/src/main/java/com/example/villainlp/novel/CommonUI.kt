@@ -2,6 +2,7 @@ package com.example.villainlp.novel
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.FractionalThreshold
+import androidx.wear.compose.material.rememberSwipeableState
+import androidx.wear.compose.material.swipeable
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -208,4 +213,23 @@ fun ReadTopBar(
         }
         Divider(color = Color(0xFF9E9E9E))
     }
+}
+
+// Swipe 상태 관리에 필요한 Parameter들
+@Composable
+@OptIn(ExperimentalWearMaterialApi::class)
+fun createSwipeableParameters(): SwipeableParameters {
+    val swipeableState = rememberSwipeableState(initialValue = 0f)
+
+    val swipeableModifier = Modifier.swipeable(
+        state = swipeableState,
+        anchors = mapOf(0f to 0f, -150f to -150f),
+        orientation = Orientation.Horizontal,
+        thresholds = { _, _ -> FractionalThreshold(0.1f) },
+        resistance = null
+    )
+
+    val imageVisibility = swipeableState.offset.value <= -150f
+
+    return SwipeableParameters(swipeableState, swipeableModifier, imageVisibility)
 }
