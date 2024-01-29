@@ -173,7 +173,7 @@ fun formatRating(rating: Float): Float {
 
 // ReadMyNovelScreen, ReadBookScreen
 @Composable
-fun ReadTopBar(
+fun ReadScreenTopBar(
     title: String,
     navController: NavHostController,
     onClicked: () -> Unit = {},
