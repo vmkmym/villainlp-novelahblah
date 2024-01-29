@@ -215,6 +215,18 @@ fun ReadTopBar(
     }
 }
 
+// MyNovel, Library (Card에 화살표 이미지)
+@Composable
+fun FrontArrowImage(){
+    Image(
+        modifier = Modifier
+            .size(33.dp)
+            .padding(5.dp),
+        painter = painterResource(id = R.drawable.arrow_right),
+        contentDescription = "Front Arrow"
+    )
+}
+
 // Swipe 상태 관리에 필요한 Parameter들
 @Composable
 @OptIn(ExperimentalWearMaterialApi::class)
