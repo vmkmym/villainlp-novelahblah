@@ -29,4 +29,8 @@ class ReadBookViewModel: ViewModel() {
         _barVisible.value = !_barVisible.value
     }
 
+    fun viewsPlus(documentId: String, views: String){
+        val updateView = views.toInt() + 1
+        FirebaseTools.updateBookViews(documentId, updateView)
+    }
 }

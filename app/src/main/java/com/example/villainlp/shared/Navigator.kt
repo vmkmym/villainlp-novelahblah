@@ -70,7 +70,8 @@ fun VillainNavigation(
             val title = it.arguments?.getString("title")?: "title"
             val script = it.arguments?.getString("script")?: "script"
             val documentId = it.arguments?.getString("documentId")?: "documentId"
-            ReadLibraryBookScreen(navController, title, script, documentId)
+            val views = it.arguments?.getString("views")?: "views"
+            ReadLibraryBookScreen(navController, title, script, documentId, views)
         }
 
         composable(Screen.Comment.route){

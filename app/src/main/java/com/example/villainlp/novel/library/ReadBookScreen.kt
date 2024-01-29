@@ -51,6 +51,7 @@ fun ReadLibraryBookScreen(
     title: String,
     script: String,
     documentId: String,
+    views: String,
     viewModel: ReadBookViewModel = viewModel(),
 ) {
     ReadLibraryBookScaffold(
@@ -74,6 +75,7 @@ fun ReadLibraryBookScreen(
             }
         }
     )
+    viewModel.viewsPlus(documentId, views) // 조회수 업데이트
 }
 
 // ReadBook
