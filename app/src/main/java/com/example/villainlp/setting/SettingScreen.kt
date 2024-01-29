@@ -52,6 +52,12 @@ import com.example.villainlp.R
 import com.example.villainlp.chat.openAichat.ChatModel
 import com.example.villainlp.shared.MyScaffoldBottomBar
 import com.example.villainlp.shared.MyScaffoldTopBar
+import com.example.villainlp.shared.SharedObjects.EMAIL
+import com.example.villainlp.shared.SharedObjects.NAME
+import com.example.villainlp.shared.SharedObjects.NOTION_INQUIRY
+import com.example.villainlp.shared.SharedObjects.NOTION_LOGO
+import com.example.villainlp.shared.SharedObjects.NOTION_URL
+import com.example.villainlp.shared.SharedObjects.PROFILE_IMAGE
 import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 
@@ -59,13 +65,14 @@ import com.google.firebase.auth.FirebaseAuth
 fun SettingScreen(
     auth: FirebaseAuth,
     navController: NavHostController,
-    signOutClicked: () -> Unit
+    signOutClicked: () -> Unit,
 ) {
-    val url = "https://github.com/KDT-villainlp/villainlp" // 임시로 깃허브 주소 넣어둠
+    val url = NOTION_URL
     val context = LocalContext.current
 
     // ViewModel 인스턴스 생성
-    val viewModel: SettingViewModel = viewModel(factory = GenNovelViewModelFactory(auth, ChatModel()))
+    val viewModel: SettingViewModel =
+        viewModel(factory = GenNovelViewModelFactory(auth, ChatModel()))
 
     // StateFlow의 값을 가져오기 위해 collectAsState 함수를 사용합니다.
     val userImage by viewModel.userImage.collectAsState()
@@ -111,7 +118,7 @@ fun DisplayUserProfileImage(userImage: Uri?) {
     userImage?.let { imageUrl ->
         Image(
             painter = rememberAsyncImagePainter(imageUrl),
-            contentDescription = "구글 계정 프로필 사진",
+            contentDescription = PROFILE_IMAGE,
             modifier = Modifier
                 .size(150.dp)
                 .clip(CircleShape)
@@ -170,11 +177,11 @@ fun DisplayCustomerInquiry(url: String, context: Context) {
         Row {
             Image(
                 painter = painterResource(id = R.drawable.notion1),
-                contentDescription = "Notion Logo Image"
+                contentDescription = NOTION_LOGO
             )
             // 고객 문의 텍스트
             Text(
-                text = "고객 문의 및 FAQ",
+                text = NOTION_INQUIRY,
                 modifier = Modifier
                     .padding(start = 3.dp, end = 12.dp),
                 style = TextStyle(
@@ -205,7 +212,7 @@ fun DisplayUserFields(
             .width(320.dp)
             .height(80.dp)
             .padding(8.dp),
-        label = { Text("이름") },
+        label = { Text(NAME) },
         singleLine = true,
         enabled = false, // 편집 불가능하게 설정
         colors = OutlinedTextFieldDefaults.colors(
@@ -220,7 +227,7 @@ fun DisplayUserFields(
             .width(320.dp)
             .height(80.dp)
             .padding(8.dp),
-        label = { Text("이메일") },
+        label = { Text(EMAIL) },
         singleLine = true,
         enabled = false, // 편집 불가능하게 설정
         colors = OutlinedTextFieldDefaults.colors(
