@@ -40,7 +40,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,9 +52,12 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.novel.AlertPopup
+import com.example.villainlp.novel.AuthorText
 import com.example.villainlp.novel.Book
 import com.example.villainlp.novel.DeleteAlert
+import com.example.villainlp.novel.DescriptionText
 import com.example.villainlp.novel.FrontArrowImage
+import com.example.villainlp.novel.TitleText
 import com.example.villainlp.novel.TopBarTitle
 import com.example.villainlp.novel.createSwipeableParameters
 import com.example.villainlp.novel.formatRating
@@ -174,8 +176,7 @@ fun NovelLists(
     onClicked: (Book) -> Unit,
 ) {
     LazyColumn(
-        modifier = Modifier
-            .padding(15.dp),
+        modifier = Modifier.padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     )
     {
@@ -279,42 +280,6 @@ fun TitleAndDescription(book: Book){
     }
 }
 
-// 제목 Text 속성
-@Composable
-fun TitleText(title: String){
-    Text(
-        modifier = Modifier
-            .width(270.dp)
-            .height(30.dp),
-        text = title,
-        style = TextStyle(
-            fontSize = 20.sp,
-            fontWeight = FontWeight(600),
-            color = Color(0xFF212121),
-        ),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
-// 요약 Text 속성
-@Composable
-fun DescriptionText(description: String){
-    Text(
-        modifier = Modifier
-            .width(270.dp)
-            .height(45.dp),
-        text = description,
-        style = TextStyle(
-            fontSize = 14.sp,
-            fontWeight = FontWeight(500),
-            color = Color(0xFF2C2C2C),
-        ),
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
 // 저자, 별점, 조회수, 코맨트 수 UI 구성
 @Composable
 fun AuthorAndRatingIcons(
@@ -329,20 +294,6 @@ fun AuthorAndRatingIcons(
         AuthorText(book.author)
         RatingIcons(book, commentCount)
     }
-}
-
-// 저자 Text 속성
-@Composable
-fun AuthorText(author: String){
-    Text(
-        text = author,
-        style = TextStyle(
-            fontSize = 12.sp,
-            fontWeight = FontWeight(500),
-            color = Color(0xFF9E9E9E),
-            textAlign = TextAlign.Start,
-        )
-    )
 }
 
 // 별점, 조회수, 코멘트 아이콘 구성

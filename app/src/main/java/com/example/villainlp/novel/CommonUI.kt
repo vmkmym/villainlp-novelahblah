@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -227,6 +229,56 @@ fun FrontArrowImage(){
     )
 }
 
+// MyNovel, Library (제목 Text 속성)
+@Composable
+fun TitleText(title: String){
+    Text(
+        modifier = Modifier
+            .width(270.dp)
+            .height(30.dp),
+        text = title,
+        style = TextStyle(
+            fontSize = 20.sp,
+            fontWeight = FontWeight(600),
+            color = Color(0xFF212121),
+        ),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+// MyNovel, Library (요약 Text 속성)
+@Composable
+fun DescriptionText(description: String){
+    Text(
+        modifier = Modifier
+            .width(270.dp)
+            .height(45.dp),
+        text = description,
+        style = TextStyle(
+            fontSize = 14.sp,
+            fontWeight = FontWeight(500),
+            color = Color(0xFF2C2C2C),
+        ),
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+// MyNovel, Library (저자 Text 속성)
+@Composable
+fun AuthorText(author: String){
+    Text(
+        text = author,
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontWeight = FontWeight(500),
+            color = Color(0xFF9E9E9E),
+            textAlign = TextAlign.Start,
+        )
+    )
+}
+
 // Swipe 상태 관리에 필요한 Parameter들
 @Composable
 @OptIn(ExperimentalWearMaterialApi::class)
@@ -245,3 +297,4 @@ fun createSwipeableParameters(): SwipeableParameters {
 
     return SwipeableParameters(swipeableState, swipeableModifier, imageVisibility)
 }
+

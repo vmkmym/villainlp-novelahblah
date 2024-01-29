@@ -22,20 +22,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
@@ -45,9 +39,12 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.novel.AlertPopup
+import com.example.villainlp.novel.AuthorText
 import com.example.villainlp.novel.DeleteAlert
+import com.example.villainlp.novel.DescriptionText
 import com.example.villainlp.novel.FrontArrowImage
 import com.example.villainlp.novel.RelayChatToNovelBook
+import com.example.villainlp.novel.TitleText
 import com.example.villainlp.novel.TopBarTitle
 import com.example.villainlp.novel.createSwipeableParameters
 import com.example.villainlp.shared.MyScaffold
@@ -67,9 +64,7 @@ fun MyBookScreen(
     viewModel.loadNovels(auth)
 
     MyScaffold(TopBarTitle.MyNovel.title, navController) {
-        MyNovels(it, navController, novelList) { selectedNovel ->
-            viewModel.onDeleteClicked(selectedNovel)
-        }
+        MyNovels(it, navController, novelList) { selectedNovel -> viewModel.onDeleteClicked(selectedNovel) }
         if (showDialog) {
             AlertPopup(
                 title = DeleteAlert.CommonTitle.text,
@@ -91,8 +86,7 @@ fun MyNovels(
     onClicked: (RelayChatToNovelBook) -> Unit,
 ) {
     LazyColumn(
-        modifier = modifier
-            .padding(15.dp),
+        modifier = modifier.padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     )
     {
@@ -165,73 +159,12 @@ fun NovelTitleAndScript(book: RelayChatToNovelBook){
             modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            NovelTitleText(book.title)
+            TitleText(book.title)
             Spacer(modifier = Modifier.padding(top = 2.dp))
-            NovelScriptText(book.script)
+            DescriptionText(book.script)
         }
         FrontArrowImage()
     }
-}
-
-// 소설 제목 Text 함수
-@Composable
-fun NovelTitleText(
-    title: String
-){
-    Text(
-        modifier = Modifier
-            .width(270.dp)
-            .height(30.dp),
-        text = title,
-        style = TextStyle(
-            fontSize = 20.sp,
-            fontWeight = FontWeight(600),
-            color = Color(0xFF212121),
-        ),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
-// 소설 내용 Text 함수
-@Composable
-fun NovelScriptText(
-    script: String
-){
-    Text(
-        modifier = Modifier
-            .width(270.dp)
-            .height(45.dp),
-        text = script,
-        style = TextStyle(
-            fontSize = 14.sp,
-            fontWeight = FontWeight(500),
-            color = Color(0xFF2C2C2C),
-        ),
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
-
-
-// 소설 저자 Text 함수
-@Composable
-fun NovelAuthorText(
-    author: String
-){
-    Text(
-        modifier = Modifier
-            .padding(bottom = 8.dp)
-            .height(16.dp),
-        text = author,
-        style = TextStyle(
-            fontSize = 12.sp,
-            fontWeight = FontWeight(500),
-            color = Color(0xFF9E9E9E),
-            textAlign = TextAlign.Start
-        )
-    )
 }
 
 // 소설 저자를 나타내는 Row
@@ -243,7 +176,7 @@ fun NovelAuthor(book: RelayChatToNovelBook){
         horizontalArrangement = Arrangement.SpaceBetween
     )
     {
-        NovelAuthorText(book.author)
+        AuthorText(book.author)
     }
 }
 
