@@ -41,10 +41,16 @@ fun VillainNavigation(
 
         // 채팅 화면
         composable(Screen.Chatting.route) {
-            val title = it.arguments?.getString("title")?: "title"
-            val threadId = it.arguments?.getString("threadId")?: "threadId"
-            val assistantKey = it.arguments?.getString("assistantKey")?: "assistantKey"
+            val title = it.arguments?.getString("title") ?: "title"
+            val threadId = it.arguments?.getString("threadId") ?: "threadId"
+            val assistantKey = it.arguments?.getString("assistantKey") ?: "assistantKey"
             ChatScreen(navController, auth, title, threadId, assistantKey)
+        }
+
+        // gemini chat
+        composable(Screen.GeminiChat.route) {
+            val title = it.arguments?.getString("title") ?: "title"
+            GeminiChatScreen(navController, auth, title)
         }
 
         // 별점화면
