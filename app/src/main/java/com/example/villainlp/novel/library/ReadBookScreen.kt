@@ -21,18 +21,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,13 +38,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import com.example.villainlp.R
-import com.example.villainlp.novel.formatRating
-import com.example.villainlp.server.FirebaseTools
-import kotlinx.coroutines.launch
+import com.example.villainlp.novel.ReadScreenTopBar
 
 @Composable
 fun ReadLibraryBookScreen(
@@ -57,23 +51,31 @@ fun ReadLibraryBookScreen(
     title: String,
     script: String,
     documentId: String,
+    views: String,
+    viewModel: ReadBookViewModel = viewModel(),
 ) {
-    ReadLibraryBookScaffold(title, navController, documentId) { modifier, listState ->
-        LazyColumn(
-            modifier = modifier,
-            state = listState,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            item {
-                Text(
-                    text = script,
-                    modifier = Modifier.padding(26.dp),
-                    color = Color.Black,
-                )
+    ReadLibraryBookScaffold(
+        title = title,
+        navController = navController,
+        documentId = documentId,
+        viewModel = viewModel,
+        content = {
+            LazyColumn(
+                modifier = it,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                item {
+                    Text(
+                        text = script,
+                        modifier = Modifier.padding(26.dp),
+                        color = Color.Black,
+                    )
+                }
             }
         }
-    }
+    )
+    viewModel.viewsPlus(documentId, views) // 조회수 업데이트
 }
 
 // ReadBook
@@ -83,150 +85,161 @@ fun ReadLibraryBookScaffold(
     title: String,
     navController: NavHostController,
     documentId: String,
-    content: @Composable (Modifier, LazyListState) -> Unit,
+    viewModel: ReadBookViewModel,
+    content: @Composable (Modifier) -> Unit,
 ) {
-    var barVisible by remember { mutableStateOf(true) }
-    // 레이지컬럼에 상태 추적
-    val listState = rememberLazyListState()
-    var commentCount by remember { mutableStateOf(0) }
-    var rating by remember { mutableStateOf(0.0f) }
-    val scope = rememberCoroutineScope()
+    val commentCount by viewModel.commentCount.collectAsState()
+    val rating by viewModel.rating.collectAsState()
+    val barVisible by viewModel.barVisible.collectAsState()
 
-    scope.launch {
-        commentCount = FirebaseTools.getCommentCount(documentId)
-        rating = formatRating(FirebaseTools.getRatingFromFirestore(documentId)!!)
-    }
+    viewModel.reloadCommentRating(documentId)
 
     Scaffold(
         topBar = {
-            AnimatedVisibility(
-                visible = barVisible,
-                enter = slideInVertically(),
-                exit = slideOutVertically()
-            ) {
-                ReadLibraryBookScaffoldTopBar(title, navController)
-            }
+            ReadBookTopBar(barVisible, title, navController)
         },
         bottomBar = {
-            AnimatedVisibility(
-                visible = barVisible,
-                enter = slideInVertically(initialOffsetY = { it }),
-                exit = slideOutVertically(targetOffsetY = { it })
-            ) {
-                Column {
-                    Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(65.dp)
-                            .background(color = Color.White)
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.star),
-                            contentDescription = "별"
-                        )
-                        Spacer(modifier = Modifier.size(7.dp))
-                        Text(
-                            text = "$rating",
-                            color = Color(0xFFDD2424)
-                        )
-                        Spacer(modifier = Modifier.size(15.dp))
-                        Row(
-                            modifier = Modifier.clickable { navController.navigate("CommentScreen/${documentId}") },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.message),
-                                contentDescription = "댓글"
-                            )
-                            Spacer(modifier = Modifier.size(10.dp))
-                            Text(
-                                text = "$commentCount",
-                                style = TextStyle(
-                                    color = Color(0xFFAFAFAF),
-                                    fontSize = 18.sp
-                                )
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f, fill = false)
-                                .fillMaxWidth()
-                        ) {
-                            Button(
-                                modifier = Modifier
-                                    .align(Alignment.CenterEnd)
-                                    .width(65.dp)
-                                    .border(1.dp, Color(0xFFBBBBBB), RoundedCornerShape(5.dp))
-                                    .padding(5.dp),
-                                onClick = { navController.navigate("RatingScreen/${documentId}") },
-                                colors = ButtonDefaults.primaryButtonColors(
-                                    backgroundColor = Color.Transparent
-                                ),
-                                shape = RectangleShape
-                            ) {
-                                Text(
-                                    text = "별점주기",
-                                    style = TextStyle(
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = Color(0xFF000000)
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            ReadBookBottomBar(
+                barVisible = barVisible,
+                rating = rating,
+                commentCount = commentCount,
+                onCommentBoxClicked = { navController.navigate("CommentScreen/${documentId}") },
+                onGiveStarRatingClicked = { navController.navigate("RatingScreen/${documentId}") }
+            )
         }
     ) {
         content(
             Modifier
                 .fillMaxSize()
                 .padding(it)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        barVisible = !barVisible
-                    })
-                },
-            listState
+                .pointerInput(Unit) { detectTapGestures(onTap = { viewModel.onTap() }) },
         )
     }
 }
 
+// Top bar 구성
 @Composable
-fun ReadLibraryBookScaffoldTopBar(
+fun ReadBookTopBar(
+    barVisible: Boolean,
     title: String,
-    navController: NavHostController,
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Image(
+    navController: NavHostController
+){
+    AnimatedVisibility(
+        visible = barVisible,
+        enter = slideInVertically(),
+        exit = slideOutVertically()
+    ) {
+        ReadScreenTopBar(title, navController)
+    }
+}
+
+// Bottom bar 구성
+@Composable
+fun ReadBookBottomBar(
+    barVisible: Boolean,
+    rating: Float,
+    commentCount: Int,
+    onCommentBoxClicked: () -> Unit,
+    onGiveStarRatingClicked: () -> Unit
+){
+    AnimatedVisibility(
+        visible = barVisible,
+        enter = slideInVertically(initialOffsetY = { it }),
+        exit = slideOutVertically(targetOffsetY = { it })
+    ) {
+        Column {
+            Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
+            Row(
                 modifier = Modifier
-                    .clickable { navController.popBackStack() }
-                    .size(20.dp),
-                painter = painterResource(id = R.drawable.arrow_left),
-                contentDescription = "back"
+                    .fillMaxWidth()
+                    .height(65.dp)
+                    .background(color = Color.White)
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                StarRating(rating)
+                CommentBox(
+                    commentCount = commentCount,
+                    onClicked = { onCommentBoxClicked() }
+                )
+                GiveStarRating(
+                    modifier = Modifier.weight(1f, fill = false),
+                    onClicked = { onGiveStarRatingClicked() }
+                )
+            }
+        }
+    }
+}
+
+// 별점표시 속성들
+@Composable
+fun StarRating(rating: Float){
+    Image(
+        painter = painterResource(id = R.drawable.star),
+        contentDescription = BottomBarString.StarImageDescription.string
+    )
+    Spacer(modifier = Modifier.size(7.dp))
+    Text(
+        text = "$rating",
+        color = Color(0xFFDD2424)
+    )
+    Spacer(modifier = Modifier.size(15.dp))
+}
+
+// 코맨트달기 속성들
+@Composable
+fun CommentBox(
+    commentCount: Int,
+    onClicked: () -> Unit
+){
+    Row(
+        modifier = Modifier.clickable { onClicked() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.message),
+            contentDescription = BottomBarString.CommentImageDescription.string
+        )
+        Spacer(modifier = Modifier.size(10.dp))
+        Text(
+            text = "$commentCount",
+            style = TextStyle(
+                color = Color(0xFFAFAFAF),
+                fontSize = 18.sp
             )
+        )
+    }
+}
+
+// 별점주기 속성들
+@Composable
+fun GiveStarRating(
+    modifier: Modifier,
+    onClicked: () -> Unit
+){
+    Box(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Button(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .width(65.dp)
+                .border(1.dp, Color(0xFFBBBBBB), RoundedCornerShape(5.dp))
+                .padding(5.dp),
+            onClick = { onClicked() },
+            colors = ButtonDefaults.primaryButtonColors(
+                backgroundColor = Color.Transparent
+            ),
+            shape = RectangleShape
+        ) {
             Text(
-                text = title,
+                text = BottomBarString.RatingText.string,
                 style = TextStyle(
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight(600),
-                    color = Color(0xFF212121),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color(0xFF000000)
                 )
             )
-            Spacer(modifier = Modifier.size(1.dp))
         }
-        Divider(color = Color(0xFF9E9E9E))
     }
 }

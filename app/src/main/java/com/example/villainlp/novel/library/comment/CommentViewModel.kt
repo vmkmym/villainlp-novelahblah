@@ -29,12 +29,20 @@ class CommentViewModel : ViewModel() {
     private val _commentText = MutableStateFlow("")
     val commentText: StateFlow<String> = _commentText
 
+    private val _isAnimationPlaying = MutableStateFlow(false)
+    val isAnimationPlaying: StateFlow<Boolean> = _isAnimationPlaying
+
     // 처음 Comment를 로드하는 부분
     fun loadComments(documentId: String) {
         viewModelScope.launch {
             _commentList.value = FirebaseTools.fetchCommentsFromFirestore(documentId)
             _commentCount.value = _commentList.value.size
         }
+    }
+
+    fun onReloadClicked(documentId: String){
+        _isAnimationPlaying.value = !_isAnimationPlaying.value
+        loadComments(documentId)
     }
 
     // Comment 삭제

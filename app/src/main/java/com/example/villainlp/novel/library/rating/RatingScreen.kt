@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -20,7 +21,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
 import com.example.villainlp.ui.theme.Blue789
-import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -46,91 +45,52 @@ fun RatingScreen(
     // rating요소 5개의 상태를 나타냄
     val ratingViewState by viewModel.ratingViewState.collectAsState()
 
-    val scope = rememberCoroutineScope()
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     )
     {
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            item {
-                RatingBar(
-                    question = "작품성 (문장력과 구성력)",
-                    rating = ratingViewState.artistryRate,
-                    onRatingChanged = { viewModel.setArtistryRate(it) }
-                )
-                RatingBar(
-                    question = "독창성 (창조성과 기발함)",
-                    rating = ratingViewState.originalityRate,
-                    onRatingChanged = { viewModel.setOriginalityRate(it) }
-                )
-                RatingBar(
-                    question = "상업성 (몰입도와 호소력)",
-                    rating = ratingViewState.commercialViabilityRate,
-                    onRatingChanged = { viewModel.setCommercialViabilityRate(it) }
-                )
-                RatingBar(
-                    question = "문학성 (철학과 감명)",
-                    rating = ratingViewState.literaryMeritRate,
-                    onRatingChanged = { viewModel.setLiteraryMeritRate(it) }
-                )
-                RatingBar(
-                    question = "완성도 (문체의 가벼움과 진지함)",
-                    rating = ratingViewState.completenessRate,
-                    onRatingChanged = { viewModel.setCompletenessRate(it) }
-                )
+        RatingColumn(ratingViewState, viewModel)
+        RatingButtonRow(
+            onBackButtonClick = { navController.popBackStack() },
+            onSubmitClick = {
+                viewModel.submitRating(documentId)
+                navController.popBackStack()
             }
-        }
+        )
+    }
+}
 
-        Row(
-            horizontalArrangement = Arrangement.Center, // 버튼들을 수평 가운데로 정렬
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 16.dp) // 상하 여백 추가
-        ) {
-            Button(
-                onClick = {
-                    navController.popBackStack()
-                },
-                colors = ButtonDefaults.buttonColors(Color.White)
+// 별 모양이 있는 Column
+@Composable
+fun RatingColumn(
+    ratingViewState: RatingModel,
+    viewModel: RatingViewModel
+){
+    val ratingBars = listOf(
+        StarFactors.Artistry.factor to ratingViewState.artistryRate,
+        StarFactors.Original.factor to ratingViewState.originalityRate,
+        StarFactors.Commercial.factor to ratingViewState.commercialViabilityRate,
+        StarFactors.Literary.factor to ratingViewState.literaryMeritRate,
+        StarFactors.Complete.factor to ratingViewState.completenessRate
+    )
+
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        items(ratingBars){ (question, rating) ->
+            RatingBar(
+                question = question,
+                rating = rating,
+                onRatingChanged = { viewModel.setRatingByQuestion(question, it) }
             )
-            {
-                Text(
-                    text = "취소",
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        lineHeight = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Blue789
-                    )
-                )
-            }
-            Button(
-                onClick = {
-                    scope.launch { viewModel.submitRating(documentId) }
-                    navController.popBackStack()
-                },
-                colors = ButtonDefaults.buttonColors(Color.White)
-            ) {
-                Text(
-                    text = "제출",
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        lineHeight = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Blue789
-                    )
-                )
-            }
         }
     }
 }
 
+// 별점을 주는 별들
 @Composable
 fun RatingBar(
     question: String,
@@ -171,3 +131,50 @@ fun RatingBar(
     }
     Divider()
 }
+
+// 별점 제출하는 버튼이 있는 Row
+@Composable
+fun RatingButtonRow(
+    onBackButtonClick: () -> Unit,
+    onSubmitClick: () -> Unit
+){
+    Row(
+        horizontalArrangement = Arrangement.Center, // 버튼들을 수평 가운데로 정렬
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp, horizontal = 16.dp) // 상하 여백 추가
+    ) {
+        Button(
+            onClick = { onBackButtonClick() },
+            colors = ButtonDefaults.buttonColors(Color.White)
+        )
+        {
+            Text(
+                text = "취소",
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Blue789
+                )
+            )
+        }
+        Button(
+            onClick = { onSubmitClick() },
+            colors = ButtonDefaults.buttonColors(Color.White)
+        ) {
+            Text(
+                text = "제출",
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Blue789
+                )
+            )
+        }
+    }
+
+}
+
+

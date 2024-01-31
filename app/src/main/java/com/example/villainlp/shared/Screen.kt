@@ -9,7 +9,7 @@ sealed class Screen(val route: String) {
     object Library : Screen("LibraryScreen")
     object MyBook : Screen("MyBookScreen")
     object ReadMyBook : Screen("ReadMyBookScreen/{title}/{script}")
-    object ReadLibraryBook : Screen("ReadLibraryBookScreen/{title}/{script}/{documentId}")
+    object ReadLibraryBook : Screen("ReadLibraryBookScreen/{title}/{script}/{documentId}/{views}")
     object Rating : Screen("RatingScreen/{documentId}")
     object ChattingList : Screen("ChattingScreen")
     object Comment : Screen("CommentScreen/{documentId}")
