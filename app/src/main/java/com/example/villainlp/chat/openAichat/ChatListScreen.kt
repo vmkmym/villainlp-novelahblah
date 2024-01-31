@@ -126,7 +126,8 @@ fun ShowAlertDialog(chatListViewModel: ChatListViewModel) {
             confirmButton = {
                 IconButton(
                     onClick = {
-                        chatListViewModel.deleteChattingAndFetchChatList() // Firestore에서 채팅 삭제 후 채팅 목록을 다시 불러옴
+                        // Firestore에서 채팅 삭제 후 채팅 목록을 다시 불러옴
+                        chatListViewModel.deleteChattingAndFetchChatList()
                     }
                 ) {
                     Text(
@@ -246,7 +247,13 @@ fun NovelChatCards(
                     )
                 }
                 .then(swipeableModifier)
-                .clickable { navController.navigate("ChattingScreen/${novelInfo.title}/${novelInfo.threadId}/${novelInfo.assistId}") },
+                .clickable {
+                    if (novelInfo.threadId == "" || novelInfo.assistId == "") {
+                        navController.navigate("GeminiChatScreen/${novelInfo.title}")
+                    } else {
+                        navController.navigate("ChattingScreen/${novelInfo.title}/${novelInfo.threadId}/${novelInfo.assistId}")
+                    }
+                },
             colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
         ) {
             Column(
@@ -351,4 +358,3 @@ fun NovelChatCards(
         }
     }
 }
-
