@@ -143,6 +143,7 @@ fun Header() {
 fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
+    var showGeminiDialog by remember { mutableStateOf(false) }
     var dialogTitle by remember { mutableStateOf("") }
     var assistantId by remember { mutableStateOf("") }
     val token = getString(context, R.string.api_key)
@@ -152,7 +153,6 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
     var alertMessage by remember { mutableStateOf("") }
     val user = auth.currentUser
     val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
-
 
     Column(
         modifier = Modifier
@@ -169,7 +169,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
         ) {
             CreativeCard(
                 cardColor = Color(0xFFC3FCD9),
-                cardTitle = "작가의 마당",
+                cardTitle = "작가의 마당(gpt)",
                 cardDescription = "스토리라인이 있는 경우",
                 imageResource = painterResource(id = R.drawable.creative_yard_1),
                 onCardClick = {
@@ -180,7 +180,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
             )
             CreativeCard(
                 cardColor = Color(0xFFFFEAEA),
-                cardTitle = "꿈의 마당",
+                cardTitle = "꿈의 마당(gpt)",
                 cardDescription = "스토리라인이 없는 경우",
                 imageResource = painterResource(id = R.drawable.creative_yard_2),
                 onCardClick = {
@@ -190,17 +190,28 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                 }
             )
         }
-        CreativeCard(
-            cardColor = Color(0xFFFFE8C6),
-            cardTitle = "아이디어 마당",
-            cardDescription = "아이디어를 나누어봐요",
-            imageResource = painterResource(id = R.drawable.idea),
-            onCardClick = {
-                showDialog = true
-                assistantId = getString(context, R.string.assistant_key_for_general)
-                alertMessage = "아이디어 마당"
-            }
-        )
+        Row {
+            CreativeGeminiCard(
+                cardColor = Color(0xFFFFFACA),
+                cardTitle = "작가의 마당(Gemini)",
+                cardDescription = "스토리라인이 있는 경우",
+                imageResource = painterResource(id = R.drawable.creative_yard_1),
+                onCardClick = {
+                    showGeminiDialog = true
+                    alertMessage = "작가의 마당"
+                }
+            )
+            CreativeGeminiCard(
+                cardColor = Color(0xFFC5F0E8),
+                cardTitle = "꿈의 마당 (Gemini)",
+                cardDescription = "스토리라인이 없는 경우",
+                imageResource = painterResource(id = R.drawable.creative_yard_2),
+                onCardClick = {
+                    showGeminiDialog = true
+                    alertMessage = "꿈의 마당"
+                }
+            )
+        }
     }
     if (showDialog) {
         // 다이얼로그 강조를 위한 스크림 오버레이
@@ -298,6 +309,113 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
             dismissButton = {
                 IconButton(
                     onClick = { showDialog = false }
+                ) {
+                    Text(
+                        text = "취소",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue789
+                        )
+                    )
+                }
+            },
+            containerColor = Color.White
+        )
+    }
+    if (showGeminiDialog) {
+        // 다이얼로그 강조를 위한 스크림 오버레이
+        ScrimOverlay(
+            onClick = { showGeminiDialog = false },
+            visible = showGeminiDialog,
+            scrimColor = Color.Black.copy(alpha = 0.5f)
+        )
+
+        AlertDialog(
+            icon = {
+                LottieAnimation(
+                    modifier = Modifier.size(40.dp),
+                    composition = firePuppleLottie,
+                    iterations = LottieConstants.IterateForever
+                )
+            },
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(
+                    text = "$alertMessage 채팅방을 생성하시겠습니까?",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        lineHeight = 28.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                )
+            },
+            text = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = dialogTitle,
+                        onValueChange = { dialogTitle = it },
+                        modifier = Modifier
+                            .width(300.dp)
+                            .height(80.dp)
+                            .padding(8.dp),
+                        label = {
+                            Text(
+                                text = "채팅방 이름을 입력해주세요.",
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    lineHeight = 24.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.Black
+                                )
+                            )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Blue789,
+                            unfocusedBorderColor = Blue789
+                        ),
+                    )
+                }
+            },
+            confirmButton = {
+                IconButton(
+                    onClick = {
+                        scope.launch {
+                            val currentDate =
+                                SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
+                                    Date()
+                                )
+                            val novelInfo =
+                                NovelInfo(
+                                    title = dialogTitle,
+                                    userID = user!!.uid,
+                                    createdDate = currentDate
+                                )
+                            saveNovelInfo(novelInfo)
+                        }
+                        showGeminiDialog = false
+                        navController.navigate(Screen.ChattingList.route)
+                    }
+                ) {
+                    Text(
+                        text = "확인",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue789
+                        )
+                    )
+                }
+            },
+            dismissButton = {
+                IconButton(
+                    onClick = { showGeminiDialog = false }
                 ) {
                     Text(
                         text = "취소",
@@ -454,3 +572,58 @@ fun ScrimOverlay(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreativeGeminiCard(
+    cardColor: Color,
+    cardTitle: String,
+    cardDescription: String,
+    imageResource: Painter,
+    onCardClick: () -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .shadow(elevation = 8.dp, spotColor = cardColor, ambientColor = cardColor)
+            .width(160.dp)
+            .height(226.dp),
+        onClick = onCardClick,
+        colors = CardDefaults.cardColors(containerColor = cardColor)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Image(
+                painter = imageResource,
+                contentDescription = "Card Image",
+                modifier = Modifier
+                    .size(66.dp)
+                    .offset(
+                        x = 16.dp,
+                        y = 20.dp
+                    ),
+                contentScale = ContentScale.Crop
+            )
+            Column(
+                modifier = Modifier
+                    .offset(
+                        x = 16.dp,
+                        y = 100.dp
+                    )
+            ) {
+                Text(
+                    text = cardTitle,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = cardDescription,
+                    fontSize = 13.sp,
+                    color = Color.DarkGray
+                )
+            }
+        }
+    }
+}
