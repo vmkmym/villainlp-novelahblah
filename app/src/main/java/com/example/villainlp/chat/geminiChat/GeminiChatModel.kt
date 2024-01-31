@@ -10,7 +10,7 @@ import com.google.firebase.ktx.Firebase
 class GeminiChatModel {
     fun createChatRoom(title: String): String {
         val database = Firebase.database
-        val chatRoomsRef = database.getReference("ChatRooms")
+        val chatRoomsRef = database.getReference("Gemini/$title")
         val newChatRoomRef = chatRoomsRef.push()
 
         newChatRoomRef.child("title").setValue(title)
