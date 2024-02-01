@@ -177,10 +177,7 @@ internal fun GeminiChatScreen(
                     CoroutineScope(Dispatchers.IO).launch {
                         setInput("")
                         isAnimationRunning = true
-                        // Create chat room
-                        geminiChatViewModel.createChatRoom(title)
-                        // Send message to chatbot
-                        geminiChatViewModel.sendMessage(input)
+                        geminiChatViewModel.sendMessage(input, title)
                         isAnimationRunning = false
                     }
                 }

@@ -17,7 +17,7 @@ class GeminiChatViewModel(
 
     private val chat = generativeModel.startChat(
         history = listOf(
-            content(role = "model") { text("이야기를 작성해보세요.") }
+            content(role = "user") { text("이야기를 작성해보세요.") }
         )
     )
 
@@ -34,11 +34,11 @@ class GeminiChatViewModel(
         _uiState.asStateFlow()
 
 
-    fun createChatRoom(title: String): String {
+    private fun createChatRoom(title: String): String {
         return model.createChatRoom(title)
     }
 
-    fun sendMessage(userMessage: String) {
+    fun sendMessage(userMessage: String, title: String) {
         val geminiChatMessage = GeminiChatMessage(
             message = userMessage,
             userName = GeminiChatParticipant.USER,
@@ -47,8 +47,8 @@ class GeminiChatViewModel(
         )
         _uiState.value.addMessage(geminiChatMessage)
 
-        // Save user message to Firebase
-        model.saveChatMessage(geminiChatMessage, "chatRoomId") // Replace "chatRoomId" with the actual chat room ID
+        // Create a new chat room and get its ID
+        val chatRoomId = createChatRoom(title)
 
         viewModelScope.launch {
             try {
@@ -66,13 +66,13 @@ class GeminiChatViewModel(
                     _uiState.value.addMessage(geminiChatbotMessage)
 
                     // Save model response to Firebase
-                    model.saveChatbotMessage(geminiChatbotMessage, "chatRoomId") // Replace "chatRoomId" with the actual chat room ID
+                    model.saveChatbotMessage(geminiChatbotMessage, chatRoomId)
                 }
             } catch (e: Exception) {
                 _uiState.value.replaceLastPendingMessage()
                 _uiState.value.addMessage(
                     GeminiChatMessage(
-                        message = e.localizedMessage.toString(),
+                        message = e.localizedMessage?.toString(),
                         userName = GeminiChatParticipant.ERROR,
                         uploadDate = ""
                     )
@@ -83,10 +83,6 @@ class GeminiChatViewModel(
 
     fun saveChatMessage(geminiChatMessage: GeminiChatMessage, title: String) {
         model.saveChatMessage(geminiChatMessage, title)
-    }
-
-    fun saveChatbotMessage(geminiChatbotMessage: GeminiChatMessage, title: String) {
-        model.saveChatbotMessage(geminiChatbotMessage, title)
     }
 
     fun loadChatMessages(listener: (List<GeminiChatMessage>) -> Unit, title: String) {

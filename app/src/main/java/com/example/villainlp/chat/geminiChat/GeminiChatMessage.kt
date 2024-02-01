@@ -6,6 +6,6 @@ data class GeminiChatMessage(
     var message: String? = "message error",
     val userId: String? = UUID.randomUUID().toString(),
     val userName: GeminiChatParticipant? = GeminiChatParticipant.MODEL,
-    var isPending: Boolean = false,
+    var isPending: Boolean = false, // true: user message, false: model response
     val uploadDate: String? = ""
 )
