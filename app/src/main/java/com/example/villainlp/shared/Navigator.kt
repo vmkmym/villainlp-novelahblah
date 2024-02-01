@@ -88,12 +88,6 @@ fun VillainNavigation(
 
         // 설정-프로필화면
         composable(Screen.Profile.route) { SettingScreen(auth, navController, signOutClicked) }
-
-        // gemini chat
-        composable(Screen.GeminiChat.route) {
-            val title = it.arguments?.getString("title") ?: "title"
-            GeminiChatScreen(navController, auth, title)
-        }
     }
 }
 
