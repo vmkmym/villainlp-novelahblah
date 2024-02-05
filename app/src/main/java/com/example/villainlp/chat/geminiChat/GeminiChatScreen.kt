@@ -38,6 +38,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,6 +92,8 @@ internal fun GeminiChatScreen(
     title: String
 ) {
     val geminiChatViewModel: GeminiChatViewModel = viewModel(factory = GeminiViewModelFactory)
+    val uiState by geminiChatViewModel.uiState.collectAsState()
+
 
     val (input, setInput) = remember { mutableStateOf("") }
 
@@ -198,10 +201,9 @@ internal fun GeminiChatScreen(
                     GenerateResponse(loadingAnimation)
                 }
             }
-            items(sentMessages.reversed()) { message ->
+            items(uiState.messages.reversed()) { message ->
                 ChatItemBubble(
                     message = message,
-                    userId = user?.uid
                 )
             }
         }
@@ -402,8 +404,8 @@ private fun SendButton(onSendClick: () -> Unit, keyboardController: SoftwareKeyb
 }
 
 @Composable
-fun ChatItemBubble(message: GeminiChatMessage, userId: String?) {
-    val isCurrentUserMessage = userId == message.userId
+fun ChatItemBubble(message: GeminiChatMessage) {
+    val isCurrentUserMessage = message.userName == GeminiChatParticipant.USER
     val bubbleColor = if (isCurrentUserMessage) Color(0xFF3CDEE9) else Color(0xFFFFFFFF)
     val bubbleShape =
         RoundedCornerShape(
@@ -444,6 +446,7 @@ private fun UserResponse(
             Box(
                 modifier = Modifier
                     .background(color = bubbleColor, shape = bubbleShape)
+                    .width(IntrinsicSize.Max)
                     .padding(6.dp)
                     .combinedClickable(
                         onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
@@ -475,7 +478,7 @@ private fun ChatbotResponse(
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(3.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.userimage),
@@ -499,11 +502,9 @@ private fun ChatbotResponse(
             Row(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
-                        .weight(1f)
                         .background(
                             color = bubbleColor,
                             shape = bubbleShape
@@ -513,6 +514,7 @@ private fun ChatbotResponse(
                             color = Color(0xFF3CDEE9),
                             shape = bubbleShape
                         )
+                        .width(IntrinsicSize.Max)
                         .padding(6.dp)
                         .combinedClickable(
                             onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
