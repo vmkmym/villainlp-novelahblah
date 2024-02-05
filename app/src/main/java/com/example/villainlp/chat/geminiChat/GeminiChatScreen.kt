@@ -92,10 +92,10 @@ internal fun GeminiChatScreen(
     title: String
 ) {
     val geminiChatViewModel: GeminiChatViewModel = viewModel(factory = GeminiViewModelFactory)
-    val uiState by geminiChatViewModel.uiState.collectAsState()
-
-
     val (input, setInput) = remember { mutableStateOf("") }
+
+    // TODO: 이 부분이 문제임
+    val uiState by geminiChatViewModel.uiState.collectAsState()
 
     var sentMessages by remember { mutableStateOf(listOf<GeminiChatMessage>()) }
     var sentBotMessages by remember { mutableStateOf(listOf<GeminiChatMessage>()) }
@@ -162,21 +162,8 @@ internal fun GeminiChatScreen(
             ) {
                 CustomTextField(
                     value = input,
-                    onValueChange = { setInput(it) }
+                    onValueChange = { setInput(it) },
                 ) {
-                    val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-                        Date()
-                    )
-                    if (input.isNotEmpty()) {
-                        val message =
-                            GeminiChatMessage(
-                                message = input,
-                                userId = auth.currentUser?.uid,
-                                userName = GeminiChatParticipant.USER,
-                                uploadDate = currentDate
-                        )
-                        geminiChatViewModel.saveChatMessage(message, title)
-                    }
                     CoroutineScope(Dispatchers.IO).launch {
                         setInput("")
                         isAnimationRunning = true
@@ -201,7 +188,14 @@ internal fun GeminiChatScreen(
                     GenerateResponse(loadingAnimation)
                 }
             }
-            items(uiState.messages.reversed()) { message ->
+            // TODO: ChatScreen은 sentMessages.reversed()로 적어도 uid를 ChatItemBubble에서 활용하기 때문에 사용자와 챗봇의 메시지가 전부 보여지는데 이건 어떻게 해야할지...
+            // 화면엔 잘 나오지만 대화 로드를 못함(채팅방 나갔다가 들어오면 빈 채팅방이 보여지나 realtime db엔 올라가있음)
+//            items(uiState.messages.reversed()) { message ->
+//                ChatItemBubble(
+//                    message = message,
+//                )
+//            }
+            items(sentMessages.reversed()) { message ->
                 ChatItemBubble(
                     message = message,
                 )
@@ -405,6 +399,7 @@ private fun SendButton(onSendClick: () -> Unit, keyboardController: SoftwareKeyb
 
 @Composable
 fun ChatItemBubble(message: GeminiChatMessage) {
+    // TODO: isCurrentUserMessage가 문제임 ChatScreen과 똑같이 적을 수가 없음 데이터 클래스 시그니처가 다름
     val isCurrentUserMessage = message.userName == GeminiChatParticipant.USER
     val bubbleColor = if (isCurrentUserMessage) Color(0xFF3CDEE9) else Color(0xFFFFFFFF)
     val bubbleShape =
@@ -421,6 +416,7 @@ fun ChatItemBubble(message: GeminiChatMessage) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun UserResponse(
     message: GeminiChatMessage,
@@ -502,9 +498,11 @@ private fun ChatbotResponse(
             Row(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
+                        .weight(1f)
                         .background(
                             color = bubbleColor,
                             shape = bubbleShape
