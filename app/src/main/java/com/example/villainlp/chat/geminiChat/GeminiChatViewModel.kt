@@ -9,12 +9,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class GeminiChatViewModel(
     generativeModel: GenerativeModel,
     private val model: GeminiChatModel
 ) : ViewModel() {
-
     private val chat = generativeModel.startChat(
         history = listOf(
             content(role = "model") { text("이야기를 작성해보세요.") }
@@ -23,15 +25,13 @@ class GeminiChatViewModel(
 
     private val _uiState: MutableStateFlow<GeminiChatUiState> =
         MutableStateFlow(GeminiChatUiState(chat.history.map { content ->
-            // Map the initial messages
             GeminiChatMessage(
                 message = content.parts.first().asTextOrNull() ?: "",
                 userName = if (content.role == "user") GeminiChatParticipant.USER else GeminiChatParticipant.MODEL,
-                uploadDate = ""
+                uploadDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
             )
         }))
-    val uiState: StateFlow<GeminiChatUiState> =
-        _uiState.asStateFlow()
+    val uiState: StateFlow<GeminiChatUiState> = _uiState.asStateFlow()
 
 
     private fun createChatRoom(title: String): String {
@@ -39,16 +39,16 @@ class GeminiChatViewModel(
     }
 
     fun sendMessage(userMessage: String, title: String) {
+        val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         val geminiChatMessage = GeminiChatMessage(
             message = userMessage,
             userName = GeminiChatParticipant.USER,
             isPending = true,
-            uploadDate = ""
+            uploadDate = currentDate
         )
         _uiState.value.addMessage(geminiChatMessage)
-
-        // Create a new chat room and get its ID
         val chatRoomId = createChatRoom(title)
+        saveChatMessage(geminiChatMessage, chatRoomId)
 
         viewModelScope.launch {
             try {
@@ -61,11 +61,9 @@ class GeminiChatViewModel(
                         message = modelResponse,
                         userName = GeminiChatParticipant.MODEL,
                         isPending = false,
-                        uploadDate = ""
+                        uploadDate = currentDate
                     )
                     _uiState.value.addMessage(geminiChatbotMessage)
-
-                    // Save model response to Firebase
                     model.saveChatbotMessage(geminiChatbotMessage, chatRoomId)
                 }
             } catch (e: Exception) {
@@ -74,14 +72,15 @@ class GeminiChatViewModel(
                     GeminiChatMessage(
                         message = e.localizedMessage?.toString(),
                         userName = GeminiChatParticipant.ERROR,
-                        uploadDate = ""
+                        uploadDate = currentDate
                     )
                 )
+                e.printStackTrace() // Log the full stack trace
             }
         }
     }
 
-    fun saveChatMessage(geminiChatMessage: GeminiChatMessage, title: String) {
+    private fun saveChatMessage(geminiChatMessage: GeminiChatMessage, title: String) {
         model.saveChatMessage(geminiChatMessage, title)
     }
 
