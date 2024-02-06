@@ -167,7 +167,7 @@ internal fun GeminiChatScreen(
                     CoroutineScope(Dispatchers.IO).launch {
                         setInput("")
                         isAnimationRunning = true
-                        geminiChatViewModel.sendMessage(input, title)
+                        geminiChatViewModel.sendMessage(input, title, user?.uid?: "ERROR") // TODO : uid 추가
                         isAnimationRunning = false
                     }
                 }
@@ -198,6 +198,7 @@ internal fun GeminiChatScreen(
             items(sentMessages.reversed()) { message ->
                 ChatItemBubble(
                     message = message,
+                    userId = user?.uid?: "ERROR" // TODO: uid 추가를 위해 파라미터 추가
                 )
             }
         }
@@ -398,9 +399,9 @@ private fun SendButton(onSendClick: () -> Unit, keyboardController: SoftwareKeyb
 }
 
 @Composable
-fun ChatItemBubble(message: GeminiChatMessage) {
-    // TODO: isCurrentUserMessage가 문제임 ChatScreen과 똑같이 적을 수가 없음 데이터 클래스 시그니처가 다름
-    val isCurrentUserMessage = message.userName == GeminiChatParticipant.USER
+fun ChatItemBubble(message: GeminiChatMessage, userId: String) {
+    // TODO: 로그인된 user의 정보를 사용하지 않아 Firebase의 userId로 변경해봄
+    val isCurrentUserMessage = (message.userId ?: "UID ERROR") == userId
     val bubbleColor = if (isCurrentUserMessage) Color(0xFF3CDEE9) else Color(0xFFFFFFFF)
     val bubbleShape =
         RoundedCornerShape(

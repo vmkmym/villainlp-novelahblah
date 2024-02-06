@@ -38,17 +38,18 @@ class GeminiChatViewModel(
         return model.createChatRoom(title)
     }
 
-    fun sendMessage(userMessage: String, title: String) {
+    fun sendMessage(userMessage: String, title: String, userId: String) { // TODO : uid 추가
         val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         val geminiChatMessage = GeminiChatMessage(
             message = userMessage,
+            userId = userId,
             userName = GeminiChatParticipant.USER,
             isPending = true,
             uploadDate = currentDate
         )
         _uiState.value.addMessage(geminiChatMessage)
-        val chatRoomId = createChatRoom(title)
-        saveChatMessage(geminiChatMessage, chatRoomId)
+//        val chatRoomId = createChatRoom(title) // TODO : 이렇게 만들어내 chatRoomID는 랜덤임 계속 변하는값
+        saveChatMessage(geminiChatMessage, title) // TODO : 그래서 채팅을 저장할 수 없음
 
         viewModelScope.launch {
             try {
@@ -64,7 +65,7 @@ class GeminiChatViewModel(
                         uploadDate = currentDate
                     )
                     _uiState.value.addMessage(geminiChatbotMessage)
-                    model.saveChatbotMessage(geminiChatbotMessage, chatRoomId)
+                    model.saveChatbotMessage(geminiChatbotMessage, title)
                 }
             } catch (e: Exception) {
                 _uiState.value.replaceLastPendingMessage()
