@@ -19,7 +19,8 @@ class GeminiChatViewModel(
 ) : ViewModel() {
     private val chat = generativeModel.startChat(
         history = listOf(
-            content(role = "model") { text("이야기를 작성해보세요.") }
+            content(role = "user") { text("안녕 너의 이름은 뭐니?") }, // TODO : 잘 설정해서 소설릴레이 만들기
+            content(role = "model") { text("내 이름은 코난 탐정이죠🤔") }
         )
     )
 
