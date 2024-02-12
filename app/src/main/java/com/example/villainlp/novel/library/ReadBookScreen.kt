@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -69,7 +71,7 @@ fun ReadLibraryBookScreen(
                     Text(
                         text = script,
                         modifier = Modifier.padding(26.dp),
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -153,7 +155,7 @@ fun ReadBookBottomBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(65.dp)
-                    .background(color = Color.White)
+                    .background(color = if (isSystemInDarkTheme()) { Color(0xFF181c1f) } else { Color.White })
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -237,7 +239,7 @@ fun GiveStarRating(
                 style = TextStyle(
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF000000)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             )
         }

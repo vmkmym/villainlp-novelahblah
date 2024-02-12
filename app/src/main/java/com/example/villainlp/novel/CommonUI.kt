@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -200,7 +201,7 @@ fun ReadScreenTopBar(
                 style = TextStyle(
                     fontSize = 22.sp,
                     fontWeight = FontWeight(600),
-                    color = Color(0xFF212121),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             )
             if (hasIcon){
@@ -240,7 +241,7 @@ fun TitleText(title: String){
         style = TextStyle(
             fontSize = 20.sp,
             fontWeight = FontWeight(600),
-            color = Color(0xFF212121),
+            color = MaterialTheme.colorScheme.onSurface, // 현 상태에 맞춘 색
         ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
@@ -258,7 +259,7 @@ fun DescriptionText(description: String){
         style = TextStyle(
             fontSize = 14.sp,
             fontWeight = FontWeight(500),
-            color = Color(0xFF2C2C2C),
+            color = MaterialTheme.colorScheme.onSurface,
         ),
         maxLines = 2,
         overflow = TextOverflow.Ellipsis
