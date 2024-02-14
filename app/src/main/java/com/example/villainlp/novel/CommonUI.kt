@@ -1,7 +1,6 @@
 package com.example.villainlp.novel
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,8 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -185,17 +188,13 @@ fun ReadScreenTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp)
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+                .padding(start = 4.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Image(
-                modifier = Modifier
-                    .clickable { navController.popBackStack() }
-                    .size(20.dp),
-                painter = painterResource(id = R.drawable.arrow_left),
-                contentDescription = "back"
-            )
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "back")
+            }
             Text(
                 text = title,
                 style = TextStyle(
@@ -205,13 +204,11 @@ fun ReadScreenTopBar(
                 )
             )
             if (hasIcon){
-                Image(
-                    modifier = Modifier.clickable { onClicked() },
-                    painter = painterResource(id = R.drawable.file_upload),
-                    contentDescription = "upload"
-                )
+                IconButton(onClick = { onClicked() }) {
+                    Icon(imageVector = Icons.Default.Share, contentDescription = "upload")
+                }
             } else {
-                Spacer(modifier = Modifier.size(1.dp))
+                Spacer(modifier = Modifier.size(15.dp))
             }
         }
         Divider(color = Color(0xFF9E9E9E))
