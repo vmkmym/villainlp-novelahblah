@@ -79,7 +79,6 @@ class GeminiChatViewModel(
         viewModelScope.launch {
             try {
                 val response = chat.sendMessage(userMessage)
-
                 _uiState.value.replaceLastPendingMessage()
 
                 response.text?.let { modelResponse ->
