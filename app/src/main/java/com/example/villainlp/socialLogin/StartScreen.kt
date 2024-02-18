@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,24 +41,22 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun LottieScreen(navController: NavController, auth: FirebaseAuth) {
     val user = auth.currentUser
-    val startDestination = if (user == null) Screen.Login.route else Screen.CreativeYard.route
+    val startDestination = if (user == null) Screen.Lottie.route else Screen.CreativeYard.route
 
     if (user != null) {
         navController.navigate(startDestination)
     } else {
         StartLottie(navController, auth)
+        Spacer(modifier = Modifier.height(15.dp))
     }
 }
 
 @Composable
 private fun StartLottie(navController: NavController, auth: FirebaseAuth) {
     // 애니메이션 시작 화면
-    val robotlottie by rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.robot)
-    )
+    val robotlottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.robot))
     var index by remember { mutableIntStateOf(0) }
     val user = auth.currentUser
-
     val startDestination = if (user == null) Screen.Login.route else Screen.CreativeYard.route
 
     Column(
@@ -67,7 +66,7 @@ private fun StartLottie(navController: NavController, auth: FirebaseAuth) {
     ) {
         Box {
             Row(
-                modifier = Modifier.padding(top = 20.dp)
+                modifier = Modifier.padding(top = 15.dp)
             ) {
                 Spacer(modifier = Modifier.weight(1f))
                 LottieAnimation(
@@ -118,20 +117,21 @@ private fun StartLottie(navController: NavController, auth: FirebaseAuth) {
 @Composable
 private fun Descriptions(content: TextContent) {
     Column(
-        modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 60.dp)
+        modifier = Modifier
+            .padding(start = 28.dp, end = 28.dp, bottom = 80.dp)
     ) {
         CustomText(
             text = content.subtitle,
-            fontSize = 24,
-            lineHeight = 40,
-            fontWeight = 700,
+            fontSize = 22,
+            lineHeight = 32,
+            fontWeight = 600,
             color = Color(0xFFFFFFFF)
         )
         CustomText(
             text = content.body,
-            fontSize = 16,
+            fontSize = 14,
             lineHeight = 24,
-            fontWeight = 500,
+            fontWeight = 400,
             color = Color(0xFFFFFFFF)
         )
     }

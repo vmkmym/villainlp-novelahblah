@@ -137,8 +137,6 @@ fun DisplayUserProfileImage(userImage: Uri?) {
 // 로그아웃 버튼
 @Composable
 fun DisplaySignOutButton(signOutClicked: () -> Unit) {
-    val windowWidth = LocalConfiguration.current.screenWidthDp.dp
-
     Box(
         modifier = Modifier
             .shadow(
@@ -147,7 +145,7 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
                 ambientColor = Color(0x5917C3CE)
             )
             .width(320.dp)
-            .height(60.dp)
+            .height(70.dp)
             .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
             .padding(vertical = 14.dp)
             .clickable { signOutClicked() }
@@ -155,10 +153,7 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
         Text(
             text = "Sign out",
             modifier = Modifier
-                .padding(
-                    start = windowWidth * 0.3f, // fraction을 사용하여 padding 값을 설정합니다.
-                    end = windowWidth * 0.3f // fraction을 사용하여 padding 값을 설정합니다.
-                ),
+                .align(Alignment.Center),
             style = TextStyle(
                 fontSize = 22.sp,
                 fontWeight = FontWeight(700),
