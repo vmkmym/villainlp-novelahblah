@@ -9,12 +9,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,7 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -38,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -50,8 +53,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
 import com.example.villainlp.chat.openAichat.ChatModel
-import com.example.villainlp.shared.MyScaffoldBottomBar
-import com.example.villainlp.shared.MyScaffoldTopBar
+import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.shared.SharedObjects.EMAIL
 import com.example.villainlp.shared.SharedObjects.NAME
 import com.example.villainlp.shared.SharedObjects.NOTION_INQUIRY
@@ -79,33 +81,37 @@ fun SettingScreen(
     val userName by viewModel.userName.collectAsState()
     val userEmail by viewModel.userEmail.collectAsState()
 
-    MyScaffoldProfile(
+    // 현재 화면의 크기를 가져옵니다.
+    val windowHeight = LocalConfiguration.current.screenHeightDp.dp
+    val isDarkTheme = isSystemInDarkTheme()
+    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
+
+    MyScaffold(
         title = "설정",
         navController = navController
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
         ) {
-            Spacer(modifier = Modifier.padding(vertical = 30.dp))
-
-            // Display user profile image
+            Spacer(modifier = Modifier.padding(vertical = windowHeight * 0.03f))
+            // 로그인한 유저의 프로필 이미지를 가져옴
             DisplayUserProfileImage(userImage)
-
-            Spacer(modifier = Modifier.padding(vertical = 20.dp))
-
-            // Display user fields
+            Spacer(modifier = Modifier.padding(vertical = windowHeight * 0.02f))
+            // 로그인한 유저의 이름, 이메일을 가져옴
             DisplayUserFields(
                 userName = userName ?: "",
                 onUserNameChange = {},
                 userEmail = userEmail ?: "",
                 onUserEmailChange = {}
             )
-
-            // Display sign out button
+            Spacer(modifier = Modifier.padding(vertical = windowHeight * 0.01f))
+            // 로그아웃 버튼
             DisplaySignOutButton { signOutClicked() }
-            // Display customer inquiry
+            // 고객 문의 및 FAQ
             DisplayCustomerInquiry(url, context)
         }
     }
@@ -138,8 +144,8 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
                 spotColor = Color(0x5917C3CE),
                 ambientColor = Color(0x5917C3CE)
             )
-            .width(320.dp)
-            .height(60.dp)
+            .fillMaxWidth(0.81f)
+            .fillMaxHeight(0.15f)
             .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
             .padding(vertical = 14.dp)
             .clickable { signOutClicked() }
@@ -165,7 +171,10 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
 @Composable
 fun DisplayCustomerInquiry(url: String, context: Context) {
     var isClicked by remember { mutableStateOf(false) }
-    Spacer(modifier = Modifier.padding(top = 70.dp))
+    val isDarkTheme = isSystemInDarkTheme()
+    val windowSize = LocalConfiguration.current.screenWidthDp.dp // 화면의 너비를 가져옵니다.
+
+    Spacer(modifier = Modifier.padding(top = windowSize * 0.07f))
     Box(
         modifier = Modifier
             .clickable {
@@ -177,22 +186,23 @@ fun DisplayCustomerInquiry(url: String, context: Context) {
         Row {
             Image(
                 painter = painterResource(id = R.drawable.notion1),
-                contentDescription = NOTION_LOGO
+                contentDescription = NOTION_LOGO,
+                modifier = Modifier.size(windowSize * 0.05f) // 없던 부분 추가
             )
             // 고객 문의 텍스트
             Text(
                 text = NOTION_INQUIRY,
                 modifier = Modifier
-                    .padding(start = 3.dp, end = 12.dp),
+                    .padding(start = windowSize * 0.003f, end = windowSize * 0.012f),
                 style = TextStyle(
                     fontSize = 16.sp,
                     lineHeight = 20.sp,
                     fontWeight = FontWeight(500),
-                    color = Color(0xFF000000),
+                    color = if (isDarkTheme) Color.White else Color.DarkGray,
                     letterSpacing = 0.28.sp,
                 )
             )
-            Spacer(modifier = Modifier.padding(bottom = 30.dp))
+            Spacer(modifier = Modifier.padding(bottom = windowSize * 0.03f))
         }
     }
 }
@@ -205,56 +215,42 @@ fun DisplayUserFields(
     userEmail: String,
     onUserEmailChange: (String) -> Unit,
 ) {
+    val windowSize = LocalConfiguration.current.screenWidthDp.dp
+    val windowHeight = LocalConfiguration.current.screenHeightDp.dp
+    val isDarkTheme = isSystemInDarkTheme()
+
     OutlinedTextField(
         value = userName,
         onValueChange = onUserNameChange,
         modifier = Modifier
-            .width(320.dp)
-            .height(80.dp)
+            .width(windowSize * 0.8f)
+            .height(windowHeight * 0.1f)
             .padding(8.dp),
         label = { Text(NAME) },
         singleLine = true,
         enabled = false, // 편집 불가능하게 설정
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Blue789,
-            unfocusedBorderColor = Blue789
+            disabledTextColor = if (isDarkTheme) Color.White else Color.DarkGray,
+            unfocusedBorderColor = Blue789,
+            disabledBorderColor = Blue789,
+            disabledLabelColor = Blue789,
         )
     )
     OutlinedTextField(
         value = userEmail,
         onValueChange = onUserEmailChange,
         modifier = Modifier
-            .width(320.dp)
-            .height(80.dp)
+            .width(windowSize * 0.8f)
+            .height(windowHeight * 0.1f)
             .padding(8.dp),
         label = { Text(EMAIL) },
         singleLine = true,
         enabled = false, // 편집 불가능하게 설정
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Blue789,
-            unfocusedBorderColor = Blue789
+            disabledTextColor = if (isDarkTheme) Color.White else Color.DarkGray, // 텍스트 필드가 비활성화 상태일 때의 텍스트 색상
+            unfocusedBorderColor = Blue789, // 텍스트 필드에 포커스가 맞춰지지 않았을 때의 테두리 색상
+            disabledBorderColor = Blue789, // 텍스트 필드가 비활성화 상태일 때의 테두리 색상
+            disabledLabelColor = Blue789, // 텍스트 필드가 비활성화 상태일 때의 레이블 색상
         )
     )
-}
-
-// Scaffold
-@Composable
-fun MyScaffoldProfile(
-    title: String,
-    navController: NavHostController,
-    content: @Composable (Modifier) -> Unit,
-) {
-    Scaffold(
-        topBar = {
-            MyScaffoldTopBar(title)
-        },
-        bottomBar = {
-            MyScaffoldBottomBar(navController)
-        }
-    ) {
-        content(
-            Modifier
-                .padding(it)
-        )
-    }
 }

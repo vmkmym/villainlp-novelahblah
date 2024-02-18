@@ -3,6 +3,7 @@ package com.example.villainlp.shared
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,21 +39,20 @@ fun MyScaffold(
     navController: NavHostController,
     content: @Composable (Modifier) -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            MyScaffoldTopBar(title)
-        },
-        bottomBar = {
-            MyScaffoldBottomBar(navController)
-        }
-    ) {
+    // 다크모드, 라이트모드에 따라 배경색 변경
+    val isDarkTheme = isSystemInDarkTheme()
+    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
+
+    Scaffold(topBar = {
+        MyScaffoldTopBar(title)
+    }, bottomBar = {
+        MyScaffoldBottomBar(navController)
+    }) {
         content(
             Modifier
                 .fillMaxSize()
                 .padding(it)
-                .background(
-                    color = Color(0xFFFFFFFF)
-                ),
+                .background(color = backgroundColor),
         )
     }
 }
@@ -59,14 +60,18 @@ fun MyScaffold(
 // SettingScreen, MyScaffold(UiFunctions)
 @Composable
 fun MyScaffoldBottomBar(navController: NavHostController) {
+    val isDarkTheme = isSystemInDarkTheme()
+    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
     val currentScreen = remember { mutableStateOf(navController.currentDestination?.route) }
+    val windowSize = LocalConfiguration.current.screenWidthDp.dp
+
     Column {
         Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
         Row(
             Modifier
                 .width(428.dp)
                 .height(80.dp)
-                .background(color = Color(0xFFFFFFFF), RoundedCornerShape(17.dp))
+                .background(color = backgroundColor, RoundedCornerShape(17.dp))
                 .padding(start = 33.dp, top = 16.dp, end = 33.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top,
@@ -119,12 +124,20 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
 // SettingScreen, MyScaffold(UiFunctions)
 @Composable
 fun MyScaffoldTopBar(title: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    val isDarkTheme = isSystemInDarkTheme()
+    val windowSize = LocalConfiguration.current.screenWidthDp.dp
+    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = backgroundColor)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(60.dp)
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+                .height(windowSize * 0.18f)
+                .padding(windowSize * 0.016f),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -133,11 +146,11 @@ fun MyScaffoldTopBar(title: String) {
                 style = TextStyle(
                     fontSize = 22.sp,
                     fontWeight = FontWeight(600),
-                    color = Color(0xFF212121),
+                    color = if (isDarkTheme) Color.White else Color.DarkGray
                 )
             )
         }
-        Divider(color = Color(0xFF9E9E9E))
+        Divider(color = if (isDarkTheme) Color.LightGray else Color.LightGray)
     }
 }
 
@@ -168,10 +181,7 @@ fun CustomIconButton(
             contentDescription = null,
         )
         Text(
-            modifier = Modifier
-                .height(17.dp),
-            text = iconText,
-            style = TextStyle(
+            modifier = Modifier.height(17.dp), text = iconText, style = TextStyle(
                 fontSize = 10.sp,
                 fontWeight = FontWeight(500),
                 color = textColor,
