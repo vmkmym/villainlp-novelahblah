@@ -1,14 +1,17 @@
 package com.example.villainlp.socialLogin
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,9 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
@@ -38,17 +43,23 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.ui.theme.Blue789
 
+
 @Composable
 fun LoginScreen(signInClicked: () -> Unit) {
     var idValue by remember { mutableStateOf("") }
     var pwValue by remember { mutableStateOf("") }
-    val helloLottie by rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.hello)
-    )
+    val helloLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.hello))
+    val isDarkTheme = isSystemInDarkTheme()
+    val textColor = if (isDarkTheme) Blue789 else Color.Black
+
+    // 현재 화면의 크기를 가져옵니다.
+    val windowWidth = LocalConfiguration.current.screenWidthDp.dp
+    val windowHeight = LocalConfiguration.current.screenHeightDp.dp
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 20.dp),
+            .padding(bottom = windowHeight * 0.1f),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
     ) {
@@ -56,8 +67,8 @@ fun LoginScreen(signInClicked: () -> Unit) {
         LottieAnimation(
             composition = helloLottie,
             modifier = Modifier
-                .height(200.dp)
-                .width(200.dp),
+                .fillMaxWidth()
+                .height(200.dp),
             iterations = LottieConstants.IterateForever
         )
 
@@ -90,39 +101,6 @@ fun LoginScreen(signInClicked: () -> Unit) {
             label = "비밀번호를 입력하세요."
         )
 
-        // check box and Remember me
-        Row(
-            modifier = Modifier
-                .width(320.dp)
-                .padding(end = 150.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Top,
-        ) {
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = 2.dp,
-                        color = Color(0xFF17C3CE),
-                        shape = RoundedCornerShape(size = 3.dp)
-                    )
-                    .width(20.dp)
-                    .height(20.dp)
-            ) {
-            }
-            Text(
-                text = "Remember me",
-                modifier = Modifier
-                    .padding(start = 10.dp, bottom = 30.dp),
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight(600),
-                    color = Color(0xFF3A3A3A),
-                    letterSpacing = 0.28.sp,
-                )
-            )
-        }
-
         // 로그인
         Box(
             modifier = Modifier
@@ -131,16 +109,19 @@ fun LoginScreen(signInClicked: () -> Unit) {
                     spotColor = Color(0x5917C3CE),
                     ambientColor = Color(0x5917C3CE)
                 )
-                .width(320.dp)
-                .height(60.dp)
+                .fillMaxWidth(0.81f)
+                .fillMaxHeight(0.15f)
                 .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
-                .padding(vertical = 14.dp)
-                .clickable { signInClicked() }
+                .clickable { signInClicked() },
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Sign in",
                 modifier = Modifier
-                    .padding(start = 120.dp, end = 100.dp),
+                    .padding(
+                        start = windowWidth * 0.3f, // fraction을 사용하여 padding 값을 설정합니다.
+                        end = windowWidth * 0.3f // fraction을 사용하여 padding 값을 설정합니다.
+                    ),
                 style = TextStyle(
                     fontSize = 22.sp,
                     fontWeight = FontWeight(700),
@@ -153,7 +134,12 @@ fun LoginScreen(signInClicked: () -> Unit) {
         // 비밀번호를 잊었나요?
         Text(
             text = "비밀번호를 잊었나요?",
-            modifier = Modifier.padding(top = 16.dp, bottom = 30.dp),
+            modifier = Modifier
+                .padding(
+                    top = windowWidth * 0.02f, // fraction을 사용하여 padding 값을 설정합니다.
+                    start = windowWidth * 0.3f, // fraction을 사용하여 padding 값을 설정합니다.
+                    end = windowWidth * 0.3f // fraction을 사용하여 padding 값을 설정합니다.
+                ),
             style = TextStyle(
                 fontSize = 14.sp,
                 lineHeight = 22.sp,
@@ -167,18 +153,23 @@ fun LoginScreen(signInClicked: () -> Unit) {
         Row {
             Text(
                 text = "가입하신 계정이 없나요?",
-                modifier = Modifier.padding(end = 12.dp),
+                modifier = Modifier.padding(
+                    top = windowHeight * 0.02f,
+                    end = windowWidth * 0.02f
+                ),
                 style = TextStyle(
                     fontSize = 14.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight(500),
-                    color = Color(0xFF000000),
+                    color = textColor,
                     letterSpacing = 0.28.sp,
                 )
             )
             Text(
                 text = "Sign up",
-                modifier = Modifier.padding(bottom = 34.dp),
+                modifier = Modifier.padding(
+                    top = windowHeight * 0.02f
+                ),
                 style = TextStyle(
                     fontSize = 14.sp,
                     lineHeight = 22.sp,
@@ -192,6 +183,14 @@ fun LoginScreen(signInClicked: () -> Unit) {
         // 소셜 로그인 (구글)
         Text(
             text = "--------- or continue with ---------",
+            modifier = Modifier
+//                .fillMaxWidth() // Text 컴포넌트가 부모 컴포넌트의 전체 너비를 차지하도록 합니다.
+                .padding(
+                    top = windowHeight * 0.02f, // fraction을 사용하여 padding 값을 설정합니다.
+                    start = windowWidth * 0.2f, // fraction을 사용하여 padding 값을 설정합니다.
+                    end = windowWidth * 0.2f, // fraction을 사용하여 padding 값을 설정합니다.
+                    bottom = windowHeight * 0.01f // fraction을 사용하여 padding 값을 설정합니다.
+                ),
             style = TextStyle(
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
@@ -204,7 +203,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
             painter = painterResource(id = R.drawable.google_login),
             contentDescription = "구글 로그인",
             modifier = Modifier
-                .size(250.dp, 100.dp)
+                .size(250.dp, 60.dp)
                 .clickable { signInClicked() }
         )
     }
@@ -215,15 +214,19 @@ fun LoginScreen(signInClicked: () -> Unit) {
 fun CustomOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String
+    label: String,
 ) {
+    // 현재 화면의 크기를 가져옵니다.
+    val windowSize = LocalConfiguration.current.screenWidthDp.dp
+    val windowHeight = LocalConfiguration.current.screenHeightDp.dp
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier
-            .width(320.dp)
-            .height(80.dp)
-            .padding(8.dp), // 추가적으로 padding 적용 가능
+            .width(windowSize * 0.8f) // 화면 크기의 80%를 차지하도록 설정
+            .height(windowHeight * 0.1f) // 화면 높이의 10%를 차지하도록 설정
+            .padding(8.dp),
         label = { Text(label) },
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
@@ -231,4 +234,15 @@ fun CustomOutlinedTextField(
             unfocusedBorderColor = Blue789
         )
     )
+}
+
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true,
+    name = "Dark Mode",
+    showSystemUi = true
+) // 왜 다크모드가 안보이지?
+@Composable
+fun LoginScreenPreviewDark() {
+    LoginScreen(signInClicked = { /*TODO*/ })
 }
