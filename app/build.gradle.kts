@@ -4,7 +4,6 @@ plugins {
     // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-
 }
 
 android {

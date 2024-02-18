@@ -4,22 +4,18 @@ package com.example.villainlp.chat.ground
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -45,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
@@ -57,16 +54,19 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.server.FirebaseTools.saveNovelInfo
 import com.example.villainlp.novel.NovelInfo
+import com.example.villainlp.server.FirebaseTools.saveNovelInfo
+import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Blue789
-import com.example.villainlp.shared.MyScaffold
+import com.example.villainlp.ui.theme.LightBlack
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.animation.core.*
+import androidx.compose.ui.platform.LocalDensity
 
 @Composable
 fun CreativeYardScreen(navController: NavHostController, auth: FirebaseAuth) {
@@ -75,64 +75,49 @@ fun CreativeYardScreen(navController: NavHostController, auth: FirebaseAuth) {
 
 @Composable
 fun Creative(modifier: Modifier, navController: NavHostController, auth: FirebaseAuth) {
-    Box(
-        modifier = modifier.padding(12.dp)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.Start,
-        ) {
-            GenreButtonsWithDefault(genreHappy)
-            GenreButtons(genreSad)
-            GenreButtons(genreScary)
-            LazyColumn {
-                item {
-                    Header()
-                    CreativeYard(navController, auth)
-                }
-            }
-        }
+        HeaderText()
+        CreativeYard(navController, auth)
     }
 }
 
+@Preview
 @Composable
-fun GenreButtons(genres: List<String>) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(genres.size) { index ->
-            CategoryButton(genres[index])
-        }
-    }
-}
+fun HeaderText() {
+    val infiniteTransition = rememberInfiniteTransition(label = "소개문구 흘러가는 애니메이션")
+    val offset by infiniteTransition // 무한 애니메이션 생성
+        .animateFloat( // 텍스트의 오프셋을 애니메이션화
+        initialValue = 1f,
+        targetValue = -1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 5000, easing = LinearEasing), // 5초간 애니메이션
+            repeatMode = RepeatMode.Restart
+        ), label = "오프셋"
+    )
 
-@Composable
-fun GenreButtonsWithDefault(genres: List<String>) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        item {
-            CategoryDefalutButton()
-        }
-        items(genres.size) { index ->
-            CategoryButton(genres[index])
-        }
-    }
-}
-
-@Composable
-fun Header() {
     Box(
         modifier = Modifier
-            .padding(start = 12.dp, top = 20.dp, end = 16.dp, bottom = 12.dp)
+            .fillMaxWidth()
+            .height(40.dp)
+            .background(color = LightBlack, shape = RoundedCornerShape(size = 10.dp))
     ) {
         Text(
-            text = "✏️ 당신만의 소설을 써보세요",
+            text = "✏️ 당신만의 소설을 써보세요 ",
+            modifier = Modifier
+                .padding(10.dp)
+                .align(Alignment.CenterStart)
+                .offset(x = with(LocalDensity.current) { (offset * 1000).toDp() }),
             style = TextStyle(
-                fontSize = 22.sp,
-                lineHeight = 20.sp,
-                fontWeight = FontWeight(600),
-                color = Color(0xFF000000)
+                fontSize = 14.sp,
+                fontWeight = FontWeight(500),
+                color = Color.White,
+                letterSpacing = 0.48.sp,
             )
         )
     }
@@ -154,73 +139,51 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
     val user = auth.currentUser
     val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
 
+    Spacer(modifier = Modifier.padding(top = 12.dp))
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(12.dp),
+            .fillMaxWidth()
+            .padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            CreativeCard(
-                cardColor = Color(0xFFC3FCD9),
-                cardTitle = "작가의 마당(gpt)",
-                cardDescription = "스토리라인이 있는 경우",
-                imageResource = painterResource(id = R.drawable.creative_yard_1),
-                onCardClick = {
-                    showDialog = true
-                    assistantId = getString(context, R.string.assistant_key_for_novelist)
-                    alertMessage = "작가의 마당"
-                }
-            )
-            CreativeCard(
-                cardColor = Color(0xFFFFEAEA),
-                cardTitle = "꿈의 마당(gpt)",
-                cardDescription = "스토리라인이 없는 경우",
-                imageResource = painterResource(id = R.drawable.creative_yard_2),
-                onCardClick = {
-                    showDialog = true
-                    assistantId = getString(context, R.string.assistant_key_for_general)
-                    alertMessage = "꿈의 마당"
-                }
-            )
-        }
-        Row {
-            CreativeGeminiCard(
-                cardColor = Color(0xFFFFFACA),
-                cardTitle = "작가의 마당(Gemini)",
-                cardDescription = "스토리라인이 있는 경우",
-                imageResource = painterResource(id = R.drawable.creative_yard_1),
-                onCardClick = {
-                    showGeminiDialog = true
-                    alertMessage = "작가의 마당"
-                }
-            )
-            CreativeGeminiCard(
-                cardColor = Color(0xFFC5F0E8),
-                cardTitle = "꿈의 마당 (Gemini)",
-                cardDescription = "스토리라인이 없는 경우",
-                imageResource = painterResource(id = R.drawable.creative_yard_2),
-                onCardClick = {
-                    showGeminiDialog = true
-                    alertMessage = "꿈의 마당"
-                }
-            )
-        }
+        CreativeCard(
+            cardColor = Color(0xFFC3FCD9),
+            cardTitle = "작가의 마당",
+            modelName = "model: ChatGPT-3.5",
+            cardDescription = "스토리라인이 있는 경우",
+            imageResource = painterResource(id = R.drawable.creative_yard_1),
+            onCardClick = {
+                showDialog = true
+                assistantId = getString(context, R.string.assistant_key_for_novelist)
+                alertMessage = "작가의 마당"
+            }
+        )
+        CreativeCard(
+            cardColor = Color(0xFFFFEAEA),
+            cardTitle = "꿈의 마당",
+            modelName = "model: ChatGPT-3.5",
+            cardDescription = "스토리라인이 없는 경우",
+            imageResource = painterResource(id = R.drawable.creative_yard_2),
+            onCardClick = {
+                showDialog = true
+                assistantId = getString(context, R.string.assistant_key_for_general)
+                alertMessage = "꿈의 마당"
+            }
+        )
+        CreativeGeminiCard(
+            cardColor = Color(0xFFC5F0E8),
+            cardTitle = "꿈의 마당",
+            modelName = "model: Gemini",
+            cardDescription = "스토리라인이 없는 경우",
+            imageResource = painterResource(id = R.drawable.gemini),
+            onCardClick = {
+                showGeminiDialog = true
+                alertMessage = "꿈의 마당"
+            }
+        )
     }
     if (showDialog) {
-        // 다이얼로그 강조를 위한 스크림 오버레이
-        ScrimOverlay(
-            onClick = { showDialog = false },
-            visible = showDialog,
-            scrimColor = Color.Black.copy(alpha = 0.5f)
-        )
-
         AlertDialog(
             icon = {
                 LottieAnimation(
@@ -325,13 +288,6 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
         )
     }
     if (showGeminiDialog) {
-        // 다이얼로그 강조를 위한 스크림 오버레이
-        ScrimOverlay(
-            onClick = { showGeminiDialog = false },
-            visible = showGeminiDialog,
-            scrimColor = Color.Black.copy(alpha = 0.5f)
-        )
-
         AlertDialog(
             icon = {
                 LottieAnimation(
@@ -438,6 +394,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
 fun CreativeCard(
     cardColor: Color,
     cardTitle: String,
+    modelName: String,
     cardDescription: String,
     imageResource: Painter,
     onCardClick: () -> Unit,
@@ -446,130 +403,55 @@ fun CreativeCard(
         modifier = Modifier
             .padding(8.dp)
             .shadow(elevation = 8.dp, spotColor = cardColor, ambientColor = cardColor)
-            .width(160.dp)
-            .height(226.dp),
+            .width(328.dp)
+            .height(120.dp),
         onClick = onCardClick,
         colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            Image(
-                painter = imageResource,
-                contentDescription = "Card Image",
-                modifier = Modifier
-                    .size(66.dp)
-                    .offset(
-                        x = 16.dp,
-                        y = 20.dp
-                    ),
-                contentScale = ContentScale.Crop
-            )
-
-            Column(
-                modifier = Modifier
-                    .offset(
-                        x = 16.dp,
-                        y = 100.dp
+            Row {
+                Image(
+                    painter = imageResource,
+                    contentDescription = "Card Image",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .offset(x = 16.dp, y = 20.dp),
+                    contentScale = ContentScale.Crop
+                )
+                Column(
+                    modifier = Modifier
+                        .offset(x = 16.dp, y = 20.dp)
+                        .padding(start = 12.dp)
+                ) {
+                    Text(
+                        text = cardTitle,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
-            ) {
-                Text(
-                    text = cardTitle,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = cardDescription,
-                    fontSize = 13.sp,
-                    color = Color.DarkGray
-                )
+                    Text(
+                        text = modelName,
+                        fontSize = 10.sp,
+                        color = Color.DarkGray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = cardDescription,
+                        fontSize = 13.sp,
+                        color = Color.DarkGray
+                    )
+                }
             }
         }
     }
 }
 
-
-@Composable
-fun CategoryButton(genre: String) {
-    Box(
-        modifier = Modifier
-            .border(
-                width = 1.5.dp,
-                color = Color(0xFF17C3CE),
-                shape = RoundedCornerShape(size = 17.dp)
-            )
-            .width(IntrinsicSize.Min)
-            .height(34.dp)
-            .padding(start = 22.dp, top = 7.dp, end = 22.dp, bottom = 7.dp)
-    ) {
-        Text(
-            text = genre,
-            style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 20.sp,
-                fontWeight = FontWeight(500),
-                color = Color(0xFF17C3CE)
-            )
-        )
-    }
-}
-
-@Composable
-fun CategoryDefalutButton() {
-    Box(
-        modifier = Modifier
-            .width(IntrinsicSize.Min)
-            .height(34.dp)
-            .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
-            .padding(start = 22.dp, top = 7.dp, end = 22.dp, bottom = 7.dp)
-    ) {
-        Text(
-            text = "All",
-            style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 20.sp,
-                fontWeight = FontWeight(500),
-                color = Color(0xFFFFFFFF)
-            )
-        )
-    }
-}
-
-
-val genreHappy = listOf(
-    "Fantasy", "Romance", "Comedy"
-)
-
-val genreScary = listOf(
-    "Horror", "Thriller", "Mystery", "SF"
-)
-
-val genreSad = listOf(
-    "Melodrama", "Tragedy", "Family", "others"
-)
-
 fun extractThreadId(threadIdString: String): String {
-    return threadIdString.substringAfter("ThreadId(id=").substringBeforeLast(")")
-}
-
-
-@Composable
-fun ScrimOverlay(
-    modifier: Modifier = Modifier,
-    scrimColor: Color = Color.Black.copy(alpha = 0.5f),
-    visible: Boolean = true,
-    onClick: () -> Unit = {},
-) {
-    if (visible) {
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .background(scrimColor)
-                .clickable(onClick = onClick)
-        )
-    }
+    return threadIdString
+        .substringAfter("ThreadId(id=")
+        .substringBeforeLast(")")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -577,6 +459,7 @@ fun ScrimOverlay(
 fun CreativeGeminiCard(
     cardColor: Color,
     cardTitle: String,
+    modelName: String,
     cardDescription: String,
     imageResource: Painter,
     onCardClick: () -> Unit,
@@ -585,44 +468,46 @@ fun CreativeGeminiCard(
         modifier = Modifier
             .padding(8.dp)
             .shadow(elevation = 8.dp, spotColor = cardColor, ambientColor = cardColor)
-            .width(160.dp)
-            .height(226.dp),
+            .width(328.dp)
+            .height(120.dp),
         onClick = onCardClick,
         colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            Image(
-                painter = imageResource,
-                contentDescription = "Card Image",
-                modifier = Modifier
-                    .size(66.dp)
-                    .offset(
-                        x = 16.dp,
-                        y = 20.dp
-                    ),
-                contentScale = ContentScale.Crop
-            )
-            Column(
-                modifier = Modifier
-                    .offset(
-                        x = 16.dp,
-                        y = 100.dp
+            Row {
+                Image(
+                    painter = imageResource,
+                    contentDescription = "Card Image",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .offset(x = 16.dp, y = 20.dp),
+                    contentScale = ContentScale.Crop
+                )
+                Column(
+                    modifier = Modifier
+                        .offset(x = 16.dp, y = 20.dp)
+                        .padding(start = 12.dp)
+                ) {
+                    Text(
+                        text = cardTitle,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
-            ) {
-                Text(
-                    text = cardTitle,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = cardDescription,
-                    fontSize = 13.sp,
-                    color = Color.DarkGray
-                )
+                    Text(
+                        text = modelName,
+                        fontSize = 10.sp,
+                        color = Color.DarkGray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = cardDescription,
+                        fontSize = 13.sp,
+                        color = Color.DarkGray
+                    )
+                }
             }
         }
     }
