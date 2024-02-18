@@ -7,9 +7,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -53,15 +55,11 @@ class MainActivity : ComponentActivity() {
 //            .build()
 
         setContent {
-
             VillainlpTheme {
-
                 val navController = rememberNavController()
-
                 val launcher =
                     rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.StartActivityForResult()
-                    ) { result ->
+                        contract = ActivityResultContracts.StartActivityForResult()) { result ->
                         val data = result.data
                         val task = GoogleSignIn.getSignedInAccountFromIntent(data)
                         val exception = task.exception
@@ -78,8 +76,6 @@ class MainActivity : ComponentActivity() {
                             Log.d("SignIn", exception.toString())
                         }
                     }
-
-
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -114,7 +110,6 @@ class MainActivity : ComponentActivity() {
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         mAuth.signOut()
-
         googleSignInClient.signOut().addOnSuccessListener {
             Toast.makeText(this, "로그아웃 성공", Toast.LENGTH_SHORT).show()
             navController.navigate(Screen.Login.route)
@@ -123,4 +118,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
