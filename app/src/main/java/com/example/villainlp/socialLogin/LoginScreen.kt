@@ -109,8 +109,8 @@ fun LoginScreen(signInClicked: () -> Unit) {
                     spotColor = Color(0x5917C3CE),
                     ambientColor = Color(0x5917C3CE)
                 )
-                .fillMaxWidth(0.81f)
-                .fillMaxHeight(0.15f)
+                .width(320.dp)
+                .height(60.dp)
                 .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
                 .clickable { signInClicked() },
             contentAlignment = Alignment.Center
@@ -182,9 +182,9 @@ fun LoginScreen(signInClicked: () -> Unit) {
 
         // 소셜 로그인 (구글)
         Text(
-            text = "--------- or continue with ---------",
+            text = "or continue with",
             modifier = Modifier
-//                .fillMaxWidth() // Text 컴포넌트가 부모 컴포넌트의 전체 너비를 차지하도록 합니다.
+                .align(Alignment.CenterHorizontally)
                 .padding(
                     top = windowHeight * 0.02f, // fraction을 사용하여 padding 값을 설정합니다.
                     start = windowWidth * 0.2f, // fraction을 사용하여 padding 값을 설정합니다.
@@ -216,16 +216,12 @@ fun CustomOutlinedTextField(
     onValueChange: (String) -> Unit,
     label: String,
 ) {
-    // 현재 화면의 크기를 가져옵니다.
-    val windowSize = LocalConfiguration.current.screenWidthDp.dp
-    val windowHeight = LocalConfiguration.current.screenHeightDp.dp
-
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier
-            .width(windowSize * 0.8f) // 화면 크기의 80%를 차지하도록 설정
-            .height(windowHeight * 0.1f) // 화면 높이의 10%를 차지하도록 설정
+            .width(320.dp)
+            .height(80.dp)
             .padding(8.dp),
         label = { Text(label) },
         singleLine = true,

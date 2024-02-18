@@ -137,6 +137,8 @@ fun DisplayUserProfileImage(userImage: Uri?) {
 // 로그아웃 버튼
 @Composable
 fun DisplaySignOutButton(signOutClicked: () -> Unit) {
+    val windowWidth = LocalConfiguration.current.screenWidthDp.dp
+
     Box(
         modifier = Modifier
             .shadow(
@@ -144,8 +146,8 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
                 spotColor = Color(0x5917C3CE),
                 ambientColor = Color(0x5917C3CE)
             )
-            .fillMaxWidth(0.81f)
-            .fillMaxHeight(0.15f)
+            .width(320.dp)
+            .height(60.dp)
             .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
             .padding(vertical = 14.dp)
             .clickable { signOutClicked() }
@@ -154,8 +156,8 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
             text = "Sign out",
             modifier = Modifier
                 .padding(
-                    start = 120.dp,
-                    end = 100.dp
+                    start = windowWidth * 0.3f, // fraction을 사용하여 padding 값을 설정합니다.
+                    end = windowWidth * 0.3f // fraction을 사용하여 padding 값을 설정합니다.
                 ),
             style = TextStyle(
                 fontSize = 22.sp,
@@ -216,15 +218,14 @@ fun DisplayUserFields(
     onUserEmailChange: (String) -> Unit,
 ) {
     val windowSize = LocalConfiguration.current.screenWidthDp.dp
-    val windowHeight = LocalConfiguration.current.screenHeightDp.dp
     val isDarkTheme = isSystemInDarkTheme()
 
     OutlinedTextField(
         value = userName,
         onValueChange = onUserNameChange,
         modifier = Modifier
-            .width(windowSize * 0.8f)
-            .height(windowHeight * 0.1f)
+            .width(320.dp)
+            .height(80.dp)
             .padding(8.dp),
         label = { Text(NAME) },
         singleLine = true,
@@ -240,8 +241,8 @@ fun DisplayUserFields(
         value = userEmail,
         onValueChange = onUserEmailChange,
         modifier = Modifier
-            .width(windowSize * 0.8f)
-            .height(windowHeight * 0.1f)
+            .width(320.dp)
+            .height(80.dp)
             .padding(8.dp),
         label = { Text(EMAIL) },
         singleLine = true,
