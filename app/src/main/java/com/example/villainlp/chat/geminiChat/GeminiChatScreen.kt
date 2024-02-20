@@ -76,6 +76,7 @@ import com.example.villainlp.novel.library.comment.addFocusCleaner
 import com.example.villainlp.server.FirebaseTools
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Primary
+import com.example.villainlp.ui.theme.TextGray
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -508,7 +509,7 @@ private fun ChatbotResponse(
                 ) {
                     Text(
                         text = message.message?: "",
-                        color = Color(0xFF646E6F),
+                        color = TextGray,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(6.dp)
                     )
@@ -521,7 +522,7 @@ private fun ChatbotResponse(
             ) {
                 Text(
                     text = message.uploadDate?: "",
-                    color = if (isSystemInDarkTheme()) Color.White else Color(0xFF646E6F),
+                    color = if (isSystemInDarkTheme()) Color.White else TextGray,
                     fontSize = 9.sp,
                     modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
                 )
