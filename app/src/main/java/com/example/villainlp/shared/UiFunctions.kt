@@ -39,10 +39,6 @@ fun MyScaffold(
     navController: NavHostController,
     content: @Composable (Modifier) -> Unit,
 ) {
-    // 다크모드, 라이트모드에 따라 배경색 변경
-    val isDarkTheme = isSystemInDarkTheme()
-    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
-
     Scaffold(
         topBar = { MyScaffoldTopBar(title) },
         bottomBar = { MyScaffoldBottomBar(navController) }
@@ -51,7 +47,7 @@ fun MyScaffold(
             Modifier
                 .fillMaxSize()
                 .padding(it)
-                .background(color = backgroundColor),
+                .background(Color.Transparent),
         )
     }
 }
@@ -59,18 +55,15 @@ fun MyScaffold(
 // SettingScreen, MyScaffold(UiFunctions)
 @Composable
 fun MyScaffoldBottomBar(navController: NavHostController) {
-    val isDarkTheme = isSystemInDarkTheme()
-    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
     val currentScreen = remember { mutableStateOf(navController.currentDestination?.route) }
-    val windowSize = LocalConfiguration.current.screenWidthDp.dp
 
     Column {
         Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
         Row(
             Modifier
-                .width(428.dp)
+                .fillMaxWidth()
                 .height(80.dp)
-                .background(color = backgroundColor, RoundedCornerShape(17.dp))
+                .background(Color.Transparent)
                 .padding(start = 33.dp, top = 16.dp, end = 33.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top,
@@ -134,6 +127,7 @@ fun MyScaffoldTopBar(title: String) {
     ) {
         Row(
             modifier = Modifier
+                .background(Color.Transparent)
                 .fillMaxWidth()
                 .height(windowSize * 0.18f)
                 .padding(windowSize * 0.016f),
