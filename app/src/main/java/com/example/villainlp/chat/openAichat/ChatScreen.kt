@@ -87,7 +87,7 @@ import com.example.villainlp.R
 import com.example.villainlp.server.FirebaseTools.saveChatToNovel
 import com.example.villainlp.novel.RelayChatToNovelBook
 import com.example.villainlp.shared.Screen
-import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.ui.theme.Primary
 import com.example.villainlp.novel.library.comment.addFocusCleaner
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -294,7 +294,7 @@ private fun RelayNovelSaveButton(
                         fontSize = 16.sp,
                         lineHeight = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Blue789
+                        color = Primary
                     )
                 )
             }
@@ -309,7 +309,7 @@ private fun RelayNovelSaveButton(
                         fontSize = 16.sp,
                         lineHeight = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Blue789
+                        color = Primary
                     )
                 )
             }

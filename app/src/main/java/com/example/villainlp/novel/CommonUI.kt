@@ -40,7 +40,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.ui.theme.Primary
 
 // LibraryScreen, CommentScreen, MyNovelScreen, ReadMyNovelScreen
 @Composable
@@ -108,8 +108,8 @@ fun AlertPopup(
                             .padding(8.dp),
                         label = { Text(text = tfLabel) },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Blue789,
-                            unfocusedBorderColor = Blue789
+                            focusedBorderColor = Primary,
+                            unfocusedBorderColor = Primary
                         ),
                     )
                 }
@@ -141,7 +141,7 @@ fun AlertPopup(
                         fontSize = 16.sp,
                         lineHeight = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Blue789
+                        color = Primary
                     )
                 )
             }
@@ -156,7 +156,7 @@ fun AlertPopup(
                         fontSize = 16.sp,
                         lineHeight = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Blue789
+                        color = Primary
                     )
                 )
             }

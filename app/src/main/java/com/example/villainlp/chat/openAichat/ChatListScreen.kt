@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -34,7 +33,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -57,9 +58,10 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
 import com.example.villainlp.novel.NovelInfo
-import com.example.villainlp.ui.theme.Blue789
 import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.shared.Screen
+import com.example.villainlp.ui.theme.BasicWhite
+import com.example.villainlp.ui.theme.Primary
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.math.roundToInt
 
@@ -68,8 +70,6 @@ import kotlin.math.roundToInt
 fun ChatListScreen(navController: NavHostController, auth: FirebaseAuth) {
     val chatListViewModel: ChatListViewModel =
         viewModel(factory = GenNovelViewModelFactory(auth, ChatModel()))
-
-    val documentID by chatListViewModel.documentID.collectAsState()
     val novelInfo by chatListViewModel.novelInfo.collectAsState()
 
     MyScaffold("내 작업 공간", navController) {
@@ -136,7 +136,7 @@ fun ShowAlertDialog(chatListViewModel: ChatListViewModel) {
                             fontSize = 16.sp,
                             lineHeight = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Blue789
+                            color = Primary
                         )
                     )
                 }
@@ -151,7 +151,7 @@ fun ShowAlertDialog(chatListViewModel: ChatListViewModel) {
                             fontSize = 16.sp,
                             lineHeight = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Blue789
+                            color = Primary
                         )
                     )
                 }
@@ -185,16 +185,16 @@ fun ShowChats(
 }
 
 
-// TODO: AddChatCard로 이동해서 글을 작성하면 UI의 상태가 바로 업데이트가 안됨!!
+
 @Composable
 fun AddChatCard(navController: NavHostController) {
     Card(
         modifier = Modifier
-            .width(378.dp)
+            .width(370.dp)
             .height(100.dp)
             .border(
                 color = Color(0xFFF5F5F5),
-                width = 2.dp,
+                width = 1.dp,
                 shape = RoundedCornerShape(size = 19.dp),
             )
             .clickable { navController.navigate(Screen.CreativeYard.route) },
@@ -222,23 +222,22 @@ fun NovelChatCards(
     onClicked: (NovelInfo) -> Unit,
 ) {
     val context = LocalContext.current
+    val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
+    val cardWidth = 370.dp
     val swipeableState = rememberSwipeableState(initialValue = 0f)
     val swipeableModifier = Modifier.swipeable(
         state = swipeableState,
-        anchors = mapOf(0f to 0f, -150f to -150f), // Define the anchors
+        anchors = mapOf(0f to 0f, -160f to -160f), // Adjust the anchors to match the card width
         orientation = Orientation.Horizontal,
         thresholds = { _, _ -> FractionalThreshold(0.1f) },
         resistance = null
     )
-    val imageVisibility = swipeableState.offset.value <= -150f
-    val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
-
+    val imageVisibility = swipeableState.offset.value <= -160f
 
     Box {
         Card(
             modifier = Modifier
-                .background(Color.White)
-                .width(370.dp)
+                .width(cardWidth)
                 .height(100.dp)
                 .offset {
                     IntOffset(
@@ -247,6 +246,8 @@ fun NovelChatCards(
                     )
                 }
                 .then(swipeableModifier)
+                .clip(RoundedCornerShape(10.dp))
+                .background(BasicWhite)
                 .clickable {
                     if (novelInfo.threadId == "" || novelInfo.assistId == "") {
                         navController.navigate("GeminiChatScreen/${novelInfo.title}")
@@ -254,13 +255,12 @@ fun NovelChatCards(
                         navController.navigate("ChattingScreen/${novelInfo.title}/${novelInfo.threadId}/${novelInfo.assistId}")
                     }
                 },
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+            colors = CardDefaults.cardColors(containerColor = BasicWhite),
         ) {
             Column(
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.padding(15.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
@@ -274,45 +274,40 @@ fun NovelChatCards(
                         ),
                         contentDescription = "Working On"
                     )
-                    Spacer(modifier = Modifier.size(10.dp))
                     Column(
-                        modifier = Modifier,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             modifier = Modifier
-                                .width(200.dp)
-                                .height(22.dp),
+                                .width(210.dp),
                             text = novelInfo.title,
                             style = TextStyle(
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight(600),
-                                color = Color(0xFF212121),
+                                color = DarkGray,
                             ),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.size(10.dp))
+                        Spacer(modifier = Modifier.padding(5.dp))
                         Text(
                             modifier = Modifier
-                                .width(222.dp)
-                                .height(30.dp),
+                                .width(210.dp),
                             text = if (novelInfo.assistId == ContextCompat.getString(
                                     context,
                                     R.string.assistant_key_for_novelist
                                 )
-                            ) "작가의 마당에서 작업중..." else "꿈의 마당에서 작업중...",
+                            ) "작가의 마당에서 작업 중..." else "꿈의 마당에서 작업 중...",
                             style = TextStyle(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight(500),
-                                color = Color(0xFFBBBBBB),
+                                color = DarkGray,
                             )
                         )
                     }
                     Image(
                         modifier = Modifier
-                            .size(33.dp)
-                            .padding(5.dp),
+                            .size(20.dp),
                         painter = painterResource(id = R.drawable.arrow_right),
                         contentDescription = "Front Arrow"
                     )
@@ -321,6 +316,7 @@ fun NovelChatCards(
         }
         Column(
             modifier = Modifier
+                .background(Color.Transparent)
                 .offset {
                     IntOffset(
                         800,

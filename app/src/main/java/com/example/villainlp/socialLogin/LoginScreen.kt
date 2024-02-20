@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,7 +40,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.ui.theme.Primary
 
 
 @Composable
@@ -50,7 +49,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
     var pwValue by remember { mutableStateOf("") }
     val helloLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.hello))
     val isDarkTheme = isSystemInDarkTheme()
-    val textColor = if (isDarkTheme) Blue789 else Color.Black
+    val textColor = if (isDarkTheme) Primary else Color.Black
 
     // 현재 화면의 크기를 가져옵니다.
     val windowWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -226,8 +225,8 @@ fun CustomOutlinedTextField(
         label = { Text(label) },
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Blue789,
-            unfocusedBorderColor = Blue789
+            focusedBorderColor = Primary,
+            unfocusedBorderColor = Primary
         )
     )
 }

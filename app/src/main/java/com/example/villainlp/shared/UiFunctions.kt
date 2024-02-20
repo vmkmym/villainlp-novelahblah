@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
-import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.ui.theme.Primary
 
 // CreateGround, ChatListScreen, MyNovelScreen
 @Composable
@@ -82,7 +82,7 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
                 clickedIcon = R.drawable.home_clicked,
                 isCurrentScreen = currentScreen.value == Screen.CreativeYard.route,
                 iconText = "창작마당",
-                clickedTextColor = Blue789,
+                clickedTextColor = Primary,
                 defaultTextColor = Color(0xFFbbbbbb)
             ) { navController.navigate(Screen.CreativeYard.route) }
             CustomIconButton(
@@ -90,7 +90,7 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
                 clickedIcon = R.drawable.forum_clicked,
                 isCurrentScreen = currentScreen.value == Screen.ChattingList.route,
                 iconText = "릴레이소설",
-                clickedTextColor = Blue789,
+                clickedTextColor = Primary,
                 defaultTextColor = Color(0xFFbbbbbb)
             ) { navController.navigate(Screen.ChattingList.route) }
             CustomIconButton(
@@ -98,7 +98,7 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
                 clickedIcon = R.drawable.book_clicked,
                 isCurrentScreen = currentScreen.value == Screen.MyBook.route,
                 iconText = "내서재",
-                clickedTextColor = Blue789,
+                clickedTextColor = Primary,
                 defaultTextColor = Color(0xFFbbbbbb)
             ) { navController.navigate(Screen.MyBook.route) }
             CustomIconButton(
@@ -106,7 +106,7 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
                 clickedIcon = R.drawable.local_library_clicked,
                 isCurrentScreen = currentScreen.value == Screen.Library.route,
                 iconText = "도서관",
-                clickedTextColor = Blue789,
+                clickedTextColor = Primary,
                 defaultTextColor = Color(0xFFbbbbbb)
             ) { navController.navigate(Screen.Library.route) }
             CustomIconButton(
@@ -114,7 +114,7 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
                 clickedIcon = R.drawable.settings_clicked,
                 isCurrentScreen = currentScreen.value == Screen.Profile.route,
                 iconText = "설정",
-                clickedTextColor = Blue789,
+                clickedTextColor = Primary,
                 defaultTextColor = Color(0xFFbbbbbb)
             ) { navController.navigate(Screen.Profile.route) }
         }

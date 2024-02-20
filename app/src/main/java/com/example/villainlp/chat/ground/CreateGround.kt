@@ -58,7 +58,7 @@ import com.example.villainlp.novel.NovelInfo
 import com.example.villainlp.server.FirebaseTools.saveNovelInfo
 import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.shared.Screen
-import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.ui.theme.Primary
 import com.example.villainlp.ui.theme.LightBlack
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -228,8 +228,8 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Blue789,
-                            unfocusedBorderColor = Blue789
+                            focusedBorderColor = Primary,
+                            unfocusedBorderColor = Primary
                         ),
                     )
                 }
@@ -264,7 +264,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             fontSize = 16.sp,
                             lineHeight = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Blue789
+                            color = Primary
                         )
                     )
                 }
@@ -279,7 +279,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             fontSize = 16.sp,
                             lineHeight = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Blue789
+                            color = Primary
                         )
                     )
                 }
@@ -332,8 +332,8 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Blue789,
-                            unfocusedBorderColor = Blue789
+                            focusedBorderColor = Primary,
+                            unfocusedBorderColor = Primary
                         ),
                     )
                 }
@@ -364,7 +364,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             fontSize = 16.sp,
                             lineHeight = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Blue789
+                            color = Primary
                         )
                     )
                 }
@@ -379,7 +379,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             fontSize = 16.sp,
                             lineHeight = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Blue789
+                            color = Primary
                         )
                     )
                 }

@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
-import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.ui.theme.Primary
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -155,7 +155,7 @@ fun RatingButtonRow(
                     fontSize = 18.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Blue789
+                    color = Primary
                 )
             )
         }
@@ -169,7 +169,7 @@ fun RatingButtonRow(
                     fontSize = 18.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Blue789
+                    color = Primary
                 )
             )
         }

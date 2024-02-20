@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -60,7 +58,7 @@ import com.example.villainlp.shared.SharedObjects.NOTION_INQUIRY
 import com.example.villainlp.shared.SharedObjects.NOTION_LOGO
 import com.example.villainlp.shared.SharedObjects.NOTION_URL
 import com.example.villainlp.shared.SharedObjects.PROFILE_IMAGE
-import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.ui.theme.Primary
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -227,9 +225,9 @@ fun DisplayUserFields(
         enabled = false, // 편집 불가능하게 설정
         colors = OutlinedTextFieldDefaults.colors(
             disabledTextColor = if (isDarkTheme) Color.White else Color.DarkGray,
-            unfocusedBorderColor = Blue789,
-            disabledBorderColor = Blue789,
-            disabledLabelColor = Blue789,
+            unfocusedBorderColor = Primary,
+            disabledBorderColor = Primary,
+            disabledLabelColor = Primary,
         )
     )
     OutlinedTextField(
@@ -244,9 +242,9 @@ fun DisplayUserFields(
         enabled = false, // 편집 불가능하게 설정
         colors = OutlinedTextFieldDefaults.colors(
             disabledTextColor = if (isDarkTheme) Color.White else Color.DarkGray, // 텍스트 필드가 비활성화 상태일 때의 텍스트 색상
-            unfocusedBorderColor = Blue789, // 텍스트 필드에 포커스가 맞춰지지 않았을 때의 테두리 색상
-            disabledBorderColor = Blue789, // 텍스트 필드가 비활성화 상태일 때의 테두리 색상
-            disabledLabelColor = Blue789, // 텍스트 필드가 비활성화 상태일 때의 레이블 색상
+            unfocusedBorderColor = Primary, // 텍스트 필드에 포커스가 맞춰지지 않았을 때의 테두리 색상
+            disabledBorderColor = Primary, // 텍스트 필드가 비활성화 상태일 때의 테두리 색상
+            disabledLabelColor = Primary, // 텍스트 필드가 비활성화 상태일 때의 레이블 색상
         )
     )
 }
