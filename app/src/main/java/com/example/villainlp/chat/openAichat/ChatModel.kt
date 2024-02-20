@@ -13,7 +13,7 @@ class ChatModel {
     @OptIn(BetaOpenAI::class)
     fun saveChatMessage(chatMessage: ChatMessage, title: String, threadId: ThreadId?) {
         val database = Firebase.database
-        val chatRef = database.getReference("gpt3.5/$title") // title은 채팅방 이름
+        val chatRef = database.getReference("gpt35/$title") // title은 채팅방 이름
         val newMessageRef = chatRef.push()
         newMessageRef.setValue(chatMessage)
 
@@ -24,7 +24,7 @@ class ChatModel {
     @OptIn(BetaOpenAI::class)
     fun saveChatbotMessage(chatbotMessage: ChatbotMessage, title: String, threadId: ThreadId?) {
         val database = Firebase.database
-        val chatRef = database.getReference("gpt3.5/$title") // title은 채팅방 이름
+        val chatRef = database.getReference("gpt35/$title") // title은 채팅방 이름
         val newMessageRef = chatRef.push()
         newMessageRef.setValue(chatbotMessage)
 
@@ -36,7 +36,7 @@ class ChatModel {
     @OptIn(BetaOpenAI::class)
     fun loadChatMessages(listener: (List<ChatMessage>) -> Unit, title: String, threadId: ThreadId?) {
         val database = Firebase.database
-        val chatRef = database.getReference("gpt3.5/$title")
+        val chatRef = database.getReference("gpt35/$title")
 
         // 대화 스레드에 대한 쿼리를 추가하여 해당 스레드의 메시지만 가져옵니다.
         val query = chatRef.orderByChild("threadId").equalTo(threadId.toString())
@@ -68,7 +68,7 @@ class ChatModel {
         threadId: ThreadId?,
     ) {
         val database = Firebase.database
-        val chatRef = database.getReference("gpt3.5/$title")
+        val chatRef = database.getReference("gpt35/$title")
 
         // 대화 스레드에 대한 쿼리를 추가하여 해당 스레드의 메시지만 가져옵니다.
         val query = chatRef.orderByChild("threadId").equalTo(threadId.toString())
