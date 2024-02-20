@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -396,21 +397,13 @@ private fun BottomBar(
                 val assistantMessages = openAI.messages(threadId)
                 val lastAssistantMessage =
                     assistantMessages.firstOrNull { it.role == Role.Assistant }  // 마지막 메시지만 가져옴 .lastOrNull 이렇게 하면 첫문장만 가져옴
-                val response = if (lastAssistantMessage != null) {
-                    val textContent =
+                val response = if (lastAssistantMessage != null) { val textContent =
                         lastAssistantMessage.content.first() as? MessageContent.Text
                     textContent?.text?.value ?: ""
                 } else {
                     ""
                 }
-
-                Log.d("UserPrompt", "response: $response")
-
-                val newChatbotMessage =
-                    ChatbotMessage(
-                        message = response,
-                        uploadDate = currentDate
-                    )
+                val newChatbotMessage = ChatbotMessage(message = response, uploadDate = currentDate)
                 // chatViewModel의 saveChatbotMessage 함수를 호출하여 챗봇 메시지를 저장한다.
                 viewModel.saveChatbotMessage(newChatbotMessage, title, threadId)
                 isAnimationRunning(false)
@@ -650,12 +643,11 @@ private fun ChatbotResponse(
         ) {
             Row(
                 verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.Start,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
-                        .weight(1f)
                         .background(
                             color = bubbleColor,
                             shape = bubbleShape
@@ -669,11 +661,7 @@ private fun ChatbotResponse(
                         .combinedClickable(
                             onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
                             onLongClick = { // 말풍선을 꾹 누르면 발생하는 이벤트입니다.
-                                clipboardManager.setText(
-                                    AnnotatedString(
-                                        message.message ?: ""
-                                    )
-                                ) // 클립보드에 텍스트를 복사합니다.
+                                clipboardManager.setText(AnnotatedString(message.message ?: "")) // 클립보드에 텍스트를 복사합니다.
                             }
                         )
                 ) {
@@ -686,6 +674,7 @@ private fun ChatbotResponse(
                 }
                 Text(
                     text = message.uploadDate ?: "",
+                    color = if (isSystemInDarkTheme()) Color.White else Color(0xFF646E6F),
                     fontSize = 9.sp,
                     modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
                 )

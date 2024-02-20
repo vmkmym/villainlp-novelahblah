@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -93,10 +93,6 @@ internal fun GeminiChatScreen(
 ) {
     val geminiChatViewModel: GeminiChatViewModel = viewModel(factory = GeminiViewModelFactory)
     val (input, setInput) = remember { mutableStateOf("") }
-
-    // TODO: 이 부분이 문제임
-    val uiState by geminiChatViewModel.uiState.collectAsState()
-
     var sentMessages by remember { mutableStateOf(listOf<GeminiChatMessage>()) }
     var sentBotMessages by remember { mutableStateOf(listOf<GeminiChatMessage>()) }
     var showDialog by remember { mutableStateOf(false) }
@@ -167,7 +163,7 @@ internal fun GeminiChatScreen(
                     CoroutineScope(Dispatchers.IO).launch {
                         setInput("")
                         isAnimationRunning = true
-                        geminiChatViewModel.sendMessage(input, title, user?.uid?: "ERROR") // TODO : uid 추가
+                        geminiChatViewModel.sendMessage(input, title, user?.uid?: "ERROR")
                         isAnimationRunning = false
                     }
                 }
@@ -188,17 +184,10 @@ internal fun GeminiChatScreen(
                     GenerateResponse(loadingAnimation)
                 }
             }
-            // TODO: ChatScreen은 sentMessages.reversed()로 적어도 uid를 ChatItemBubble에서 활용하기 때문에 사용자와 챗봇의 메시지가 전부 보여지는데 이건 어떻게 해야할지...
-            // 화면엔 잘 나오지만 대화 로드를 못함(채팅방 나갔다가 들어오면 빈 채팅방이 보여지나 realtime db엔 올라가있음)
-//            items(uiState.messages.reversed()) { message ->
-//                ChatItemBubble(
-//                    message = message,
-//                )
-//            }
             items(sentMessages.reversed()) { message ->
                 ChatItemBubble(
                     message = message,
-                    userId = user?.uid?: "ERROR" // TODO: uid 추가를 위해 파라미터 추가
+                    userId = user?.uid?: "ERROR"
                 )
             }
         }
@@ -240,27 +229,22 @@ internal fun GeminiChatScreen(
                 IconButton(
                     onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
-                            // Load user and chatbot messages
-                            var userMessages = listOf<GeminiChatMessage>()
-                            var botMessages = listOf<GeminiChatMessage>()
-                            geminiChatViewModel.loadChatMessages({ messages -> userMessages = messages }, title)
-                            geminiChatViewModel.loadChatbotMessages({ messages -> botMessages = messages }, title)
+                            // 사용자와 챗봇 메시지 결합
+                            val allMessages = (sentMessages + sentBotMessages).distinctBy { it.message + it.uploadDate }
 
-                            // Combine user and chatbot messages
-                            val allMessages = userMessages + botMessages
-
-                            // Sort messages by upload date
+                            // 업로드 날짜별로 메시지 정렬
                             val sortedMessages = allMessages.sortedBy { it.uploadDate }
 
-                            // Convert messages to string
+                            // 메시지를 문자열로 변환
                             val response = sortedMessages.joinToString("\n\n") { message ->
-                                "${message.userName}: ${message.message}"
+                                "${message.message}"
                             }
 
                             val currentDate =
                                 SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
                                     Date()
                                 )
+
                             val myRelayNovel = RelayChatToNovelBook(
                                 title = title,
                                 author = user?.displayName ?: "ERROR",
@@ -358,7 +342,6 @@ fun CustomTextField(
                     } else {
                         "작가의 마당 : 지금 작업중인 소설의 설정을 써주세요.\n꿈의 마당 : 지금 생각나는 이야기를 써주세요."
                     }
-
                     Text(
                         text = placeholderText,
                         style = TextStyle(
@@ -400,7 +383,6 @@ private fun SendButton(onSendClick: () -> Unit, keyboardController: SoftwareKeyb
 
 @Composable
 fun ChatItemBubble(message: GeminiChatMessage, userId: String) {
-    // TODO: 로그인된 user의 정보를 사용하지 않아 Firebase의 userId로 변경해봄
     val isCurrentUserMessage = (message.userId ?: "UID ERROR") == userId
     val bubbleColor = if (isCurrentUserMessage) Color(0xFF3CDEE9) else Color(0xFFFFFFFF)
     val bubbleShape =
@@ -428,7 +410,7 @@ private fun UserResponse(
 
     Column(
         modifier = Modifier
-            .padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
+            .padding(start = 50.dp, end = 25.dp, bottom = 15.dp)
     ) {
         Row(
             verticalAlignment = Alignment.Bottom,
@@ -448,7 +430,11 @@ private fun UserResponse(
                     .combinedClickable(
                         onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
                         onLongClick = { // 말풍선을 꾹 누르면 발생하는 이벤트입니다.
-                            clipboardManager.setText(AnnotatedString(message.message?: "")) // 클립보드에 텍스트를 복사합니다.
+                            clipboardManager.setText(
+                                AnnotatedString(
+                                    message.message ?: ""
+                                )
+                            ) // 클립보드에 텍스트를 복사합니다.
                         }
                     )
             ) {
@@ -475,7 +461,7 @@ private fun ChatbotResponse(
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Image(
                 painter = painterResource(id = R.drawable.userimage),
@@ -498,12 +484,11 @@ private fun ChatbotResponse(
         ) {
             Row(
                 verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.Start,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
-                        .weight(1f)
                         .background(
                             color = bubbleColor,
                             shape = bubbleShape
@@ -513,12 +498,11 @@ private fun ChatbotResponse(
                             color = Color(0xFF3CDEE9),
                             shape = bubbleShape
                         )
-                        .width(IntrinsicSize.Max)
                         .padding(6.dp)
                         .combinedClickable(
                             onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
                             onLongClick = { // 클립보드에 텍스트를 복사합니다.
-                                clipboardManager.setText(AnnotatedString(message.message?: ""))
+                                clipboardManager.setText(AnnotatedString(message.message ?: ""))
                             }
                         )
                 ) {
@@ -529,8 +513,15 @@ private fun ChatbotResponse(
                         modifier = Modifier.padding(6.dp)
                     )
                 }
+            }
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     text = message.uploadDate?: "",
+                    color = if (isSystemInDarkTheme()) Color.White else Color(0xFF646E6F),
                     fontSize = 9.sp,
                     modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
                 )

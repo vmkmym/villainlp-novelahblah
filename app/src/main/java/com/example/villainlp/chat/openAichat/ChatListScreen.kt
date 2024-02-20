@@ -258,7 +258,7 @@ fun NovelChatCards(
             colors = CardDefaults.cardColors(containerColor = BasicWhite),
         ) {
             Column(
-                modifier = Modifier.padding(15.dp)
+                modifier = Modifier.padding(18.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -274,12 +274,13 @@ fun NovelChatCards(
                         ),
                         contentDescription = "Working On"
                     )
+                    Spacer(modifier = Modifier.padding(7.dp))
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             modifier = Modifier
-                                .width(210.dp),
+                                .width(200.dp),
                             text = novelInfo.title,
                             style = TextStyle(
                                 fontSize = 18.sp,
@@ -289,10 +290,10 @@ fun NovelChatCards(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.padding(5.dp))
+                        Spacer(modifier = Modifier.padding(7.dp))
                         Text(
                             modifier = Modifier
-                                .width(210.dp),
+                                .width(200.dp),
                             text = if (novelInfo.assistId == ContextCompat.getString(
                                     context,
                                     R.string.assistant_key_for_novelist

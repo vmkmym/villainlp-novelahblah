@@ -216,7 +216,6 @@ object FirebaseTools {
 
     fun saveChatToNovel(relayChatToNovel: RelayChatToNovelBook) {
         val db = FirebaseFirestore.getInstance()
-
         val newDocRef = db.collection("MyBookData").document()
         val documentId = newDocRef.id
         val updateRelayChatToNovel = relayChatToNovel.copy(documentID = documentId)

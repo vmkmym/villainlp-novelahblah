@@ -43,11 +43,10 @@ fun MyScaffold(
     val isDarkTheme = isSystemInDarkTheme()
     val backgroundColor = if (isDarkTheme) Color.Black else Color.White
 
-    Scaffold(topBar = {
-        MyScaffoldTopBar(title)
-    }, bottomBar = {
-        MyScaffoldBottomBar(navController)
-    }) {
+    Scaffold(
+        topBar = { MyScaffoldTopBar(title) },
+        bottomBar = { MyScaffoldBottomBar(navController) }
+    ) {
         content(
             Modifier
                 .fillMaxSize()
