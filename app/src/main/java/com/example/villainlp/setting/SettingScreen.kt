@@ -81,8 +81,6 @@ fun SettingScreen(
 
     // 현재 화면의 크기를 가져옵니다.
     val windowHeight = LocalConfiguration.current.screenHeightDp.dp
-    val isDarkTheme = isSystemInDarkTheme()
-    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
 
     MyScaffold(
         title = "설정",
@@ -93,7 +91,6 @@ fun SettingScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundColor)
         ) {
             Spacer(modifier = Modifier.padding(vertical = windowHeight * 0.03f))
             // 로그인한 유저의 프로필 이미지를 가져옴
@@ -210,7 +207,6 @@ fun DisplayUserFields(
     userEmail: String,
     onUserEmailChange: (String) -> Unit,
 ) {
-    val windowSize = LocalConfiguration.current.screenWidthDp.dp
     val isDarkTheme = isSystemInDarkTheme()
 
     OutlinedTextField(

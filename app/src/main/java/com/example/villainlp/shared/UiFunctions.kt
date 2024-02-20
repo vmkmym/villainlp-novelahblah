@@ -118,16 +118,14 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
 fun MyScaffoldTopBar(title: String) {
     val isDarkTheme = isSystemInDarkTheme()
     val windowSize = LocalConfiguration.current.screenWidthDp.dp
-    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = backgroundColor)
+            .background(color = Color.Transparent)
     ) {
         Row(
             modifier = Modifier
-                .background(Color.Transparent)
                 .fillMaxWidth()
                 .height(windowSize * 0.18f)
                 .padding(windowSize * 0.016f),

@@ -78,7 +78,8 @@ fun Creative(modifier: Modifier, navController: NavHostController, auth: Firebas
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(12.dp),
+            .padding(12.dp)
+            .background(color = Color.Transparent),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
