@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -396,7 +397,7 @@ fun ChatItemBubble(message: GeminiChatMessage, userId: String) {
     if (isCurrentUserMessage) {
         UserResponse(message, bubbleColor, bubbleShape)
     } else {
-        ChatbotResponse(message, bubbleColor, bubbleShape)
+        ChatbotResponse(message, bubbleShape)
     }
 }
 
@@ -453,7 +454,6 @@ private fun UserResponse(
 @Composable
 private fun ChatbotResponse(
     message: GeminiChatMessage,
-    bubbleColor: Color,
     bubbleShape: RoundedCornerShape,
 ) {
     val clipboardManager = LocalClipboardManager.current
@@ -481,17 +481,17 @@ private fun ChatbotResponse(
         }
         // 말풍선
         Column(
-            modifier = Modifier.padding(start = 25.dp, end = 50.dp, bottom = 20.dp)
+            modifier = Modifier.padding(start = 25.dp, end = 30.dp, bottom = 20.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
+                        .widthIn(max = 270.dp) // 최대 너비를 200.dp로 제한
                         .background(
-                            color = bubbleColor,
+                            color = Color.Transparent,
                             shape = bubbleShape
                         )
                         .border(

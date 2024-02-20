@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -63,6 +65,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
@@ -90,6 +93,7 @@ import com.example.villainlp.novel.RelayChatToNovelBook
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Primary
 import com.example.villainlp.novel.library.comment.addFocusCleaner
+import com.example.villainlp.ui.theme.TextGray
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
@@ -608,6 +612,7 @@ private fun UserResponse(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatbotResponse(
     message: ChatMessage,
@@ -639,17 +644,17 @@ private fun ChatbotResponse(
         }
         // 말풍선
         Column(
-            modifier = Modifier.padding(start = 25.dp, end = 50.dp, bottom = 20.dp)
+            modifier = Modifier.padding(start = 25.dp, end = 30.dp, bottom = 20.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
+                        .widthIn(max = 270.dp)
                         .background(
-                            color = bubbleColor,
+                            color = Color.Transparent,
                             shape = bubbleShape
                         )
                         .border(
@@ -660,21 +665,21 @@ private fun ChatbotResponse(
                         .padding(6.dp)
                         .combinedClickable(
                             onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
-                            onLongClick = { // 말풍선을 꾹 누르면 발생하는 이벤트입니다.
-                                clipboardManager.setText(AnnotatedString(message.message ?: "")) // 클립보드에 텍스트를 복사합니다.
+                            onLongClick = {
+                                clipboardManager.setText(AnnotatedString(message.message ?: ""))
                             }
                         )
                 ) {
                     Text(
                         text = message.message ?: "",
-                        color = Color(0xFF646E6F),
+                        color = if (isSystemInDarkTheme()) Color.White else Color.DarkGray,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(6.dp)
                     )
                 }
                 Text(
-                    text = message.uploadDate ?: "",
-                    color = if (isSystemInDarkTheme()) Color.White else Color(0xFF646E6F),
+                    text = message.uploadDate?: "",
+                    color = if (isSystemInDarkTheme()) Color.White else TextGray,
                     fontSize = 9.sp,
                     modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
                 )
@@ -683,3 +688,29 @@ private fun ChatbotResponse(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun PreviewChatbotResponse() {
+    Column {
+        ChatbotResponse(
+            message = ChatMessage(
+                message = "How can I help you today?",
+                userId = "chatbot",
+                userName = "Chatbot",
+                uploadDate = "10:00"
+            ),
+            bubbleColor = Color.White,
+            bubbleShape = RoundedCornerShape(17.dp)
+        )
+        ChatbotResponse(
+            message = ChatMessage(
+                message = "안녕하세요. 저는 챗봇입니다. 어떤 것을 도와드릴까요?",
+                userId = "chatbot",
+                userName = "Chatbot",
+                uploadDate = "10:33"
+            ),
+            bubbleColor = Color.White,
+            bubbleShape = RoundedCornerShape(10.dp)
+        )
+    }
+}
