@@ -88,7 +88,7 @@ fun MyNovels(
 
             val dismissState = rememberDismissState(
                 positionalThreshold = { it * 0.50f },
-                confirmValueChange = { deleteNovel(it){ viewModel.onDeleteClicked(book, auth) } }
+                confirmValueChange = { deleteContents(it){ viewModel.onDeleteClicked(book, auth) } }
             )
 
             val color by animateColorAsState(
@@ -111,7 +111,7 @@ fun MyNovels(
 
 // 스와이프시 삭제(Library, MyNovel)
 @OptIn(ExperimentalMaterial3Api::class)
-fun deleteNovel(
+fun deleteContents(
     it: DismissValue,
     onConfirmValueChanged: () -> Unit
 ): Boolean {
