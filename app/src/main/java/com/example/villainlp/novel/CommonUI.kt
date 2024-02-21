@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Share
@@ -18,7 +19,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -200,7 +200,7 @@ fun ReadScreenTopBar(
                 style = TextStyle(
                     fontSize = 22.sp,
                     fontWeight = FontWeight(600),
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color(0xFF212121),
                 )
             )
             if (hasIcon){
@@ -232,13 +232,13 @@ fun FrontArrowImage(){
 fun TitleText(title: String){
     Text(
         modifier = Modifier
-            .width(270.dp)
+            .wrapContentWidth()
             .height(30.dp),
         text = title,
         style = TextStyle(
             fontSize = 20.sp,
             fontWeight = FontWeight(600),
-            color = MaterialTheme.colorScheme.onSurface, // 현 상태에 맞춘 색
+            color = Color(0xFF212121),
         ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
@@ -250,13 +250,13 @@ fun TitleText(title: String){
 fun DescriptionText(description: String){
     Text(
         modifier = Modifier
-            .width(270.dp)
+            .wrapContentWidth()
             .height(45.dp),
         text = description,
         style = TextStyle(
             fontSize = 14.sp,
             fontWeight = FontWeight(500),
-            color = MaterialTheme.colorScheme.onSurface,
+            color = Color(0xFF2C2C2C),
         ),
         maxLines = 2,
         overflow = TextOverflow.Ellipsis
