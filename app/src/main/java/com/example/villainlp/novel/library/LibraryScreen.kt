@@ -1,9 +1,8 @@
 package com.example.villainlp.novel.library
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.scaleIn
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,18 +13,27 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,36 +44,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.novel.AlertPopup
 import com.example.villainlp.novel.AuthorText
 import com.example.villainlp.novel.Book
-import com.example.villainlp.novel.DeleteAlert
 import com.example.villainlp.novel.DescriptionText
 import com.example.villainlp.novel.FrontArrowImage
 import com.example.villainlp.novel.TitleText
 import com.example.villainlp.novel.TopBarTitle
-import com.example.villainlp.novel.createSwipeableParameters
 import com.example.villainlp.novel.formatRating
+import com.example.villainlp.novel.myNovel.deleteNovel
 import com.example.villainlp.server.FirebaseTools
 import com.example.villainlp.shared.MyScaffold
+import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -76,40 +77,31 @@ fun LibraryScreen(
     viewModel: LibraryViewModel = viewModel(),
 ) {
     val novelList by viewModel.novelList.collectAsState()
-    val showDialog by viewModel.showDialog.collectAsState()
 
     MyScaffold(TopBarTitle.Library.title, navController) {
         Column(
             modifier = it.padding(12.dp)
         ) {
             SortButtons(viewModel)
-            NovelLists(navController, novelList, auth) { selectedNovel -> viewModel.onDeleteClicked(selectedNovel) }
+            NovelLists(navController, novelList, auth, viewModel)
         }
-    }
-    if (showDialog) {
-        AlertPopup(
-            title = DeleteAlert.CommonTitle.text,
-            message = DeleteAlert.LibraryMessage.text,
-            onDismiss = { viewModel.onDismissDialog() },
-            onConfirm = { viewModel.onConfirmClicked() }
-        )
     }
 }
 
 // 정렬 아이콘 버튼과 그에 따른 Ui상태
 @Composable
 fun SortButtons(
-    viewModel: LibraryViewModel
-){
+    viewModel: LibraryViewModel,
+) {
     viewModel.loadNovels() // loadNovels를 안넣어주면 상태 업데이트를 못함
 
     val isRateClicked by viewModel.isRateClicked.collectAsState()
     val isViewClicked by viewModel.isViewClicked.collectAsState()
     val isUpdateClicked by viewModel.isUpdateClicked.collectAsState()
 
-    val starIcon = if(isRateClicked) R.drawable.star_white else R.drawable.star_sky
-    val viewIcon = if(isViewClicked) R.drawable.views_white else R.drawable.views
-    val updateIcon = if(isUpdateClicked) R.drawable.clock_white else R.drawable.clock
+    val starIcon = if (isRateClicked) R.drawable.star_white else R.drawable.star_sky
+    val viewIcon = if (isViewClicked) R.drawable.views_white else R.drawable.views
+    val updateIcon = if (isUpdateClicked) R.drawable.clock_white else R.drawable.clock
 
     Row(
         modifier = Modifier
@@ -141,7 +133,7 @@ fun SortButtons(
 fun SortOptionButton(
     image: Int,
     backColor: Color,
-    onClicked: () -> Unit
+    onClicked: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -167,85 +159,127 @@ fun SortOptionButton(
 }
 
 // 올라온 소설 목록들
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun NovelLists(
     navController: NavHostController,
     books: List<Book>,
     auth: FirebaseAuth,
-    onClicked: (Book) -> Unit,
+    viewModel: LibraryViewModel,
 ) {
+    val scope = rememberCoroutineScope()
+
     LazyColumn(
         modifier = Modifier.padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     )
     {
-        items(books) { book ->
-            NovelCardBox(book, navController, auth) { selectedBook -> onClicked(selectedBook) }
+        items(books, key = { item -> item.documentID ?: "ERROR" }) { book ->
+
+            val user = auth.currentUser
+            val isCurrentUser = user?.uid == book.userID
+            var commentCount by remember { mutableStateOf(0) }
+
+            val dismissState = rememberDismissState(
+                positionalThreshold = { it * 0.50f },
+                confirmValueChange = {
+                    if (isCurrentUser) {
+                        deleteNovel(it) { viewModel.onDeleteClicked(book) }
+                    } else {
+                        false
+                    }
+                }
+            )
+
+            val color by animateColorAsState(
+                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) Color.Red else Blue789,
+                label = "ColorAnimation"
+            )
+
+            scope.launch { commentCount = FirebaseTools.getCommentCount(book.documentID?:"ERROR") }
+
+            SwipeToDismiss(
+                modifier = Modifier.animateItemPlacement(),
+                state = dismissState,
+                directions = setOf(DismissDirection.EndToStart),
+                background = {
+                    if (isCurrentUser) {
+                        DeleteNovelCard(
+                            color = color,
+                            text = "삭제하기",
+                            imageVector = Icons.Default.Delete
+                        )
+                    } else {
+                        DeleteNovelCard(
+                            color = Color.Red,
+                            text = "타인의 작품은 삭제 할 수 없습니다.",
+                            imageVector = Icons.Default.Lock
+                        )
+                    }
+                },
+                dismissContent = {
+                    NovelCard(
+                        book = book,
+                        commentCount = commentCount,
+                        navController = navController
+                    )
+                }
+            )
+
             Spacer(modifier = Modifier.size(25.dp))
         }
     }
 }
 
-// 각각의 소설박스 UI 구성
-@SuppressLint("CoroutineCreationDuringComposition")
-@OptIn(ExperimentalWearMaterialApi::class)
+// 스와이프 삭제(Library, MyNovel)
 @Composable
-fun NovelCardBox(
-    book: Book,
-    navController: NavHostController,
-    auth: FirebaseAuth,
-    onClicked: (Book) -> Unit,
-) {
-    var commentCount by remember { mutableStateOf(0) }
-    val user = auth.currentUser
-    val isCurrentUser = user?.uid == book.userID
-    val scope = rememberCoroutineScope()
-
-    scope.launch { commentCount = FirebaseTools.getCommentCount(book.documentID!!) }
-
-    val (swipeableState, swipeableModifier, imageVisibility) = createSwipeableParameters()
-
-    if (isCurrentUser) {
-        Box {
-            MyNovelCard(
-                book = book,
-                commentCount = commentCount,
-                swipeableModifier = swipeableModifier,
-                offset = { IntOffset(swipeableState.offset.value.roundToInt(), 0) },
-                onClicked = { navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}/${book.views}") }
-            )
-            DeleteAnimation(
-                imageVisibility = imageVisibility,
-                book = book,
-                onClicked = { onClicked(book) }
-            )
+private fun DeleteNovelCard(color: Color, text: String, imageVector: ImageVector) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth() // LazyColumn의 넓이에 맞춤
+            .height(133.dp),
+        colors = CardDefaults.cardColors(containerColor = color), // 50%넘게 스와이프하면 색이 바뀜
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(), // Card 크기에 맞춤
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.padding(end = 15.dp),
+                    text = text,
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color.White,
+                    ),
+                )
+                Icon(
+                    modifier = Modifier.padding(end = 15.dp),
+                    imageVector = imageVector,
+                    tint = Color.White,
+                    contentDescription = null
+                )
+            }
         }
-    } else {
-        AllNovelCard(
-            book = book,
-            commentCount = commentCount,
-            onClicked = { navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}/${book.views}") }
-        )
     }
 }
 
 // 내가 올린 소설(삭제를 위함) UI 구성
 @Composable
-fun MyNovelCard(
+fun NovelCard(
     book: Book,
     commentCount: Int,
-    swipeableModifier: Modifier,
-    offset: () -> IntOffset,
-    onClicked: () -> Unit
-){
+    navController: NavHostController,
+) {
     Card(
         modifier = Modifier
-            .width(360.dp)
+            .fillMaxWidth()
             .height(133.dp)
-            .offset { offset() } // Apply the offset
-            .then(swipeableModifier) // Apply the swipeable modifier
-            .clickable { onClicked() },
+            .clickable { navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}/${book.views}") },
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
     ) {
         Column(
@@ -259,16 +293,14 @@ fun MyNovelCard(
 
 // 제목, 요약 구성
 @Composable
-fun TitleAndDescription(book: Book){
+fun TitleAndDescription(book: Book) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column {
             TitleText(book.title)
+            Spacer(modifier = Modifier.padding(top = 2.dp))
             DescriptionText(book.description)
         }
         Column(
@@ -284,8 +316,8 @@ fun TitleAndDescription(book: Book){
 @Composable
 fun AuthorAndRatingIcons(
     book: Book,
-    commentCount: Int
-){
+    commentCount: Int,
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -300,8 +332,8 @@ fun AuthorAndRatingIcons(
 @Composable
 fun RatingIcons(
     book: Book,
-    commentCount: Int
-){
+    commentCount: Int,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -320,8 +352,8 @@ fun RatingIcons(
 @Composable
 fun RatingCounts(
     ratingImg: Int,
-    count: String
-){
+    count: String,
+) {
     Image(
         modifier = Modifier.size(15.dp),
         painter = painterResource(id = ratingImg),
@@ -337,68 +369,4 @@ fun RatingCounts(
             textAlign = TextAlign.Start,
         )
     )
-}
-
-// 삭제 애니메이션 구성
-@Composable
-fun DeleteAnimation(
-    imageVisibility: Boolean,
-    book: Book,
-    onClicked: (Book) -> Unit
-){
-    val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
-
-    Column(
-        modifier = Modifier
-            .size(360.dp, 133.dp)
-            .border(
-                1.dp, Color(0xFFF5F5F5),
-                RoundedCornerShape(
-                    topStart = 16.dp,
-                    bottomStart = 16.dp,
-                    topEnd = 16.dp,
-                    bottomEnd = 16.dp
-                )
-            )
-            .padding(12.dp),
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.Center
-    ) {
-        AnimatedVisibility(
-            visible = imageVisibility,
-            enter = scaleIn(),
-            exit = ExitTransition.None
-        ) {
-            LottieAnimation(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable { onClicked(book) },
-                composition = fireLottie,
-                iterations = LottieConstants.IterateForever
-            )
-        }
-    }
-}
-
-// 다른 사람이 올린 소설(지울수 없음) 구성
-@Composable
-fun AllNovelCard(
-    book: Book,
-    commentCount: Int,
-    onClicked: () -> Unit
-){
-    Card(
-        modifier = Modifier
-            .width(360.dp)
-            .height(133.dp)
-            .clickable { onClicked() },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            TitleAndDescription(book)
-            AuthorAndRatingIcons(book, commentCount)
-        }
-    }
 }
