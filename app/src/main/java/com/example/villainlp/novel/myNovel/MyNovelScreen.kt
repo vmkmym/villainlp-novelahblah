@@ -83,8 +83,7 @@ fun MyNovels(
     LazyColumn(
         modifier = modifier.padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-    )
-    {
+    ) {
         items(myBooks, key = { item -> item.documentID ?: "ERROR" }) { book ->
 
             val dismissState = rememberDismissState(
@@ -110,8 +109,9 @@ fun MyNovels(
     }
 }
 
+// 스와이프시 삭제(Library, MyNovel)
 @OptIn(ExperimentalMaterial3Api::class)
-private fun deleteNovel(
+fun deleteNovel(
     it: DismissValue,
     onConfirmValueChanged: () -> Unit
 ): Boolean {
