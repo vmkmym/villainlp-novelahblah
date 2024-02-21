@@ -61,7 +61,7 @@ import com.example.villainlp.novel.FrontArrowImage
 import com.example.villainlp.novel.TitleText
 import com.example.villainlp.novel.TopBarTitle
 import com.example.villainlp.novel.formatRating
-import com.example.villainlp.novel.myNovel.deleteNovel
+import com.example.villainlp.novel.myNovel.deleteContents
 import com.example.villainlp.server.FirebaseTools
 import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.ui.theme.Blue789
@@ -185,7 +185,7 @@ fun NovelLists(
                 positionalThreshold = { it * 0.50f },
                 confirmValueChange = {
                     if (isCurrentUser) {
-                        deleteNovel(it) { viewModel.onDeleteClicked(book) }
+                        deleteContents(it) { viewModel.onDeleteClicked(book) }
                     } else {
                         false
                     }
