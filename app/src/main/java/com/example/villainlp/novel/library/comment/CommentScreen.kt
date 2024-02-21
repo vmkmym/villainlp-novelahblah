@@ -1,12 +1,12 @@
 package com.example.villainlp.novel.library.comment
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.Image
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,18 +16,28 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,31 +54,26 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.novel.AlertPopup
-import com.example.villainlp.novel.DeleteAlert
 import com.example.villainlp.novel.TopBarTitle
-import com.example.villainlp.novel.createSwipeableParameters
+import com.example.villainlp.novel.myNovel.deleteContents
+import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalComposeUiApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -81,7 +86,6 @@ fun CommentScreen(
 ) {
     // VM에서 관리할 변수들 UI들과 분리되어 관리할 대상
     val commentList by viewModel.commentList.collectAsState()
-    val showDialog by viewModel.showDialog.collectAsState()
     val comment by viewModel.commentText.collectAsState()
     val isAnimationPlaying by viewModel.isAnimationPlaying.collectAsState()
 
@@ -127,18 +131,10 @@ fun CommentScreen(
                 .fillMaxSize()
                 .padding(it)
                 .addFocusCleaner(focusManager), //Textfield 포커스를 위한 모디파이어
+            auth = auth,
+            documentId = documentId,
             commentList = commentList,
-            auth = auth
-        ) { comment ->
-            viewModel.onCommentClicked(comment)
-        }
-    }
-    if (showDialog) {
-        AlertPopup(
-            title = DeleteAlert.CommentTitle.text,
-            message = DeleteAlert.CommentMessage.text,
-            onDismiss = { viewModel.onDismissDialog() },
-            onConfirm = { viewModel.deleteComment(documentId) }
+            viewModel = viewModel
         )
     }
 }
@@ -150,19 +146,23 @@ fun CommentTopBar(
     viewModel: CommentViewModel,
     isPlaying: Boolean,
     onClick: () -> Unit,
-){
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp)
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+                .padding(start = 4.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         )
         {
-            Row {
-                BackPageArrowImage(navController)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "back")
+                }
                 Spacer(modifier = Modifier.size(20.dp))
                 TopBarText(viewModel)
             }
@@ -175,25 +175,11 @@ fun CommentTopBar(
     }
 }
 
-// 뒤로가기 버튼(ActionBotton으로 만들던가 shared 폴더로 가야할듯? 일단 여기서 관리
-@Composable
-fun BackPageArrowImage(
-    navController: NavController
-){
-    Image(
-        modifier = Modifier
-            .clickable { navController.popBackStack() }
-            .size(20.dp),
-        painter = painterResource(id = R.drawable.arrow_left),
-        contentDescription = "back"
-    )
-}
-
 // 댓글(수)로 구성된 Text
 @Composable
 fun TopBarText(
-    viewModel: CommentViewModel
-){
+    viewModel: CommentViewModel,
+) {
     val commentCount by viewModel.commentCount.collectAsState()
 
     Text(text = TopBarTitle.Comment.title)
@@ -205,7 +191,7 @@ fun TopBarText(
 fun ReloadingAnimation(
     isPlaying: Boolean,
     onClick: () -> Unit,
-){
+) {
     val reloadLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.reload))
 
     LottieAnimation(
@@ -228,8 +214,8 @@ fun CommentBottomBar(
     onFocusChanged: (FocusState) -> Unit,
     onCommentChanged: (String) -> Unit,
     onPlaceholder: @Composable () -> Unit,
-    onSubmitClicked: () -> Unit
-){
+    onSubmitClicked: () -> Unit,
+) {
     Column {
         Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
         Row(
@@ -242,7 +228,7 @@ fun CommentBottomBar(
                 focusRequester = focusRequester,
                 maxCharacterCount = maxCharacterCount,
                 isTextFieldFocused = isTextFieldFocused,
-                onFocusChanged = {  onFocusChanged(it) },
+                onFocusChanged = { onFocusChanged(it) },
                 onCommentChanged = { onCommentChanged(it) },
                 onPlaceholder = { onPlaceholder() }
             )
@@ -261,8 +247,8 @@ fun TextFieldColumn(
     isTextFieldFocused: Boolean,
     onFocusChanged: (FocusState) -> Unit,
     onCommentChanged: (String) -> Unit,
-    onPlaceholder: @Composable () -> Unit
-){
+    onPlaceholder: @Composable () -> Unit,
+) {
     Column {
         CommentTextField(
             comment = comment,
@@ -271,7 +257,9 @@ fun TextFieldColumn(
             onCommentChanged = { onCommentChanged(it) },
             onPlaceholder = { onPlaceholder() }
         )
-        if (isTextFieldFocused) { CommentLength(comment, maxCharacterCount) }
+        if (isTextFieldFocused) {
+            CommentLength(comment, maxCharacterCount)
+        }
     }
 }
 
@@ -283,8 +271,8 @@ fun CommentTextField(
     focusRequester: FocusRequester,
     onFocusChanged: (FocusState) -> Unit,
     onCommentChanged: (String) -> Unit,
-    onPlaceholder: @Composable () -> Unit
-){
+    onPlaceholder: @Composable () -> Unit,
+) {
     TextField(
         modifier = Modifier
             .width(350.dp)
@@ -306,8 +294,8 @@ fun CommentTextField(
 // Focuse에 따라 값이바뀌는 TextValue
 @Composable
 fun FocuseText(
-    text: String
-){
+    text: String,
+) {
     Text(
         text = text,
         style = TextStyle(
@@ -322,8 +310,8 @@ fun FocuseText(
 @Composable
 fun CommentLength(
     comment: String,
-    maxCharacterCount: Int
-){
+    maxCharacterCount: Int,
+) {
     Row {
         Spacer(modifier = Modifier.size(12.dp))
         Text(
@@ -340,7 +328,7 @@ fun CommentLength(
 
 // 등록 버튼
 @Composable
-fun SubmitButton(onClick: () -> Unit){
+fun SubmitButton(onClick: () -> Unit) {
     Button(
         onClick = { onClick() },
         colors = ButtonDefaults.primaryButtonColors(
@@ -353,86 +341,90 @@ fun SubmitButton(onClick: () -> Unit){
 }
 
 // 댓글들의 구성
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun Comments(
     modifier: Modifier,
-    commentList: List<Comment>,
     auth: FirebaseAuth,
-    onClicked: (Comment) -> Unit,
+    documentId: String,
+    commentList: List<Comment>,
+    viewModel: CommentViewModel,
 ) {
     LazyColumn(
         modifier = modifier
     ) {
-        items(commentList) { comments ->
-            CommentBox(comments, auth) { comment ->
-                onClicked(comment)
-            }
-        }
-    }
-}
+        items(commentList, key = { item -> item.documentID ?: "ERROR" }) { comment ->
+            val user = auth.currentUser
+            val isCurrentUser = user?.uid == comment.userID
 
-// 댓글 하나의 Ui
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun CommentBox(
-    comment: Comment,
-    auth: FirebaseAuth,
-    onClicked: (Comment) -> Unit,
-) {
-    val user = auth.currentUser
-    val isCurrentUser = (user?.uid == comment.userID)
-
-    val (swipeableState, swipeableModifier, imageVisibility) = createSwipeableParameters()
-
-    if (isCurrentUser) {
-        Box {
-            MyCommentColumn(
-                offset = { IntOffset(swipeableState.offset.value.roundToInt(), 0) },
-                swipeableModifier = swipeableModifier,
-                comment = comment
+            val dismissState = rememberDismissState(
+                positionalThreshold = { it * 0.50f },
+                confirmValueChange = {
+                    if (isCurrentUser) {
+                        deleteContents(it) { viewModel.deleteComment(documentId, comment) }
+                    } else {
+                        false
+                    }
+                }
             )
-            DeleteCommentAnimation(
-                imageVisibility = imageVisibility,
-                comment = comment,
-                onClicked = { onClicked(comment) }
+
+            val color by animateColorAsState(
+                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) Color.Red else Blue789,
+                label = "ColorAnimation"
             )
+
+            SwipeToDismiss(
+                modifier = Modifier.animateItemPlacement(),
+                state = dismissState,
+                directions = setOf(DismissDirection.EndToStart),
+                background = {
+                    if (isCurrentUser) {
+                        DeleteComment(
+                            color = color,
+                            text = "삭제하기",
+                            imageVector = Icons.Default.Delete
+                        )
+                    } else {
+                        DeleteComment(
+                            color = Color.Red,
+                            text = "타인의 작품은 삭제 할 수 없습니다.",
+                            imageVector = Icons.Default.Lock
+                        )
+                    }
+                },
+                dismissContent = { MyCommentColumn(comment) }
+            )
+
         }
-    } else {
-        AllCommentColumn(comment)
     }
 }
 
 // 내 글만 지우기 가능하게 MyComment로 구분
 @Composable
 fun MyCommentColumn(
-    offset: () -> IntOffset,
-    swipeableModifier: Modifier,
-    comment: Comment
-){
-    Column {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset { offset() }
-                .then(swipeableModifier)
-                .padding(12.dp)
-        ) {
-            CommentInfoAndScript(comment)
-        }
-        Divider()
+    comment: Comment,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = if (isSystemInDarkTheme()) { Color(0xFF181c1f) } else { Color.White })
+            .padding(12.dp)
+    ) {
+        CommentInfoAndScript(comment)
     }
+    Divider()
 }
 
 // 댓글 Text 구성
 @Composable
-fun CommentInfoAndScript(comment: Comment){
+fun CommentInfoAndScript(comment: Comment) {
     CommentInfo(comment)
     CommentScript(comment)
 }
 
 // 댓글 Text 속성
 @Composable
-fun CommentInfo(comment: Comment){
+fun CommentInfo(comment: Comment) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -441,7 +433,7 @@ fun CommentInfo(comment: Comment){
             style = TextStyle(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF000000)
+                color = MaterialTheme.colorScheme.onSurface
             )
         )
         Spacer(modifier = Modifier.size(20.dp))
@@ -458,7 +450,7 @@ fun CommentInfo(comment: Comment){
 
 // 댓글 Text 속성
 @Composable
-fun CommentScript(comment: Comment){
+fun CommentScript(comment: Comment) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -469,53 +461,44 @@ fun CommentScript(comment: Comment){
             style = TextStyle(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
-                color = Color(0xFF000000)
+                color = MaterialTheme.colorScheme.onSurface
             )
         )
     }
 }
 
-// 삭제 애니메이션
-@Composable
-fun DeleteCommentAnimation(
-    imageVisibility: Boolean,
-    comment: Comment,
-    onClicked: (Comment) -> Unit,
-){
-    val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.Center
-    ) {
-        AnimatedVisibility(
-            visible = imageVisibility,
-            enter = scaleIn(),
-            exit = scaleOut()
-        ) {
-            LottieAnimation(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable { onClicked(comment) },
-                composition = fireLottie,
-                iterations = LottieConstants.IterateForever
-            )
-        }
-    }
-}
-
 // 모든 댓글을 보여줌(내것이 아닌것은 지울 수 없게)
 @Composable
-fun AllCommentColumn(comment: Comment){
-    Column {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(12.dp)
+fun DeleteComment(color: Color, text: String, imageVector: ImageVector) {
+    Column(
+        modifier = Modifier.fillMaxWidth().background(color)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(), // Card 크기에 맞춤
+            contentAlignment = Alignment.CenterEnd
         ) {
-            CommentInfoAndScript(comment)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.padding(end = 15.dp),
+                    text = text,
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color.White,
+                    ),
+                )
+                Icon(
+                    modifier = Modifier.padding(end = 15.dp),
+                    imageVector = imageVector,
+                    tint = Color.White,
+                    contentDescription = null
+                )
+            }
         }
-        Divider()
     }
+    Divider()
 }
 
 // Textfield 포커스를 위한것
