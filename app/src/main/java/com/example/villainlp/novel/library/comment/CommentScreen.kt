@@ -192,7 +192,8 @@ fun ReloadingAnimation(
     isPlaying: Boolean,
     onClick: () -> Unit,
 ) {
-    val reloadLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.reload))
+    val color = if (isSystemInDarkTheme()) R.raw.reload_white else R.raw.reload_black
+    val reloadLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(color))
 
     LottieAnimation(
         modifier = Modifier
@@ -407,7 +408,13 @@ fun MyCommentColumn(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = if (isSystemInDarkTheme()) { Color(0xFF181c1f) } else { Color.White })
+            .background(
+                color = if (isSystemInDarkTheme()) {
+                    Color(0xFF181c1f)
+                } else {
+                    Color.White
+                }
+            )
             .padding(12.dp)
     ) {
         CommentInfoAndScript(comment)
@@ -471,7 +478,9 @@ fun CommentScript(comment: Comment) {
 @Composable
 fun DeleteComment(color: Color, text: String, imageVector: ImageVector) {
     Column(
-        modifier = Modifier.fillMaxWidth().background(color)
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(), // Card 크기에 맞춤
