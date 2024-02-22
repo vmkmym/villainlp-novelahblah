@@ -1,17 +1,17 @@
 package com.example.villainlp
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -25,7 +25,6 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 
-
 class MainActivity : ComponentActivity() {
 
     private lateinit var mAuth: FirebaseAuth
@@ -37,56 +36,53 @@ class MainActivity : ComponentActivity() {
         mAuth = FirebaseAuth.getInstance()
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // default_web_client_id 에러 시 rebuild
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-//        // Twitter 개발자 계정의 클라이언트 ID와 클라이언트 비밀을 설정합니다.
-//        val twitterClientId = "YOUR_CLIENT_ID"
-//        val twitterClientSecret = "YOUR_CLIENT_SECRET"
-//
-//        // Twitter 로그인 구성을 설정합니다.
-//        val twitterConfig = TwitterAuthProvider.Builder(this)
-//            .setClientId(twitterClientId)
-//            .setClientSecret(twitterClientSecret)
-//            .setScopes(arrayOf("user:email"))
-//            .build()
+        setupContent()
+    }
 
+    private fun setupContent() {
         setContent {
             VillainlpTheme {
                 val navController = rememberNavController()
                 val launcher =
                     rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.StartActivityForResult()) { result ->
-                        val data = result.data
-                        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-                        val exception = task.exception
-                        if (task.isSuccessful) {
-                            try {
-                                val account = task.getResult(ApiException::class.java)!!
-                                firebaseAuthWithGoogle(account.idToken!!)
-                                navController.popBackStack()
-                                navController.navigate(Screen.CreativeYard.route)
-                            } catch (e: Exception) {
-                                Log.d("SignIn", "로그인 실패")
-                            }
-                        } else {
-                            Log.d("SignIn", exception.toString())
-                        }
+                        contract = ActivityResultContracts.StartActivityForResult()
+                    ) { result ->
+                        handleSignInResult(result.data, navController)
                     }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     VillainNavigation(
-                        signInClicked = { launcher.launch(googleSignInClient.signInIntent) },
+                        signInClicked = { signInWithGoogle(launcher) },
                         signOutClicked = { signOut(navController) },
                         navController, mAuth
                     )
                 }
             }
+        }
+    }
+
+    private fun signInWithGoogle(launcher: ActivityResultLauncher<Intent>) {
+        val signInIntent = googleSignInClient.signInIntent
+        launcher.launch(signInIntent)
+    }
+
+    private fun handleSignInResult(data: Intent?, navController: NavController) {
+        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+        try {
+            val account = task.getResult(ApiException::class.java)!!
+            firebaseAuthWithGoogle(account.idToken!!)
+            navController.popBackStack()
+            navController.navigate(Screen.CreativeYard.route)
+        } catch (e: ApiException) {
+            Log.w("SignIn", "Google sign in failed", e)
         }
     }
 
@@ -98,23 +94,24 @@ class MainActivity : ComponentActivity() {
                     Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "로그인 실패", Toast.LENGTH_SHORT).show()
+                    // 로그인 실패 시 사용자에게 알림
+                    if (!task.isSuccessful) {
+                        val message = task.exception?.message
+                        Toast.makeText(this, "로그인 실패: $message", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
     }
 
     private fun signOut(navController: NavController) {
-        val googleSignInClient: GoogleSignInClient
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
         mAuth.signOut()
-        googleSignInClient.signOut().addOnSuccessListener {
-            Toast.makeText(this, "로그아웃 성공", Toast.LENGTH_SHORT).show()
-            navController.navigate(Screen.Login.route)
-        }.addOnFailureListener {
-            Toast.makeText(this, "로그아웃 실패", Toast.LENGTH_SHORT).show()
+        googleSignInClient.signOut().addOnCompleteListener {
+            if (it.isSuccessful) {
+                Toast.makeText(this, "로그아웃 성공", Toast.LENGTH_SHORT).show()
+                navController.navigate(Screen.Login.route)
+            } else {
+                Toast.makeText(this, "로그아웃 실패", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
