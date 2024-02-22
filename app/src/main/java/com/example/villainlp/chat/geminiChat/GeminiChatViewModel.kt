@@ -62,7 +62,7 @@ class GeminiChatViewModel(
         return model.createChatRoom(title)
     }
 
-    fun sendMessage(userMessage: String, title: String, userId: String) {
+    fun sendMessage(userMessage: String, title: String, userId: String, onCompletion: () -> Unit) {
         val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         val geminiChatMessage = GeminiChatMessage(
             message = userMessage,
@@ -89,6 +89,7 @@ class GeminiChatViewModel(
                     _uiState.value.addMessage(geminiChatbotMessage)
                     model.saveChatbotMessage(geminiChatbotMessage, title)
                 }
+                onCompletion() // 메시지 전송이 완료되면 콜백 함수 호출
             } catch (e: Exception) {
                 _uiState.value.replaceLastPendingMessage()
                 _uiState.value.addMessage(

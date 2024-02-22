@@ -165,8 +165,9 @@ internal fun GeminiChatScreen(
                     CoroutineScope(Dispatchers.IO).launch {
                         setInput("")
                         isAnimationRunning = true
-                        geminiChatViewModel.sendMessage(input, title, user?.uid?: "ERROR")
-                        isAnimationRunning = false
+                        geminiChatViewModel.sendMessage(input, title, user?.uid?: "ERROR") {
+                            isAnimationRunning = false
+                        }
                     }
                 }
             }
