@@ -21,9 +21,6 @@ class CommentViewModel : ViewModel() {
     private val _commentCount = MutableStateFlow(0)
     val commentCount: StateFlow<Int> = _commentCount
 
-    private val _showDialog = MutableStateFlow(false)
-    val showDialog: StateFlow<Boolean> = _showDialog
-
     private val _commentDocumentId = MutableStateFlow("")
 
     private val _commentText = MutableStateFlow("")
@@ -46,14 +43,14 @@ class CommentViewModel : ViewModel() {
     }
 
     // Comment 삭제
-    fun deleteComment(documentId: String) {
+    fun deleteComment(documentId: String, comment: Comment) {
+        _commentDocumentId.value = comment.documentID ?: "ERROR"
         FirebaseTools.deleteCommentFromFirestore(documentId, _commentDocumentId.value)
         viewModelScope.launch {
             _commentList.value = FirebaseTools.fetchCommentsFromFirestore(documentId)
             _commentCount.value = _commentList.value.size
             FirebaseTools.updateCommentCount(documentId, _commentList.value.size)
         }
-        _showDialog.value = false
     }
 
     // comment의 값이 바뀌는 부분
@@ -64,17 +61,6 @@ class CommentViewModel : ViewModel() {
     // Comment 초기화
     fun initComment() {
         _commentText.value = ""
-    }
-
-    // 삭제버튼을 클릭했을때 값 변경
-    fun onCommentClicked(comment: Comment) {
-        _commentDocumentId.value = comment.documentID ?: "ERROR"
-        _showDialog.value = true
-    }
-
-    // 취소버튼 누를때 값 변경
-    fun onDismissDialog() {
-        _showDialog.value = false
     }
 
     fun onCommentSubmit(documentId: String){

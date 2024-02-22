@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -51,14 +52,8 @@ fun RatingScreen(
         verticalArrangement = Arrangement.Center
     )
     {
-        RatingColumn(ratingViewState, viewModel)
-        RatingButtonRow(
-            onBackButtonClick = { navController.popBackStack() },
-            onSubmitClick = {
-                viewModel.submitRating(documentId)
-                navController.popBackStack()
-            }
-        )
+        // 4.65인치 Small Phone으로 테스트 했을때, 버튼은 보이지 않아 Ui 수정
+        RatingColumn(ratingViewState, viewModel, navController, documentId)
     }
 }
 
@@ -66,7 +61,9 @@ fun RatingScreen(
 @Composable
 fun RatingColumn(
     ratingViewState: RatingModel,
-    viewModel: RatingViewModel
+    viewModel: RatingViewModel,
+    navController: NavHostController,
+    documentId: String,
 ){
     val ratingBars = listOf(
         StarFactors.Artistry.factor to ratingViewState.artistryRate,
@@ -75,7 +72,7 @@ fun RatingColumn(
         StarFactors.Literary.factor to ratingViewState.literaryMeritRate,
         StarFactors.Complete.factor to ratingViewState.completenessRate
     )
-
+    Divider()
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -85,6 +82,16 @@ fun RatingColumn(
                 question = question,
                 rating = rating,
                 onRatingChanged = { viewModel.setRatingByQuestion(question, it) }
+            )
+        }
+        // 이 부분은 Small Phone Ui에 맞추기 위해 바꾼 Ui
+        item {
+            RatingButtonRow(
+                onBackButtonClick = { navController.popBackStack() },
+                onSubmitClick = {
+                    viewModel.submitRating(documentId)
+                    navController.popBackStack()
+                }
             )
         }
     }
@@ -100,6 +107,7 @@ fun RatingBar(
     //전달 받은 rating을 지역변수로 사용함
     var localRating by remember { mutableStateOf(rating) }
 
+    Spacer(modifier = Modifier.size(16.dp))
     Text(text = question)
     Row(
         modifier = Modifier
@@ -114,7 +122,7 @@ fun RatingBar(
             val starIcon: Painter = if (isSelected) {
                 painterResource(id = R.drawable.ic_star_filled)
             } else {
-                painterResource(id = R.drawable.ic_star_outline)
+                painterResource(id = R.drawable.ic_star_outline) // 아이콘 테두리 색 변경
             }
 
             Image(
@@ -139,14 +147,14 @@ fun RatingButtonRow(
     onSubmitClick: () -> Unit
 ){
     Row(
-        horizontalArrangement = Arrangement.Center, // 버튼들을 수평 가운데로 정렬
+        horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp, horizontal = 16.dp) // 상하 여백 추가
+            .padding(vertical = 16.dp, horizontal = 16.dp)
     ) {
         Button(
             onClick = { onBackButtonClick() },
-            colors = ButtonDefaults.buttonColors(Color.White)
+            colors = ButtonDefaults.buttonColors(Color.Transparent) // 버튼 컬러를 배경색과 맞춤
         )
         {
             Text(
@@ -161,7 +169,7 @@ fun RatingButtonRow(
         }
         Button(
             onClick = { onSubmitClick() },
-            colors = ButtonDefaults.buttonColors(Color.White)
+            colors = ButtonDefaults.buttonColors(Color.Transparent) // 버튼 컬러를 배경색과 맞춤
         ) {
             Text(
                 text = "제출",
@@ -174,7 +182,6 @@ fun RatingButtonRow(
             )
         }
     }
-
 }
 
 

@@ -13,9 +13,6 @@ class MyNovelViewModel: ViewModel() {
     private val _novelList = MutableStateFlow<List<RelayChatToNovelBook>>(emptyList())
     val novelList: StateFlow<List<RelayChatToNovelBook>> = _novelList
 
-    private val _showDialog = MutableStateFlow(false)
-    val showDialog: StateFlow<Boolean> = _showDialog
-
     private val _documentId = MutableStateFlow("")
     val documentId: StateFlow<String> = _documentId
 
@@ -25,18 +22,9 @@ class MyNovelViewModel: ViewModel() {
         }
     }
 
-    fun onDeleteClicked(selectedNovel: RelayChatToNovelBook){
+    fun onDeleteClicked(selectedNovel: RelayChatToNovelBook, auth: FirebaseAuth){
         _documentId.value = selectedNovel.documentID ?: "ERROR"
-        _showDialog.value = true
-    }
-
-    fun onDismissDialog() {
-        _showDialog.value = false
-    }
-
-    fun onConfirmClicked(auth: FirebaseAuth){
         FirebaseTools.deleteBookFromFirestore(documentId.value)
         loadNovels(auth)
-        onDismissDialog()
     }
 }

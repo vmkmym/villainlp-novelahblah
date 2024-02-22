@@ -1,55 +1,57 @@
 package com.example.villainlp.novel.myNovel
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.scaleIn
-import androidx.compose.foundation.border
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.villainlp.R
-import com.example.villainlp.novel.AlertPopup
 import com.example.villainlp.novel.AuthorText
-import com.example.villainlp.novel.DeleteAlert
 import com.example.villainlp.novel.DescriptionText
 import com.example.villainlp.novel.FrontArrowImage
 import com.example.villainlp.novel.RelayChatToNovelBook
 import com.example.villainlp.novel.TitleText
 import com.example.villainlp.novel.TopBarTitle
-import com.example.villainlp.novel.createSwipeableParameters
 import com.example.villainlp.shared.MyScaffold
+import com.example.villainlp.ui.theme.Blue789
 import com.google.firebase.auth.FirebaseAuth
-import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -58,118 +60,150 @@ fun MyBookScreen(
     auth: FirebaseAuth,
     viewModel: MyNovelViewModel = viewModel(),
 ) {
-    val showDialog by viewModel.showDialog.collectAsState()
     val novelList by viewModel.novelList.collectAsState()
 
     viewModel.loadNovels(auth)
 
     MyScaffold(TopBarTitle.MyNovel.title, navController) {
-        MyNovels(it, navController, novelList) { selectedNovel -> viewModel.onDeleteClicked(selectedNovel) }
-        if (showDialog) {
-            AlertPopup(
-                title = DeleteAlert.CommonTitle.text,
-                message = DeleteAlert.MyNovelMessage.text,
-                onDismiss = { viewModel.onDismissDialog() },
-                onConfirm = { viewModel.onConfirmClicked(auth) }
-            )
-        }
+        MyNovels(it, navController, auth, novelList, viewModel)
     }
 }
 
 // 내 소설들을 모아둔 Column
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun MyNovels(
     modifier: Modifier,
     navController: NavHostController,
-    myBooks: List<RelayChatToNovelBook>,
-    onClicked: (RelayChatToNovelBook) -> Unit,
+    auth: FirebaseAuth,
+    myBooks: List<RelayChatToNovelBook>, // TODO : myBooks와 viewModel이 RelayChatToNovelBook과 MyNovelViewModel로 고정되어 있는데
+    viewModel: MyNovelViewModel,         // TODO : 이를 통합되게 관리하면 이 코드를 비슷한 부분에서 다같이 사용할 수 있음(재사용성 증진)
 ) {
     LazyColumn(
         modifier = modifier.padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-    )
-    {
-        items(myBooks) { book ->
-            NovelCardBox(book, navController) { selectedBook -> onClicked(selectedBook) }
-            Spacer(modifier = Modifier.size(25.dp))
+    ) {
+        items(myBooks, key = { item -> item.documentID ?: "ERROR" }) { book ->
+
+            val dismissState = rememberDismissState(
+                positionalThreshold = { it * 0.50f },
+                confirmValueChange = { deleteContents(it){ viewModel.onDeleteClicked(book, auth) } }
+            )
+
+            val color by animateColorAsState(
+                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) Color.Red else Blue789,
+                label = "ColorAnimation"
+            )
+
+            SwipeToDismiss(
+                modifier = Modifier.animateItemPlacement(),
+                state = dismissState,
+                directions = setOf(DismissDirection.EndToStart),
+                background = { DeleteNovelCard(color) },
+                dismissContent = { NovelCard(navController, book) }
+            )
+
+            Spacer(modifier = Modifier.fillMaxWidth().size(15.dp))
         }
     }
 }
 
-// 각각의 소설을 한눈에 보여주는 Card
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun NovelCardBox(
-    book: RelayChatToNovelBook,
-    navController: NavHostController,
-    onClicked: (RelayChatToNovelBook) -> Unit,
-) {
-    val (swipeableState, swipeableModifier, imageVisibility) = createSwipeableParameters()
+// 스와이프시 삭제(Library, MyNovel)
+@OptIn(ExperimentalMaterial3Api::class)
+fun deleteContents(
+    it: DismissValue,
+    onConfirmValueChanged: () -> Unit
+): Boolean {
+    if (it == DismissValue.DismissedToStart) {
+        CoroutineScope(Dispatchers.Main).launch {
+            onConfirmValueChanged()
+            delay(200)
+        }
+    }
+    return true
+}
 
-    Box {
-        NovelCard(
-            offset = { IntOffset(swipeableState.offset.value.roundToInt(), 0) },
-            onClick = { navController.navigate("ReadMyBookScreen/${book.title}/${book.script}") },
-            swipeableModifier = swipeableModifier,
-            book = book
-        )
-        DeleteAnimation(
-            imageVisibility = imageVisibility,
-            book = book ,
-            onClicked = { onClicked(book) } // TODO : 여기서 swipeableState값을 0으로 조절하면 될듯?
-        )
+// 스와이프 했을때 나오는 배경
+@Composable
+private fun DeleteNovelCard(color: Color) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth() // LazyColumn의 넓이에 맞춤
+            .height(133.dp),
+        colors = CardDefaults.cardColors(containerColor = color), // 50%넘게 스와이프하면 색이 바뀜
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(), // Card 크기에 맞춤
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.padding(end = 15.dp),
+                    text = "삭제하기",
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color.White,
+                    ),
+                )
+                Icon(
+                    modifier = Modifier.padding(end = 15.dp),
+                    imageVector = Icons.Default.Delete,
+                    tint = Color.White,
+                    contentDescription = null
+                )
+            }
+        }
     }
 }
 
-// 소설 Card
 @Composable
-fun NovelCard(
-    offset: () -> IntOffset,
-    onClick: () -> Unit,
-    swipeableModifier: Modifier,
-    book: RelayChatToNovelBook
-){
+private fun NovelCard(
+    navController: NavHostController,
+    book: RelayChatToNovelBook,
+) {
     Card(
         modifier = Modifier
-            .width(360.dp)
+            .fillMaxWidth() // LazyColumn의 넓이에 맞춤
             .height(133.dp)
-            .offset { offset() } // Apply the offset
-            .then(swipeableModifier) // Apply the swipeable modifier
-            .clickable { onClick() },
+            .clickable { navController.navigate("ReadMyBookScreen/${book.title}/${book.script}") },
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier.padding(16.dp), // Content가 너무 딱 붙어서 패딩을 줌
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween, // 요소들을 가로 방향으로 공간을 균등하게 배치
         ) {
-            NovelTitleAndScript(book)
-            NovelAuthor(book)
+            Column(modifier = Modifier.weight(1f)) { // 왼쪽에 배치되는 열을 확장하여 오른쪽에 빈 공간을 만듦, 화살표가 보이게 하기위해
+                NovelTitleAndScript(book)
+                NovelAuthor(book)
+            }
+            FrontArrowImage() // 오른쪽에 배치
         }
     }
 }
 
 // 소설 제목, 내용 부분의 Row
 @Composable
-fun NovelTitleAndScript(book: RelayChatToNovelBook){
+fun NovelTitleAndScript(book: RelayChatToNovelBook) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column {
             TitleText(book.title)
             Spacer(modifier = Modifier.padding(top = 2.dp))
             DescriptionText(book.script)
         }
-        FrontArrowImage()
     }
 }
 
 // 소설 저자를 나타내는 Row
 @Composable
-fun NovelAuthor(book: RelayChatToNovelBook){
+fun NovelAuthor(book: RelayChatToNovelBook) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -179,45 +213,3 @@ fun NovelAuthor(book: RelayChatToNovelBook){
         AuthorText(book.author)
     }
 }
-
-// 소설 Card를 Swipe 했을 때 나오는 로티 애니메이션 Column
-@Composable
-fun DeleteAnimation(
-    imageVisibility: Boolean,
-    book: RelayChatToNovelBook,
-    onClicked: (RelayChatToNovelBook) -> Unit,
-    ){
-    val fireLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_red))
-
-    Column(
-        modifier = Modifier
-            .offset { IntOffset(775, 0) } // Use the same offset as the Card
-            .size(65.dp, 133.dp)
-            .border(
-                1.dp, Color(0xFFF5F5F5),
-                RoundedCornerShape(
-                    topStart = 0.dp,
-                    bottomStart = 0.dp,
-                    topEnd = 16.dp,
-                    bottomEnd = 16.dp
-                )
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        AnimatedVisibility(
-            visible = imageVisibility,
-            enter = scaleIn(),
-            exit = ExitTransition.None
-        ) {
-            LottieAnimation(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable { onClicked(book) },
-                composition = fireLottie,
-                iterations = LottieConstants.IterateForever
-            )
-        }
-    }
-}
-

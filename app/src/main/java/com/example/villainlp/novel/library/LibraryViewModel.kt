@@ -12,9 +12,6 @@ class LibraryViewModel:ViewModel() {
     private val _novelList = MutableStateFlow<List<Book>>(emptyList())
     val novelList: StateFlow<List<Book>> = _novelList
 
-    private val _showDialog = MutableStateFlow(false)
-    val showDialog: StateFlow<Boolean> = _showDialog
-
     private val _documentId = MutableStateFlow("")
     val documentId: StateFlow<String> = _documentId
 
@@ -66,15 +63,7 @@ class LibraryViewModel:ViewModel() {
 
     fun onDeleteClicked(selectedNovel: Book){
         _documentId.value = selectedNovel.documentID ?: "ERROR"
-        _showDialog.value = true
-    }
-
-    fun onDismissDialog() {
-        _showDialog.value = false
-    }
-
-    fun onConfirmClicked(){
         FirebaseTools.deleteLibraryBookFromFirestore(documentId.value)
-        onDismissDialog()
+        loadNovels()
     }
 }
