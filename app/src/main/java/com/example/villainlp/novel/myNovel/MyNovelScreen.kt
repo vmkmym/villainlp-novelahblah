@@ -46,7 +46,7 @@ import com.example.villainlp.novel.RelayChatToNovelBook
 import com.example.villainlp.novel.TitleText
 import com.example.villainlp.novel.TopBarTitle
 import com.example.villainlp.shared.MyScaffold
-import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.ui.theme.Primary
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -92,7 +92,7 @@ fun MyNovels(
             )
 
             val color by animateColorAsState(
-                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) Color.Red else Blue789,
+                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) Color.Red else Primary,
                 label = "ColorAnimation"
             )
 

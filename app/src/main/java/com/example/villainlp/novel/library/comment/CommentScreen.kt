@@ -70,7 +70,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.novel.TopBarTitle
 import com.example.villainlp.novel.myNovel.deleteContents
-import com.example.villainlp.ui.theme.Blue789
+import com.example.villainlp.ui.theme.Primary
 import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -382,7 +382,7 @@ fun Comments(
             )
 
             val color by animateColorAsState(
-                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) Color.Red else Blue789,
+                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) Color.Red else Primary,
                 label = "ColorAnimation"
             )
 
