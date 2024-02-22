@@ -400,7 +400,7 @@ fun Comments(
                     } else {
                         DeleteComment(
                             color = Color.Red,
-                            text = "타인의 작품은 삭제 할 수 없습니다.",
+                            text = "타인의 코멘트는 삭제 할 수 없습니다.",
                             imageVector = Icons.Default.Lock
                         )
                     }
