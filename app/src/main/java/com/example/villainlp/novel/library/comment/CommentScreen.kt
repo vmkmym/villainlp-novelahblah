@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -53,7 +52,6 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
@@ -114,6 +112,7 @@ fun CommentScreen(
                 focusRequester = focusRequester,
                 maxCharacterCount = LimitChar.Max.n,
                 isTextFieldFocused = isTextFieldFocused,
+                viewModel = viewModel,
                 onFocusChanged = { isTextFieldFocused = it.isFocused },
                 onCommentChanged = { if (it.length <= LimitChar.Max.n) viewModel.onCommentChanged(it) },
                 onPlaceholder = { if (!isTextFieldFocused) FocuseText(BottomText.On.text) else FocuseText(BottomText.Off.text) },
@@ -212,6 +211,7 @@ fun CommentBottomBar(
     focusRequester: FocusRequester,
     maxCharacterCount: Int,
     isTextFieldFocused: Boolean,
+    viewModel: CommentViewModel,
     onFocusChanged: (FocusState) -> Unit,
     onCommentChanged: (String) -> Unit,
     onPlaceholder: @Composable () -> Unit,
@@ -221,20 +221,24 @@ fun CommentBottomBar(
         Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextFieldColumn(
-                comment = comment,
-                focusRequester = focusRequester,
-                maxCharacterCount = maxCharacterCount,
-                isTextFieldFocused = isTextFieldFocused,
-                onFocusChanged = { onFocusChanged(it) },
-                onCommentChanged = { onCommentChanged(it) },
-                onPlaceholder = { onPlaceholder() }
+            Column(modifier = Modifier.weight(1f)) {
+                TextFieldColumn(
+                    comment = comment,
+                    focusRequester = focusRequester,
+                    maxCharacterCount = maxCharacterCount,
+                    isTextFieldFocused = isTextFieldFocused,
+                    onFocusChanged = { onFocusChanged(it) },
+                    onCommentChanged = { onCommentChanged(it) },
+                    onPlaceholder = { onPlaceholder() }
+                )
+            }
+            SubmitButton(
+                viewModel = viewModel,
+                onClick = { onSubmitClicked() }
             )
-            Spacer(modifier = Modifier.size(5.dp))
-            SubmitButton(onClick = { onSubmitClicked() })
         }
     }
 }
@@ -250,17 +254,15 @@ fun TextFieldColumn(
     onCommentChanged: (String) -> Unit,
     onPlaceholder: @Composable () -> Unit,
 ) {
-    Column {
-        CommentTextField(
-            comment = comment,
-            focusRequester = focusRequester,
-            onFocusChanged = { onFocusChanged(it) },
-            onCommentChanged = { onCommentChanged(it) },
-            onPlaceholder = { onPlaceholder() }
-        )
-        if (isTextFieldFocused) {
-            CommentLength(comment, maxCharacterCount)
-        }
+    CommentTextField(
+        comment = comment,
+        focusRequester = focusRequester,
+        onFocusChanged = { onFocusChanged(it) },
+        onCommentChanged = { onCommentChanged(it) },
+        onPlaceholder = { onPlaceholder() }
+    )
+    if (isTextFieldFocused) {
+        CommentLength(comment, maxCharacterCount)
     }
 }
 
@@ -276,7 +278,7 @@ fun CommentTextField(
 ) {
     TextField(
         modifier = Modifier
-            .width(350.dp)
+            .fillMaxWidth()
             .height(IntrinsicSize.Min) // 높이를 내부 내용에 맞게 자동 조정
             .focusRequester(focusRequester = focusRequester)
             .onFocusChanged { onFocusChanged(it) },
@@ -329,15 +331,25 @@ fun CommentLength(
 
 // 등록 버튼
 @Composable
-fun SubmitButton(onClick: () -> Unit) {
+fun SubmitButton(
+    viewModel: CommentViewModel,
+    onClick: () -> Unit
+) {
+    val commentText by viewModel.commentText.collectAsState()
+    val textColor = if (commentText != "") MaterialTheme.colorScheme.onSurface else Color(0xFFBBBBBB)
+
     Button(
         onClick = { onClick() },
-        colors = ButtonDefaults.primaryButtonColors(
-            backgroundColor = Color.Transparent
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color.Transparent, // 버튼이 활성화 되어 있을 때 배경색
+            disabledBackgroundColor = Color.Transparent // 비활성화 되어 있을 때 배경색
         ),
-        shape = RectangleShape
+        enabled = commentText != ""
     ) {
-        Text(text = BottomText.Submit.text)
+        Text(
+            text = BottomText.Submit.text,
+            color = textColor // contentColor가 적용이 안돼서 따로 설정해둠...
+        )
     }
 }
 
