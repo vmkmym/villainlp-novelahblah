@@ -62,6 +62,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -91,7 +92,7 @@ import java.util.Locale
 internal fun GeminiChatScreen(
     navController: NavController,
     auth: FirebaseAuth,
-    title: String
+    title: String,
 ) {
     val geminiChatViewModel: GeminiChatViewModel = viewModel(factory = GeminiViewModelFactory)
     val (input, setInput) = remember { mutableStateOf("") }
@@ -110,7 +111,10 @@ internal fun GeminiChatScreen(
 
     LaunchedEffect(Unit) {
         geminiChatViewModel.loadChatMessages({ messages -> sentMessages = messages }, title)
-        geminiChatViewModel.loadChatbotMessages({ botmessages -> sentBotMessages = botmessages }, title)
+        geminiChatViewModel.loadChatbotMessages(
+            { botmessages -> sentBotMessages = botmessages },
+            title
+        )
     }
 
     val listState = rememberLazyListState()
@@ -165,8 +169,9 @@ internal fun GeminiChatScreen(
                     CoroutineScope(Dispatchers.IO).launch {
                         setInput("")
                         isAnimationRunning = true
-                        geminiChatViewModel.sendMessage(input, title, user?.uid?: "ERROR") {
-                            isAnimationRunning = false // 콜백함수를 sendmessage에 넣어서 메시지 전송이 완료되면 애니메이션을 멈추게 함
+                        geminiChatViewModel.sendMessage(input, title, user?.uid ?: "ERROR") {
+                            isAnimationRunning =
+                                false // 콜백함수를 sendmessage에 넣어서 메시지 전송이 완료되면 애니메이션을 멈추게 함
                         }
                     }
                 }
@@ -190,7 +195,7 @@ internal fun GeminiChatScreen(
             items(sentMessages.reversed()) { message ->
                 ChatItemBubble(
                     message = message,
-                    userId = user?.uid?: "ERROR"
+                    userId = user?.uid ?: "ERROR"
                 )
             }
         }
@@ -233,7 +238,8 @@ internal fun GeminiChatScreen(
                     onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
                             // 사용자와 챗봇 메시지 결합
-                            val allMessages = (sentMessages + sentBotMessages).distinctBy { it.message + it.uploadDate }
+                            val allMessages =
+                                (sentMessages + sentBotMessages).distinctBy { it.message + it.uploadDate }
 
                             // 업로드 날짜별로 메시지 정렬
                             val sortedMessages = allMessages.sortedBy { it.uploadDate }
@@ -442,7 +448,7 @@ private fun UserResponse(
                     )
             ) {
                 Text(
-                    text = message.message?: "",
+                    text = message.message ?: "",
                     color = Color(0xFFFFFFFF),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(6.dp)
@@ -463,7 +469,7 @@ private fun ChatbotResponse(
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.padding(3.dp),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.userimage),
@@ -509,25 +515,45 @@ private fun ChatbotResponse(
                         )
                 ) {
                     Text(
-                        text = message.message?: "",
-                        color = TextGray,
+                        text = message.message ?: "",
+                        color = if (isSystemInDarkTheme()) Color.White else Color.DarkGray,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(6.dp)
                     )
                 }
-            }
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth()
-            ) {
                 Text(
-                    text = message.uploadDate?: "",
+                    text = message.uploadDate ?: "",
                     color = if (isSystemInDarkTheme()) Color.White else TextGray,
                     fontSize = 9.sp,
-                    modifier = Modifier.padding(end = 3.dp, bottom = 3.dp),
+                    modifier = Modifier.padding(end = 3.dp, bottom = 3.dp)
                 )
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewChatbotResponse() {
+    // 미리보기를 위한 GeminiChatMessage 객체 생성
+    val previewMessage = GeminiChatMessage(
+        message = "Hello, this is a preview message!",
+        userName = GeminiChatParticipant.MODEL,
+        userId = "preview_user_id",
+        uploadDate = "12:00"
+    )
+
+    // 미리보기를 위한 말풍선 모양 생성
+    val previewBubbleShape = RoundedCornerShape(
+        topEnd = 28.dp,
+        topStart = 28.dp,
+        bottomEnd = 28.dp,
+        bottomStart = 28.dp
+    )
+
+    // ChatbotResponse 함수 호출
+    ChatbotResponse(
+        message = previewMessage,
+        bubbleShape = previewBubbleShape
+    )
 }
