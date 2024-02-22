@@ -1,4 +1,4 @@
-package com.example.villainlp.shared
+package com.example.villainlp
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -17,6 +17,7 @@ import com.example.villainlp.novel.library.rating.RatingScreen
 import com.example.villainlp.novel.library.ReadLibraryBookScreen
 import com.example.villainlp.novel.myNovel.readMyNovel.ReadMyBookScreen
 import com.example.villainlp.setting.SettingScreen
+import com.example.villainlp.shared.Screen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -26,7 +27,7 @@ fun VillainNavigation(
     navController: NavHostController,
     auth: FirebaseAuth,
 ) {
-    NavHost(navController = navController, startDestination = Screen.CreativeYard.route) {
+    NavHost(navController = navController, startDestination = Screen.Login.route) {
         // 초기화면
         composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
 
