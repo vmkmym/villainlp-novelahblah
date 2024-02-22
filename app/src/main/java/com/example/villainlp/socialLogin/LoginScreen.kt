@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -87,7 +88,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
             value = idValue,
             onValueChange = { newValue ->
                 idValue = newValue
-                // 여기에 아이디 입력 값 변경 시 수행할 작업 추가
+                // TODO: 여기에 아이디 입력 값 변경 시 수행할 작업 추가
             },
             label = "아이디를 입력하세요."
         )
@@ -95,7 +96,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
             value = pwValue,
             onValueChange = { newValue ->
                 pwValue = newValue
-                // 여기에 비밀번호 입력 값 변경 시 수행할 작업 추가
+                // TODO: 여기에 비밀번호 입력 값 변경 시 수행할 작업 추가
             },
             label = "비밀번호를 입력하세요."
         )
@@ -117,10 +118,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
             Text(
                 text = "Sign in",
                 modifier = Modifier
-                    .padding(
-                        start = windowWidth * 0.3f, // fraction을 사용하여 padding 값을 설정합니다.
-                        end = windowWidth * 0.3f // fraction을 사용하여 padding 값을 설정합니다.
-                    ),
+                    .align(Alignment.Center),
                 style = TextStyle(
                     fontSize = 22.sp,
                     fontWeight = FontWeight(700),
@@ -130,7 +128,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
             )
         }
 
-        // 비밀번호를 잊었나요?
+        // TODO: 비밀번호를 잊었을 때 재설정하는 화면으로 이동하는 기능 추가
         Text(
             text = "비밀번호를 잊었나요?",
             modifier = Modifier
@@ -148,7 +146,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
             )
         )
 
-        // 가입하신 계정이 없나요? 가입하세요
+        // TODO: 회원가입 화면으로 이동하는 기능 추가
         Row {
             Text(
                 text = "가입하신 계정이 없나요?",
@@ -178,18 +176,14 @@ fun LoginScreen(signInClicked: () -> Unit) {
                 )
             )
         }
-
         // 소셜 로그인 (구글)
         Text(
             text = "or continue with",
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(
-                    top = windowHeight * 0.02f, // fraction을 사용하여 padding 값을 설정합니다.
-                    start = windowWidth * 0.2f, // fraction을 사용하여 padding 값을 설정합니다.
-                    end = windowWidth * 0.2f, // fraction을 사용하여 padding 값을 설정합니다.
-                    bottom = windowHeight * 0.01f // fraction을 사용하여 padding 값을 설정합니다.
-                ),
+                    top = windowHeight * 0.02f,
+                    bottom = windowHeight * 0.02f),
             style = TextStyle(
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
@@ -202,8 +196,10 @@ fun LoginScreen(signInClicked: () -> Unit) {
             painter = painterResource(id = R.drawable.google_login),
             contentDescription = "구글 로그인",
             modifier = Modifier
-                .size(250.dp, 60.dp)
-                .clickable { signInClicked() }
+                .padding(top = windowHeight * 0.04f)
+                .fillMaxWidth(0.3f)
+                .aspectRatio(1f)
+                .clickable { signInClicked()}
         )
     }
 }
@@ -229,16 +225,4 @@ fun CustomOutlinedTextField(
             unfocusedBorderColor = Primary
         )
     )
-}
-
-@Suppress("VisualLintAccessibilityTestFramework", "VisualLintBounds", "VisualLintTextFieldSize")
-@Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true,
-    name = "Dark Mode",
-    showSystemUi = true
-) // 왜 다크모드가 안보이지?
-@Composable
-fun LoginScreenPreviewDark() {
-    LoginScreen(signInClicked = { /*TODO*/ })
 }

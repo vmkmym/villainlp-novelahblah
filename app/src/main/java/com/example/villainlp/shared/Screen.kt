@@ -15,4 +15,7 @@ sealed class Screen(val route: String) {
     object Comment : Screen("CommentScreen/{documentId}")
     object GeminiChat : Screen("GeminiChatScreen/{title}")
 
+    //회원가입 화면
+    object SignUp : Screen("SignUpScreen")
+
 }

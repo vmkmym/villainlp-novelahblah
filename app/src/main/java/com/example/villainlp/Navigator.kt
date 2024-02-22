@@ -18,6 +18,7 @@ import com.example.villainlp.novel.library.ReadLibraryBookScreen
 import com.example.villainlp.novel.myNovel.readMyNovel.ReadMyBookScreen
 import com.example.villainlp.setting.SettingScreen
 import com.example.villainlp.shared.Screen
+import com.example.villainlp.socialLogin.SignUpScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -89,6 +90,9 @@ fun VillainNavigation(
 
         // 설정-프로필화면
         composable(Screen.Profile.route) { SettingScreen(auth, navController, signOutClicked) }
+
+        // 회원가입화면
+        composable(Screen.SignUp.route) { SignUpScreen(navController, auth) }
     }
 }
 
