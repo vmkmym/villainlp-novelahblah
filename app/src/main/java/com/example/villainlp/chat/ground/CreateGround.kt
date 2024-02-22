@@ -70,7 +70,9 @@ import androidx.compose.ui.platform.LocalDensity
 
 @Composable
 fun CreativeYardScreen(navController: NavHostController, auth: FirebaseAuth) {
-    MyScaffold("창작마당", navController) { Creative(it, navController, auth) }
+    MyScaffold("창작마당", navController) {
+        Creative(it, navController, auth)
+    }
 }
 
 @Composable
@@ -88,7 +90,6 @@ fun Creative(modifier: Modifier, navController: NavHostController, auth: Firebas
     }
 }
 
-@Preview
 @Composable
 fun HeaderText() {
     val infiniteTransition = rememberInfiniteTransition(label = "소개문구 흘러가는 애니메이션")
@@ -199,7 +200,6 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                     text = "$alertMessage 채팅방을 생성하시겠습니까?",
                     style = TextStyle(
                         fontSize = 20.sp,
-                        lineHeight = 28.sp,
                         fontWeight = FontWeight.Normal,
                         color = Color.Black
                     )
@@ -222,7 +222,6 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                                 text = "채팅방 이름을 입력해주세요.",
                                 style = TextStyle(
                                     fontSize = 16.sp,
-                                    lineHeight = 24.sp,
                                     fontWeight = FontWeight.Normal,
                                     color = Color.Black
                                 )
@@ -302,8 +301,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                 Text(
                     text = "$alertMessage 채팅방을 생성하시겠습니까?",
                     style = TextStyle(
-                        fontSize = 20.sp,
-                        lineHeight = 28.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Normal,
                         color = Color.Black
                     )
@@ -318,7 +316,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         value = dialogTitle,
                         onValueChange = { dialogTitle = it },
                         modifier = Modifier
-                            .width(300.dp)
+                            .fillMaxWidth(1f)
                             .height(80.dp)
                             .padding(8.dp),
                         label = {
@@ -326,7 +324,6 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                                 text = "채팅방 이름을 입력해주세요.",
                                 style = TextStyle(
                                     fontSize = 16.sp,
-                                    lineHeight = 24.sp,
                                     fontWeight = FontWeight.Normal,
                                     color = Color.Black
                                 )
@@ -363,7 +360,6 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         text = "확인",
                         style = TextStyle(
                             fontSize = 16.sp,
-                            lineHeight = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Primary
                         )
@@ -378,7 +374,6 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         text = "취소",
                         style = TextStyle(
                             fontSize = 16.sp,
-                            lineHeight = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Primary
                         )
@@ -404,7 +399,7 @@ fun CreativeCard(
         modifier = Modifier
             .padding(8.dp)
             .shadow(elevation = 8.dp, spotColor = cardColor, ambientColor = cardColor)
-            .width(328.dp)
+            .fillMaxWidth(1f)
             .height(120.dp),
         onClick = onCardClick,
         colors = CardDefaults.cardColors(containerColor = cardColor)
@@ -469,7 +464,7 @@ fun CreativeGeminiCard(
         modifier = Modifier
             .padding(8.dp)
             .shadow(elevation = 8.dp, spotColor = cardColor, ambientColor = cardColor)
-            .width(328.dp)
+            .fillMaxWidth(1f)
             .height(120.dp),
         onClick = onCardClick,
         colors = CardDefaults.cardColors(containerColor = cardColor)

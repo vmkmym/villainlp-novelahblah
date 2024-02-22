@@ -117,7 +117,6 @@ fun MyScaffoldBottomBar(navController: NavHostController) {
 @Composable
 fun MyScaffoldTopBar(title: String) {
     val isDarkTheme = isSystemInDarkTheme()
-    val windowSize = LocalConfiguration.current.screenWidthDp.dp
 
     Column(
         modifier = Modifier
@@ -127,8 +126,7 @@ fun MyScaffoldTopBar(title: String) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(windowSize * 0.18f)
-                .padding(windowSize * 0.016f),
+                .height(80.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
