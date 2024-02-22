@@ -166,7 +166,7 @@ internal fun GeminiChatScreen(
                         setInput("")
                         isAnimationRunning = true
                         geminiChatViewModel.sendMessage(input, title, user?.uid?: "ERROR") {
-                            isAnimationRunning = false
+                            isAnimationRunning = false // 콜백함수를 sendmessage에 넣어서 메시지 전송이 완료되면 애니메이션을 멈추게 함
                         }
                     }
                 }
