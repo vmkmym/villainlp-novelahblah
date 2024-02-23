@@ -1,6 +1,5 @@
 package com.example.villainlp.socialLogin
 
-import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,12 +8,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
@@ -33,7 +30,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
@@ -56,10 +52,19 @@ fun LoginScreen(signInClicked: () -> Unit) {
     val windowWidth = LocalConfiguration.current.screenWidthDp.dp
     val windowHeight = LocalConfiguration.current.screenHeightDp.dp
 
+    // 화면의 비율을 계산합니다.
+    val aspectRatio = windowHeight / windowWidth
+
+    // 화면의 비율이 1.5보다 크면 폴드 폰으로 간주하고, 그렇지 않으면 일반 폰으로 간주합니다.
+    val isFoldPhone = aspectRatio > 1.6f
+
+    // 폴드 폰인 경우 이미지의 높이를 windowHeight * 0.1f로 설정하고, 그렇지 않은 경우 60.dp로 설정합니다.
+    val imageHeight = if (isFoldPhone) 80.dp else 40.dp
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = windowHeight * 0.1f),
+            .padding(bottom = windowHeight * 0.05f),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
     ) {
@@ -183,7 +188,8 @@ fun LoginScreen(signInClicked: () -> Unit) {
                 .align(Alignment.CenterHorizontally)
                 .padding(
                     top = windowHeight * 0.02f,
-                    bottom = windowHeight * 0.02f),
+                    bottom = windowHeight * 0.02f
+                ),
             style = TextStyle(
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
@@ -196,9 +202,7 @@ fun LoginScreen(signInClicked: () -> Unit) {
             painter = painterResource(id = R.drawable.google_login),
             contentDescription = "구글 로그인",
             modifier = Modifier
-                .padding(top = windowHeight * 0.04f)
-                .fillMaxWidth(0.3f)
-                .aspectRatio(1f)
+                .height(imageHeight)
                 .clickable { signInClicked()}
         )
     }
