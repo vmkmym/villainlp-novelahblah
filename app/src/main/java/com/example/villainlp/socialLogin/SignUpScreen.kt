@@ -2,7 +2,6 @@ package com.example.villainlp.socialLogin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,28 +32,27 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Primary
-import com.google.firebase.auth.FirebaseAuth
 
-
-// TODO: 회원가입 화면, Firebase와 연동하여 회원가입 기능 구현
 @Composable
-fun SignUpScreen(navController: NavHostController, auth: FirebaseAuth) {
-    var idValue by remember { mutableStateOf("") }
+fun SignUpScreen(
+    navController: NavHostController,
+    signUpClicked: (String, String) -> Unit,
+) {
+    var emailValue by remember { mutableStateOf("") }
     var pwValue by remember { mutableStateOf("") }
     val helloLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.hello))
-    val isDarkTheme = isSystemInDarkTheme()
-    val textColor = if (isDarkTheme) Primary else Color.Black
-
     val windowHeight = LocalConfiguration.current.screenHeightDp.dp
+    var showWarning by remember { mutableStateOf(false) }
+    val showEmailInUseMessage by remember { mutableStateOf(false) }
+    var showInvalidPasswordMessage by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(bottom = windowHeight * 0.1f),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom
+        verticalArrangement = Arrangement.Center
     ) {
         // 애니메이션
         LottieAnimation(
@@ -71,29 +69,45 @@ fun SignUpScreen(navController: NavHostController, auth: FirebaseAuth) {
             style = TextStyle(
                 fontSize = 14.sp,
                 lineHeight = 22.sp,
-                fontWeight = FontWeight(500),
-                color = Color(0xFF17C3CE),
+                fontWeight = FontWeight(400),
+                color = Primary,
                 letterSpacing = 0.28.sp,
             )
         )
 
         CustomOutlinedTextField(
-            value = idValue,
+            value = emailValue,
             onValueChange = { newValue ->
-                idValue = newValue
-                // 여기에 아이디 입력 값 변경 시 수행할 작업 추가
+                emailValue = newValue
+                // 이메일 형식 검사
+                val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(newValue).matches()
+                if (!isEmailValid) {
+                    // 이메일 형식이 유효하지 않을 경우 처리
+                    return@CustomOutlinedTextField
+                }
             },
-            label = "아이디를 입력하세요."
+            label = "이메일을 입력하세요.",
         )
+
+        if (showEmailInUseMessage) {
+            Message("이미 사용 중인 이메일입니다.")
+        }
 
         CustomOutlinedTextField(
             value = pwValue,
             onValueChange = { newValue ->
                 pwValue = newValue
-                // 여기에 비밀번호 입력 값 변경 시 수행할 작업 추가
+                // 비밀번호 형식 검사
+                val passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%!^&+=])(?=\\S+$).{10,}$".toRegex()
+                val isPasswordValid = passwordPattern.matches(newValue)
+                showInvalidPasswordMessage = !isPasswordValid
             },
             label = "비밀번호를 입력하세요."
         )
+
+        if (showInvalidPasswordMessage) {
+            Message("특수문자 @#!\$%^&+=를 포함해주세요.\n10자 이상, 영문 대소문자, 숫자를 입력해주세요.")
+        }
 
         // 회원가입
         Box(
@@ -105,9 +119,17 @@ fun SignUpScreen(navController: NavHostController, auth: FirebaseAuth) {
                 )
                 .width(320.dp)
                 .height(60.dp)
-                .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
+                .background(
+                    color = Color(0xFF17C3CE),
+                    shape = RoundedCornerShape(size = 17.dp)
+                )
                 .clickable {
-                    navController.navigate(Screen.Login.route)
+                    if (emailValue.isBlank() || pwValue.isBlank()) {
+                        showWarning = true
+                    } else {
+                        signUpClicked(emailValue, pwValue)
+                        navController.popBackStack()
+                    }
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -123,5 +145,23 @@ fun SignUpScreen(navController: NavHostController, auth: FirebaseAuth) {
                 )
             )
         }
+        if (showWarning) {
+            Message("이메일 또는 비밀번호를 입력해주세요.")
+        }
     }
+}
+
+@Composable
+fun Message(message: String) {
+    Text(
+        text = message,
+        modifier = Modifier.padding(10.dp),
+        style = TextStyle(
+            fontSize = 14.sp,
+            lineHeight = 22.sp,
+            fontWeight = FontWeight(400),
+            color = Color(0xFFCE172C),
+            letterSpacing = 0.28.sp,
+        )
+    )
 }

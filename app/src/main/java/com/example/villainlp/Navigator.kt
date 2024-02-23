@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.villainlp.chat.geminiChat.GeminiChatScreen
 import com.example.villainlp.chat.openAichat.ChatListScreen
 import com.example.villainlp.chat.openAichat.ChatScreen
@@ -25,15 +26,16 @@ import com.google.firebase.auth.FirebaseAuth
 fun VillainNavigation(
     signInClicked: () -> Unit,
     signOutClicked: () -> Unit,
+    signUpClicked: (String, String) -> Unit,
     navController: NavHostController,
     auth: FirebaseAuth,
 ) {
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+    NavHost(navController = navController, startDestination = Screen.SignUp.route) {
         // 초기화면
         composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
 
         // 로그인화면
-        composable(Screen.Login.route) { LoginScreen(signInClicked = { signInClicked() }) }
+        composable(Screen.Login.route) { LoginScreen(navController, signInClicked = { signInClicked() }) }
 
         // 창작마당
         composable(Screen.CreativeYard.route) { CreativeYardScreen(navController, auth) }
@@ -92,7 +94,7 @@ fun VillainNavigation(
         composable(Screen.Profile.route) { SettingScreen(auth, navController, signOutClicked) }
 
         // 회원가입화면
-        composable(Screen.SignUp.route) { SignUpScreen(navController, auth) }
+        composable(Screen.SignUp.route) { SignUpScreen(navController, signUpClicked) }
     }
 }
 

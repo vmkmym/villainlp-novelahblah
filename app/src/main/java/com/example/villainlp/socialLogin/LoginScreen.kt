@@ -7,6 +7,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -32,16 +36,18 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
+import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Primary
 
 
 @Composable
-fun LoginScreen(signInClicked: () -> Unit) {
+fun LoginScreen(navController: NavHostController, signInClicked: () -> Unit) {
     var idValue by remember { mutableStateOf("") }
     var pwValue by remember { mutableStateOf("") }
     val helloLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.hello))
@@ -91,18 +97,12 @@ fun LoginScreen(signInClicked: () -> Unit) {
 
         CustomOutlinedTextField(
             value = idValue,
-            onValueChange = { newValue ->
-                idValue = newValue
-                // TODO: 여기에 아이디 입력 값 변경 시 수행할 작업 추가
-            },
-            label = "아이디를 입력하세요."
+            onValueChange = { newValue -> idValue = newValue },
+            label = "이메일을 입력하세요."
         )
         CustomOutlinedTextField(
             value = pwValue,
-            onValueChange = { newValue ->
-                pwValue = newValue
-                // TODO: 여기에 비밀번호 입력 값 변경 시 수행할 작업 추가
-            },
+            onValueChange = { newValue -> pwValue = newValue },
             label = "비밀번호를 입력하세요."
         )
 
@@ -169,9 +169,9 @@ fun LoginScreen(signInClicked: () -> Unit) {
             )
             Text(
                 text = "Sign up",
-                modifier = Modifier.padding(
-                    top = windowHeight * 0.02f
-                ),
+                modifier = Modifier
+                    .padding(top = windowHeight * 0.02f)
+                    .clickable { navController.navigate(Screen.SignUp.route) },
                 style = TextStyle(
                     fontSize = 14.sp,
                     lineHeight = 22.sp,
@@ -215,13 +215,21 @@ fun CustomOutlinedTextField(
     onValueChange: (String) -> Unit,
     label: String,
 ) {
+    var isTextFieldFocused by remember { mutableStateOf(false) }
+    val focusRequester by remember { mutableStateOf(FocusRequester()) }
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier
             .width(320.dp)
             .height(80.dp)
-            .padding(8.dp),
+            .padding(8.dp)
+            .height(IntrinsicSize.Min) // 높이를 내부 내용에 맞게 자동 조정
+            .focusRequester(focusRequester = focusRequester)
+            .onFocusChanged {
+                isTextFieldFocused = it.isFocused
+            },
         label = { Text(label) },
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(

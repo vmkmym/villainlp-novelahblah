@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.VillainlpTheme
@@ -31,17 +32,22 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         mAuth = FirebaseAuth.getInstance()
-
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-
         googleSignInClient = GoogleSignIn.getClient(this, gso)
-
         setupContent()
+    }
+
+    public override fun onStart() {
+        super.onStart()
+        // Check if user is signed in (non-null) and update UI accordingly.
+        val currentUser = mAuth.currentUser
+        if (currentUser != null) {
+//            reload()
+        }
     }
 
     private fun setupContent() {
@@ -61,6 +67,7 @@ class MainActivity : ComponentActivity() {
                     VillainNavigation(
                         signInClicked = { signInWithGoogle(launcher) },
                         signOutClicked = { signOut(navController) },
+                        signUpClicked = { email, password -> createAccount(email, password, navController) },
                         navController, mAuth
                     )
                 }
@@ -112,5 +119,45 @@ class MainActivity : ComponentActivity() {
                 Toast.makeText(this, "로그아웃 실패", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun createAccount(
+        email: String,
+        password: String,
+        navController: NavHostController,
+    ) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = mAuth.currentUser
+                    if (user != null) {
+                        navController.navigate(Screen.Login.route)
+                    }
+                } else {
+                    Toast.makeText(this, "Please sign up to continue.", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    // 이메일, 비번 로그인
+    private fun signIn(email: String, password: String) {
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = mAuth.currentUser
+
+                } else {
+                    Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT,).show()
+                }
+            }
+    }
+
+    // 이메일 인증
+    private fun sendEmailVerification() {
+        val user = mAuth.currentUser!!
+        user.sendEmailVerification()
+            .addOnCompleteListener(this) { task ->
+                // Email Verification sent
+            }
     }
 }
