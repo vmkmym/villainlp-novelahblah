@@ -30,12 +30,18 @@ fun VillainNavigation(
     navController: NavHostController,
     auth: FirebaseAuth,
 ) {
-    NavHost(navController = navController, startDestination = Screen.SignUp.route) {
+    NavHost(navController = navController, startDestination = Screen.Login.route) {
         // 초기화면
         composable(Screen.Lottie.route) { LottieScreen(navController, auth) }
 
         // 로그인화면
-        composable(Screen.Login.route) { LoginScreen(navController, signInClicked = { signInClicked() }, signIn = signIn  ) }
+        composable(Screen.Login.route) {
+            LoginScreen(
+                navController,
+                signInClicked = { signInClicked() },
+                signIn = signIn
+            )
+        }
 
         // 창작마당
         composable(Screen.CreativeYard.route) { CreativeYardScreen(navController, auth) }
@@ -59,7 +65,7 @@ fun VillainNavigation(
 
         // 별점화면
         composable(Screen.Rating.route) {
-            val documentId = it.arguments?.getString("documentId")?: "documentId"
+            val documentId = it.arguments?.getString("documentId") ?: "documentId"
             RatingScreen(navController, documentId)
         }
 
@@ -68,8 +74,8 @@ fun VillainNavigation(
 
         // 내서재에서 저장한 소설 눌렀을 때 화면
         composable(Screen.ReadMyBook.route) {
-            val title = it.arguments?.getString("title")?: "title"
-            val script = it.arguments?.getString("script")?: "script"
+            val title = it.arguments?.getString("title") ?: "title"
+            val script = it.arguments?.getString("script") ?: "script"
             ReadMyBookScreen(navController, title, script)
         }
 
@@ -78,15 +84,15 @@ fun VillainNavigation(
 
         // 도서관에서 저장한 소설 눌렀을 때 화면
         composable(Screen.ReadLibraryBook.route) {
-            val title = it.arguments?.getString("title")?: "title"
-            val script = it.arguments?.getString("script")?: "script"
-            val documentId = it.arguments?.getString("documentId")?: "documentId"
-            val views = it.arguments?.getString("views")?: "views"
+            val title = it.arguments?.getString("title") ?: "title"
+            val script = it.arguments?.getString("script") ?: "script"
+            val documentId = it.arguments?.getString("documentId") ?: "documentId"
+            val views = it.arguments?.getString("views") ?: "views"
             ReadLibraryBookScreen(navController, title, script, documentId, views)
         }
 
-        composable(Screen.Comment.route){
-            val documentId = it.arguments?.getString("documentId")?: "documentId"
+        composable(Screen.Comment.route) {
+            val documentId = it.arguments?.getString("documentId") ?: "documentId"
             CommentScreen(navController, auth, documentId)
         }
 

@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -71,112 +71,26 @@ fun LoginScreen(
     // 폴드 폰인 경우 이미지의 높이를 windowHeight * 0.1f로 설정하고, 그렇지 않은 경우 60.dp로 설정합니다.
     val imageHeight = if (isFoldPhone) 80.dp else 40.dp
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(bottom = windowHeight * 0.05f),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
     ) {
-        // 애니메이션
-        LottieAnimation(
-            composition = helloLottie,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
-            iterations = LottieConstants.IterateForever
-        )
-
-        // 헤더
-        Text(
-            text = "노블라블라 서비스 이용을 위한 로그인을 해주세요",
-            style = TextStyle(
-                fontSize = 14.sp,
-                lineHeight = 22.sp,
-                fontWeight = FontWeight(500),
-                color = Color(0xFF17C3CE),
-                letterSpacing = 0.28.sp,
-            )
-        )
-
-        CustomOutlinedTextField(
-            value = emailValue,
-            onValueChange = { newValue -> emailValue = newValue },
-            label = "이메일을 입력하세요."
-        )
-        CustomOutlinedTextField(
-            value = pwValue,
-            onValueChange = { newValue -> pwValue = newValue },
-            label = "비밀번호를 입력하세요."
-        )
-
-        // 로그인
-        Box(
-            modifier = Modifier
-                .shadow(
-                    elevation = 10.dp,
-                    spotColor = Color(0x5917C3CE),
-                    ambientColor = Color(0x5917C3CE)
-                )
-                .width(320.dp)
-                .height(60.dp)
-                .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
-                .clickable {
-                    signIn(emailValue, pwValue)
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Sign in",
+        item {
+            // 애니메이션
+            LottieAnimation(
+                composition = helloLottie,
                 modifier = Modifier
-                    .align(Alignment.Center),
-                style = TextStyle(
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight(700),
-                    color = Color(0xFFFFFFFF),
-                    letterSpacing = 0.48.sp,
-                )
+                    .fillMaxWidth()
+                    .height(200.dp),
+                iterations = LottieConstants.IterateForever
             )
-        }
 
-        // TODO: 비밀번호를 잊었을 때 재설정하는 화면으로 이동하는 기능 추가
-        Text(
-            text = "비밀번호를 잊었나요?",
-            modifier = Modifier
-                .padding(
-                    top = windowWidth * 0.02f, // fraction을 사용하여 padding 값을 설정합니다.
-                    start = windowWidth * 0.3f, // fraction을 사용하여 padding 값을 설정합니다.
-                    end = windowWidth * 0.3f // fraction을 사용하여 padding 값을 설정합니다.
-                ),
-            style = TextStyle(
-                fontSize = 14.sp,
-                lineHeight = 22.sp,
-                fontWeight = FontWeight(500),
-                color = Color(0xFF17C3CE),
-                letterSpacing = 0.28.sp,
-            )
-        )
-
-        Row {
+            // 헤더
             Text(
-                text = "가입하신 계정이 없나요?",
-                modifier = Modifier.padding(
-                    top = windowHeight * 0.02f,
-                    end = windowWidth * 0.02f
-                ),
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight(500),
-                    color = textColor,
-                    letterSpacing = 0.28.sp,
-                )
-            )
-            Text(
-                text = "Sign up",
-                modifier = Modifier
-                    .padding(top = windowHeight * 0.02f)
-                    .clickable { navController.navigate(Screen.SignUp.route) },
+                text = "노블라블라 서비스 이용을 위한 로그인을 해주세요",
                 style = TextStyle(
                     fontSize = 14.sp,
                     lineHeight = 22.sp,
@@ -185,31 +99,118 @@ fun LoginScreen(
                     letterSpacing = 0.28.sp,
                 )
             )
-        }
-        // 소셜 로그인 (구글)
-        Text(
-            text = "or continue with",
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(
-                    top = windowHeight * 0.02f,
-                    bottom = windowHeight * 0.02f
-                ),
-            style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 22.sp,
-                fontWeight = FontWeight(500),
-                color = Color(0xFF9EAFB0),
-                letterSpacing = 0.32.sp,
+
+            CustomOutlinedTextField(
+                value = emailValue,
+                onValueChange = { newValue -> emailValue = newValue },
+                label = "이메일을 입력하세요."
             )
-        )
-        Image(
-            painter = painterResource(id = R.drawable.google_login),
-            contentDescription = "구글 로그인",
-            modifier = Modifier
-                .height(imageHeight)
-                .clickable { signInClicked() }
-        )
+            CustomOutlinedTextField(
+                value = pwValue,
+                onValueChange = { newValue -> pwValue = newValue },
+                label = "비밀번호를 입력하세요."
+            )
+
+            // 로그인
+            Box(
+                modifier = Modifier
+                    .shadow(
+                        elevation = 10.dp,
+                        spotColor = Color(0x5917C3CE),
+                        ambientColor = Color(0x5917C3CE)
+                    )
+                    .width(320.dp)
+                    .height(60.dp)
+                    .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
+                    .clickable {
+                        signIn(emailValue, pwValue)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Sign in",
+                    modifier = Modifier
+                        .align(Alignment.Center),
+                    style = TextStyle(
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight(700),
+                        color = Color(0xFFFFFFFF),
+                        letterSpacing = 0.48.sp,
+                    )
+                )
+            }
+
+            // TODO: 비밀번호를 잊었을 때 재설정하는 화면으로 이동하는 기능 추가
+            Text(
+                text = "비밀번호를 잊었나요?",
+                modifier = Modifier
+                    .padding(
+                        top = windowWidth * 0.02f, // fraction을 사용하여 padding 값을 설정합니다.
+                        start = windowWidth * 0.3f, // fraction을 사용하여 padding 값을 설정합니다.
+                        end = windowWidth * 0.3f // fraction을 사용하여 padding 값을 설정합니다.
+                    ),
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight(500),
+                    color = Color(0xFF17C3CE),
+                    letterSpacing = 0.28.sp,
+                )
+            )
+
+            Row {
+                Text(
+                    text = "가입하신 계정이 없나요?",
+                    modifier = Modifier.padding(
+                        top = windowHeight * 0.02f,
+                        end = windowWidth * 0.02f
+                    ),
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight(500),
+                        color = textColor,
+                        letterSpacing = 0.28.sp,
+                    )
+                )
+                Text(
+                    text = "Sign up",
+                    modifier = Modifier
+                        .padding(top = windowHeight * 0.02f)
+                        .clickable { navController.navigate(Screen.SignUp.route) },
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight(500),
+                        color = Color(0xFF17C3CE),
+                        letterSpacing = 0.28.sp,
+                    )
+                )
+            }
+            // 소셜 로그인 (구글)
+            Text(
+                text = "or continue with",
+                modifier = Modifier
+                    .padding(
+                        top = windowHeight * 0.02f,
+                        bottom = windowHeight * 0.02f
+                    ),
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight(500),
+                    color = Color(0xFF9EAFB0),
+                    letterSpacing = 0.32.sp,
+                )
+            )
+            Image(
+                painter = painterResource(id = R.drawable.google_login),
+                contentDescription = "구글 로그인",
+                modifier = Modifier
+                    .height(imageHeight)
+                    .clickable { signInClicked() }
+            )
+        }
     }
 }
 
