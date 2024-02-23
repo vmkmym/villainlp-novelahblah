@@ -374,7 +374,6 @@ fun CustomTextField(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun SendButton(onSendClick: () -> Unit, keyboardController: SoftwareKeyboardController?) {
     IconButton(
