@@ -1,7 +1,6 @@
 package com.example.villainlp.novel.library
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,13 +26,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,13 +53,13 @@ import com.example.villainlp.novel.AuthorText
 import com.example.villainlp.novel.Book
 import com.example.villainlp.novel.DescriptionText
 import com.example.villainlp.novel.FrontArrowImage
+import com.example.villainlp.novel.SwipeableBox
 import com.example.villainlp.novel.TitleText
 import com.example.villainlp.novel.TopBarTitle
+import com.example.villainlp.novel.deleteContents
 import com.example.villainlp.novel.formatRating
-import com.example.villainlp.novel.myNovel.deleteContents
 import com.example.villainlp.server.FirebaseTools
 import com.example.villainlp.shared.MyScaffold
-import com.example.villainlp.ui.theme.Primary
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -180,30 +175,18 @@ fun NovelLists(
             val user = auth.currentUser
             val isCurrentUser = user?.uid == book.userID
             var commentCount by remember { mutableStateOf(0) }
+            scope.launch { commentCount = FirebaseTools.getCommentCount(book.documentID?:"ERROR") }
 
-            val dismissState = rememberDismissState(
-                positionalThreshold = { it * 0.50f },
-                confirmValueChange = {
+            SwipeableBox(
+                modifier = Modifier.animateItemPlacement(),
+                onConfirmValueChange = {
                     if (isCurrentUser) {
-                        deleteContents(it) { viewModel.onDeleteClicked(book) }
+                        deleteContents(it) { viewModel.onDeleteClicked(book) } // it 값이 SwipeToDismissBoxValue로  변경 그에 따른 함수 파라미터 속성값 변경
                     } else {
                         false
                     }
-                }
-            )
-
-            val color by animateColorAsState(
-                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) Color.Red else Primary,
-                label = "ColorAnimation"
-            )
-
-            scope.launch { commentCount = FirebaseTools.getCommentCount(book.documentID?:"ERROR") }
-
-            SwipeToDismiss(
-                modifier = Modifier.animateItemPlacement(),
-                state = dismissState,
-                directions = setOf(DismissDirection.EndToStart),
-                background = {
+                },
+                backgroundContent = { color ->
                     if (isCurrentUser) {
                         DeleteNovelCard(
                             color = color,
@@ -218,7 +201,7 @@ fun NovelLists(
                         )
                     }
                 },
-                dismissContent = {
+                content = {
                     NovelCard(
                         book = book,
                         commentCount = commentCount,
