@@ -89,8 +89,7 @@ fun SettingScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             Spacer(modifier = Modifier.padding(vertical = windowHeight * 0.03f))
             // 로그인한 유저의 프로필 이미지를 가져옴
@@ -121,7 +120,7 @@ fun DisplayUserProfileImage(userImage: Uri?) {
             painter = rememberAsyncImagePainter(imageUrl),
             contentDescription = PROFILE_IMAGE,
             modifier = Modifier
-                .size(150.dp)
+                .size(130.dp)
                 .clip(CircleShape)
                 .border(2.dp, Color(0xFF17C3CE), CircleShape),
             contentScale = ContentScale.Crop
@@ -140,7 +139,7 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
                 ambientColor = Color(0x5917C3CE)
             )
             .width(320.dp)
-            .height(70.dp)
+            .height(60.dp)
             .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
             .padding(vertical = 14.dp)
             .clickable { signOutClicked() }
@@ -151,7 +150,7 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
                 .align(Alignment.Center),
             style = TextStyle(
                 fontSize = 22.sp,
-                fontWeight = FontWeight(700),
+                fontWeight = FontWeight(600),
                 color = Color(0xFFFFFFFF),
                 letterSpacing = 0.48.sp,
             )
@@ -164,9 +163,9 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
 fun DisplayCustomerInquiry(url: String, context: Context) {
     var isClicked by remember { mutableStateOf(false) }
     val isDarkTheme = isSystemInDarkTheme()
-    val windowSize = LocalConfiguration.current.screenWidthDp.dp // 화면의 너비를 가져옵니다.
+    val windowSize = LocalConfiguration.current.screenWidthDp.dp
 
-    Spacer(modifier = Modifier.padding(top = windowSize * 0.07f))
+    Spacer(modifier = Modifier.padding(top = windowSize * 0.03f))
     Box(
         modifier = Modifier
             .clickable {
@@ -175,11 +174,13 @@ fun DisplayCustomerInquiry(url: String, context: Context) {
                 context.startActivity(intent)
             }
     ) {
-        Row {
+        Row(
+            verticalAlignment = Alignment.Bottom
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.notion1),
                 contentDescription = NOTION_LOGO,
-                modifier = Modifier.size(windowSize * 0.05f) // 없던 부분 추가
+                modifier = Modifier.size(16.dp)
             )
             // 고객 문의 텍스트
             Text(
@@ -194,7 +195,6 @@ fun DisplayCustomerInquiry(url: String, context: Context) {
                     letterSpacing = 0.28.sp,
                 )
             )
-            Spacer(modifier = Modifier.padding(bottom = windowSize * 0.03f))
         }
     }
 }
