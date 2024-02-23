@@ -1,7 +1,6 @@
 package com.example.villainlp.novel.library.comment
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,19 +23,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,7 +39,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
@@ -68,12 +62,11 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
+import com.example.villainlp.novel.SwipeableBox
 import com.example.villainlp.novel.TopBarTitle
-import com.example.villainlp.novel.myNovel.deleteContents
-import com.example.villainlp.ui.theme.Primary
+import com.example.villainlp.novel.deleteContents
 import com.google.firebase.auth.FirebaseAuth
 
-@OptIn(ExperimentalComposeUiApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun CommentScreen(
@@ -367,30 +360,20 @@ fun Comments(
         modifier = modifier
     ) {
         items(commentList, key = { item -> item.documentID ?: "ERROR" }) { comment ->
+
             val user = auth.currentUser
             val isCurrentUser = user?.uid == comment.userID
 
-            val dismissState = rememberDismissState(
-                positionalThreshold = { it * 0.50f },
-                confirmValueChange = {
+            SwipeableBox(
+                modifier = Modifier.animateItemPlacement(),
+                onConfirmValueChange = {
                     if (isCurrentUser) {
                         deleteContents(it) { viewModel.deleteComment(documentId, comment) }
                     } else {
                         false
                     }
-                }
-            )
-
-            val color by animateColorAsState(
-                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) Color.Red else Primary,
-                label = "ColorAnimation"
-            )
-
-            SwipeToDismiss(
-                modifier = Modifier.animateItemPlacement(),
-                state = dismissState,
-                directions = setOf(DismissDirection.EndToStart),
-                background = {
+                },
+                backgroundContent = { color ->
                     if (isCurrentUser) {
                         DeleteComment(
                             color = color,
@@ -405,8 +388,7 @@ fun Comments(
                         )
                     }
                 },
-                dismissContent = { MyCommentColumn(comment) }
-            )
+                content = { MyCommentColumn(comment) })
 
         }
     }

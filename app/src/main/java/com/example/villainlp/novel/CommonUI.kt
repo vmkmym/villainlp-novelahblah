@@ -1,7 +1,7 @@
 package com.example.villainlp.novel
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,11 +17,15 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,16 +39,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.FractionalThreshold
-import androidx.wear.compose.material.rememberSwipeableState
-import androidx.wear.compose.material.swipeable
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
 import com.example.villainlp.ui.theme.Primary
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // LibraryScreen, CommentScreen, MyNovelScreen, ReadMyNovelScreen
 @Composable
@@ -277,22 +281,46 @@ fun AuthorText(author: String){
     )
 }
 
-// Swipe 상태 관리에 필요한 Parameter들
+// 스와이프 가능한 박스(MyNovel, Comment, Library)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@OptIn(ExperimentalWearMaterialApi::class)
-fun createSwipeableParameters(): SwipeableParameters {
-    val swipeableState = rememberSwipeableState(initialValue = 0f)
-
-    val swipeableModifier = Modifier.swipeable(
-        state = swipeableState,
-        anchors = mapOf(0f to 0f, -150f to -150f),
-        orientation = Orientation.Horizontal,
-        thresholds = { _, _ -> FractionalThreshold(0.1f) },
-        resistance = null
+fun SwipeableBox(
+    modifier: Modifier,
+    onConfirmValueChange: (SwipeToDismissBoxValue) -> Boolean,
+    backgroundContent: @Composable (Color) -> Unit,
+    content: @Composable () -> Unit
+){
+    val dismissState = rememberSwipeToDismissBoxState( // SwipeToDismissBoxState로 변경됨
+        positionalThreshold = { it * 0.50f },
+        confirmValueChange = { onConfirmValueChange(it) }
     )
 
-    val imageVisibility = swipeableState.offset.value <= -150f
+    val color by animateColorAsState(
+        targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) Color.Red else Primary, // DismissValue 변경
+        label = "ColorAnimation"
+    )
 
-    return SwipeableParameters(swipeableState, swipeableModifier, imageVisibility)
+    SwipeToDismissBox( // SwipeToDismiss -> SwipeToDismissBox로 변경
+        modifier = modifier,
+        state = dismissState,
+        enableDismissFromEndToStart = true, // direction이 사라지고 Dismiss를 어떻게 할지 불린값으로 조절, EndToStart == 끝이 시작(우->좌)
+        enableDismissFromStartToEnd = false, // StartToEnd == (좌->우) 이건 막아둠(SwipeToDismissBoxState가 Confrim하려면 EndToStart여야 하기 때문
+        backgroundContent = { backgroundContent(color) },
+        content = { content() }
+    )
 }
 
+// 스와이프시 삭제(Library, MyNovel)
+@OptIn(ExperimentalMaterial3Api::class)
+fun deleteContents(
+    it: SwipeToDismissBoxValue,
+    onConfirmValueChanged: () -> Unit
+): Boolean {
+    if (it == SwipeToDismissBoxValue.EndToStart) { // DismissValue는 사용 불가 -> SwipeToDismissBoxValue로 변경, ToStart는 EndToStart와 동일
+        CoroutineScope(Dispatchers.Main).launch {
+            onConfirmValueChanged()
+            delay(200)
+        }
+    }
+    return true
+}
