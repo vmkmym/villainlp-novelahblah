@@ -47,8 +47,12 @@ import com.example.villainlp.ui.theme.Primary
 
 
 @Composable
-fun LoginScreen(navController: NavHostController, signInClicked: () -> Unit) {
-    var idValue by remember { mutableStateOf("") }
+fun LoginScreen(
+    navController: NavHostController,
+    signInClicked: () -> Unit,
+    signIn: (String, String) -> Unit
+) {
+    var emailValue by remember { mutableStateOf("") }
     var pwValue by remember { mutableStateOf("") }
     val helloLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.hello))
     val isDarkTheme = isSystemInDarkTheme()
@@ -96,8 +100,8 @@ fun LoginScreen(navController: NavHostController, signInClicked: () -> Unit) {
         )
 
         CustomOutlinedTextField(
-            value = idValue,
-            onValueChange = { newValue -> idValue = newValue },
+            value = emailValue,
+            onValueChange = { newValue -> emailValue = newValue },
             label = "이메일을 입력하세요."
         )
         CustomOutlinedTextField(
@@ -117,7 +121,9 @@ fun LoginScreen(navController: NavHostController, signInClicked: () -> Unit) {
                 .width(320.dp)
                 .height(60.dp)
                 .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
-                .clickable { signInClicked() },
+                .clickable {
+                    signIn(emailValue, pwValue)
+                },
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -151,7 +157,6 @@ fun LoginScreen(navController: NavHostController, signInClicked: () -> Unit) {
             )
         )
 
-        // TODO: 회원가입 화면으로 이동하는 기능 추가
         Row {
             Text(
                 text = "가입하신 계정이 없나요?",
@@ -203,11 +208,10 @@ fun LoginScreen(navController: NavHostController, signInClicked: () -> Unit) {
             contentDescription = "구글 로그인",
             modifier = Modifier
                 .height(imageHeight)
-                .clickable { signInClicked()}
+                .clickable { signInClicked() }
         )
     }
 }
-
 
 @Composable
 fun CustomOutlinedTextField(
@@ -223,9 +227,9 @@ fun CustomOutlinedTextField(
         onValueChange = onValueChange,
         modifier = Modifier
             .width(320.dp)
-            .height(80.dp)
-            .padding(8.dp)
             .height(IntrinsicSize.Min) // 높이를 내부 내용에 맞게 자동 조정
+//            .height(80.dp)
+            .padding(8.dp)
             .focusRequester(focusRequester = focusRequester)
             .onFocusChanged {
                 isTextFieldFocused = it.isFocused

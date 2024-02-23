@@ -68,6 +68,7 @@ class MainActivity : ComponentActivity() {
                         signInClicked = { signInWithGoogle(launcher) },
                         signOutClicked = { signOut(navController) },
                         signUpClicked = { email, password -> createAccount(email, password, navController) },
+                        signIn = { email, password -> signIn(email, password, navController) },
                         navController, mAuth
                     )
                 }
@@ -140,14 +141,20 @@ class MainActivity : ComponentActivity() {
     }
 
     // 이메일, 비번 로그인
-    private fun signIn(email: String, password: String) {
+    private fun signIn(
+        email: String,
+        password: String,
+        navController: NavHostController,
+    ) {
         mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = mAuth.currentUser
-
+                    if (user != null) {
+                        navController.navigate(Screen.CreativeYard.route)
+                    }
                 } else {
-                    Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT,).show()
+                    Toast.makeText(baseContext, "가입된 계정이 아닙니다", Toast.LENGTH_SHORT,).show()
                 }
             }
     }

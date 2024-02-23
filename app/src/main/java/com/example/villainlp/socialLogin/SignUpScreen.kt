@@ -82,7 +82,6 @@ fun SignUpScreen(
                 // 이메일 형식 검사
                 val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(newValue).matches()
                 if (!isEmailValid) {
-                    // 이메일 형식이 유효하지 않을 경우 처리
                     return@CustomOutlinedTextField
                 }
             },
