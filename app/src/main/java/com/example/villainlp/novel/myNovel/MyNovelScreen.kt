@@ -4,11 +4,9 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,21 +18,17 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.villainlp.novel.AuthorText
+import com.example.villainlp.novel.DeleteNovelCard
 import com.example.villainlp.novel.DescriptionText
 import com.example.villainlp.novel.FrontArrowImage
 import com.example.villainlp.novel.RelayChatToNovelBook
@@ -80,49 +74,19 @@ fun MyNovels(
 
             SwipeableBox(
                 modifier = Modifier.animateItemPlacement(),
-                onConfirmValueChange = { deleteContents(it){ viewModel.onDeleteClicked(book, auth) } },
-                backgroundContent = { color ->  DeleteNovelCard(color) },
+                onConfirmValueChange = { deleteContents(it) { viewModel.onDeleteClicked(book, auth) } },
+                backgroundContent = { color ->
+                    DeleteNovelCard(
+                        color = color,
+                        text = "삭제하기",
+                        cardHeight = 133.dp,
+                        imageVector = Icons.Default.Delete
+                    )
+                },
                 content = { NovelCard(navController, book) }
             )
 
             Spacer(modifier = Modifier.fillMaxWidth().size(15.dp))
-        }
-    }
-}
-
-
-// 스와이프 했을때 나오는 배경
-@Composable
-private fun DeleteNovelCard(color: Color) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth() // LazyColumn의 넓이에 맞춤
-            .height(133.dp),
-        colors = CardDefaults.cardColors(containerColor = color), // 50%넘게 스와이프하면 색이 바뀜
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(), // Card 크기에 맞춤
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier.padding(end = 15.dp),
-                    text = "삭제하기",
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight(600),
-                        color = Color.White,
-                    ),
-                )
-                Icon(
-                    modifier = Modifier.padding(end = 15.dp),
-                    imageVector = Icons.Default.Delete,
-                    tint = Color.White,
-                    contentDescription = null
-                )
-            }
         }
     }
 }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,7 +26,6 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +48,7 @@ import androidx.navigation.NavHostController
 import com.example.villainlp.R
 import com.example.villainlp.novel.AuthorText
 import com.example.villainlp.novel.Book
+import com.example.villainlp.novel.DeleteNovelCard
 import com.example.villainlp.novel.DescriptionText
 import com.example.villainlp.novel.FrontArrowImage
 import com.example.villainlp.novel.SwipeableBox
@@ -191,12 +189,14 @@ fun NovelLists(
                         DeleteNovelCard(
                             color = color,
                             text = "삭제하기",
+                            cardHeight = 133.dp,
                             imageVector = Icons.Default.Delete
                         )
                     } else {
                         DeleteNovelCard(
                             color = Color.Red,
                             text = "타인의 작품은 삭제 할 수 없습니다.",
+                            cardHeight = 133.dp,
                             imageVector = Icons.Default.Lock
                         )
                     }
@@ -211,42 +211,6 @@ fun NovelLists(
             )
 
             Spacer(modifier = Modifier.size(25.dp))
-        }
-    }
-}
-
-// 스와이프 삭제(Library, MyNovel)
-@Composable
-private fun DeleteNovelCard(color: Color, text: String, imageVector: ImageVector) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth() // LazyColumn의 넓이에 맞춤
-            .height(133.dp),
-        colors = CardDefaults.cardColors(containerColor = color), // 50%넘게 스와이프하면 색이 바뀜
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(), // Card 크기에 맞춤
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier.padding(end = 15.dp),
-                    text = text,
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight(600),
-                        color = Color.White,
-                    ),
-                )
-                Icon(
-                    modifier = Modifier.padding(end = 15.dp),
-                    imageVector = imageVector,
-                    tint = Color.White,
-                    contentDescription = null
-                )
-            }
         }
     }
 }
