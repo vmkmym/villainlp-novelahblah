@@ -11,9 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ChatListViewModel(private val auth: FirebaseAuth) : ViewModel() {
-    // 채팅 삭제 확인 대화 상자의 표시 여부를 관리하는 StateFlow
-    private val _showDialog = MutableStateFlow(false)
-    val showDialog: StateFlow<Boolean> = _showDialog.asStateFlow()
 
     // 현재 선택된 채팅의 문서 ID를 관리하는 StateFlow
     private val _documentID = MutableStateFlow("")
@@ -36,20 +33,10 @@ class ChatListViewModel(private val auth: FirebaseAuth) : ViewModel() {
     }
 
     // Firestore에서 채팅을 삭제하는 함수
-    fun deleteChatting() {
+    fun deleteChatting(novelInfo: NovelInfo) {
+        _documentID.value = novelInfo.documentID?:"ERROR"
         FirebaseTools.deleteChattingFromFirestore(_documentID.value)
-        _showDialog.value = false
-    }
-
-    // 채팅 삭제 확인 대화 상자를 표시하는 함수
-    fun showDialog(documentID: String) {
-        _documentID.value = documentID
-        _showDialog.value = true
-    }
-
-    // 채팅 삭제 확인 대화 상자를 숨기는 함수
-    fun hideDialog() {
-        _showDialog.value = false
+        fetchChatList()
     }
 
     // Firestore에서 채팅 목록을 불러오는 함수
@@ -57,12 +44,5 @@ class ChatListViewModel(private val auth: FirebaseAuth) : ViewModel() {
         viewModelScope.launch {
             _novelInfo.value = FirebaseTools.fetchNovelInfoDataFromFirestore(auth.currentUser?.uid ?: "")
         }
-    }
-
-    // 채팅 삭제 후 채팅 목록을 다시 불러오는 함수
-    fun deleteChattingAndFetchChatList() {
-        FirebaseTools.deleteChattingFromFirestore(_documentID.value)
-        _showDialog.value = false
-        fetchChatList()
     }
 }
