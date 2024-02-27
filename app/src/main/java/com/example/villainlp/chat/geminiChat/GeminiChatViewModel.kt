@@ -6,8 +6,6 @@ import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.asTextOrNull
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -56,13 +54,8 @@ class GeminiChatViewModel(
                 uploadDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
             )
         }))
-    val uiState: StateFlow<GeminiChatUiState> = _uiState.asStateFlow()
 
-    private fun createChatRoom(title: String): String {
-        return model.createChatRoom(title)
-    }
-
-    fun sendMessage(userMessage: String, title: String, userId: String, onCompletion: () -> Unit) {
+    fun sendMessage(userMessage: String, title: String, userId: String, uuid: String, onCompletion: () -> Unit) {
         val currentDate = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         val geminiChatMessage = GeminiChatMessage(
             message = userMessage,
@@ -72,7 +65,7 @@ class GeminiChatViewModel(
             uploadDate = currentDate
         )
         _uiState.value.addMessage(geminiChatMessage)
-        saveChatMessage(geminiChatMessage, title)
+        saveChatMessage(geminiChatMessage, title, uuid)
 
         viewModelScope.launch {
             try {
@@ -87,7 +80,7 @@ class GeminiChatViewModel(
                         uploadDate = currentDate
                     )
                     _uiState.value.addMessage(geminiChatbotMessage)
-                    model.saveChatbotMessage(geminiChatbotMessage, title)
+                    model.saveChatbotMessage(geminiChatbotMessage, title, uuid)
                 }
                 onCompletion() // 메시지 전송이 완료되면 콜백 함수 호출
             } catch (e: Exception) {
@@ -104,15 +97,15 @@ class GeminiChatViewModel(
         }
     }
 
-    private fun saveChatMessage(geminiChatMessage: GeminiChatMessage, title: String) {
-        model.saveChatMessage(geminiChatMessage, title)
+    private fun saveChatMessage(geminiChatMessage: GeminiChatMessage, title: String, uuid: String) {
+        model.saveChatMessage(geminiChatMessage, title, uuid)
     }
 
-    fun loadChatMessages(listener: (List<GeminiChatMessage>) -> Unit, title: String) {
-        model.loadChatMessages(listener, title)
+    fun loadChatMessages(listener: (List<GeminiChatMessage>) -> Unit, title: String, uuid: String) {
+        model.loadChatMessages(listener, title, uuid)
     }
 
-    fun loadChatbotMessages(listener: (List<GeminiChatMessage>) -> Unit, title: String) {
-        model.loadChatbotMessages(listener, title)
+    fun loadChatbotMessages(listener: (List<GeminiChatMessage>) -> Unit, title: String, uuid: String) {
+        model.loadChatbotMessages(listener, title, uuid)
     }
 }
