@@ -60,7 +60,8 @@ fun VillainNavigation(
         // gemini chat
         composable(Screen.GeminiChat.route) {
             val title = it.arguments?.getString("title") ?: "title"
-            GeminiChatScreen(navController, auth, title)
+            val uuid = it.arguments?.getString("uuid") ?: "uuid"
+            GeminiChatScreen(navController, auth, title, uuid)
         }
 
         // 별점화면
