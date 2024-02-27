@@ -153,11 +153,7 @@ fun ChatScreen(
 
         // 새 메시지를 받아올 때마다 UI를 업데이트하기 위해 loadChatMessages 함수 호출
         viewModel.loadChatMessages({ messages -> sentMessages = messages }, title, threadId)
-        viewModel.loadChatbotMessages(
-            { botmessages -> sentBotMessages = botmessages },
-            title,
-            threadId
-        )
+        viewModel.loadChatbotMessages({ botmessages -> sentBotMessages = botmessages }, title, threadId)
     }
 
     val listState = rememberLazyListState()
