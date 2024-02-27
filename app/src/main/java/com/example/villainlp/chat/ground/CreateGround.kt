@@ -2,6 +2,13 @@
 
 package com.example.villainlp.chat.ground
 
+import android.util.Log
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,10 +45,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
@@ -58,15 +65,14 @@ import com.example.villainlp.novel.NovelInfo
 import com.example.villainlp.server.FirebaseTools.saveNovelInfo
 import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.shared.Screen
-import com.example.villainlp.ui.theme.Primary
 import com.example.villainlp.ui.theme.LightBlack
+import com.example.villainlp.ui.theme.Primary
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.compose.animation.core.*
-import androidx.compose.ui.platform.LocalDensity
+import java.util.UUID
 
 @Composable
 fun CreativeYardScreen(navController: NavHostController, auth: FirebaseAuth) {
@@ -385,7 +391,6 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreativeCard(
     cardColor: Color,
@@ -450,7 +455,6 @@ fun extractThreadId(threadIdString: String): String {
         .substringBeforeLast(")")
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreativeGeminiCard(
     cardColor: Color,
