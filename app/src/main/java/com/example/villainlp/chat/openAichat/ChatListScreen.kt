@@ -148,7 +148,7 @@ fun NovelChatCards(
             .height(100.dp)
             .clickable {
                 if (novelInfo.threadId == "" || novelInfo.assistId == "") {
-                    navController.navigate("GeminiChatScreen/${novelInfo.title}")
+                    navController.navigate("GeminiChatScreen/${novelInfo.title}/${novelInfo.uuid}")
                 } else {
                     navController.navigate("ChattingScreen/${novelInfo.title}/${novelInfo.threadId}/${novelInfo.assistId}")
                 }
