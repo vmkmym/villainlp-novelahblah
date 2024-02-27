@@ -13,7 +13,7 @@ sealed class Screen(val route: String) {
     object Rating : Screen("RatingScreen/{documentId}")
     object ChattingList : Screen("ChattingScreen")
     object Comment : Screen("CommentScreen/{documentId}")
-    object GeminiChat : Screen("GeminiChatScreen/{title}")
+    object GeminiChat : Screen("GeminiChatScreen/{title}/{uuid}")
 
     //회원가입 화면
     object SignUp : Screen("SignUpScreen")
