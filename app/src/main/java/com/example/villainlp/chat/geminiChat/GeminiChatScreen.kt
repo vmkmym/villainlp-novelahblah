@@ -1,9 +1,8 @@
-@file:OptIn(ExperimentalFoundationApi::class,
-    ExperimentalFoundationApi::class
-)
+@file:OptIn(ExperimentalFoundationApi::class)
 
 package com.example.villainlp.chat.geminiChat
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,6 +40,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +55,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -66,6 +67,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.airbnb.lottie.LottieComposition
@@ -94,6 +97,7 @@ internal fun GeminiChatScreen(
     navController: NavController,
     auth: FirebaseAuth,
     title: String,
+    uuid: String
 ) {
     val geminiChatViewModel: GeminiChatViewModel = viewModel(factory = GeminiViewModelFactory)
     val (input, setInput) = remember { mutableStateOf("") }
@@ -111,11 +115,8 @@ internal fun GeminiChatScreen(
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
-        geminiChatViewModel.loadChatMessages({ messages -> sentMessages = messages }, title)
-        geminiChatViewModel.loadChatbotMessages(
-            { botmessages -> sentBotMessages = botmessages },
-            title
-        )
+        geminiChatViewModel.loadChatMessages({ messages -> sentMessages = messages }, title, uuid)
+        geminiChatViewModel.loadChatbotMessages({ botmessages -> sentBotMessages = botmessages }, title, uuid)
     }
 
     val listState = rememberLazyListState()
@@ -170,9 +171,8 @@ internal fun GeminiChatScreen(
                     CoroutineScope(Dispatchers.IO).launch {
                         setInput("")
                         isAnimationRunning = true
-                        geminiChatViewModel.sendMessage(input, title, user?.uid ?: "ERROR") {
-                            isAnimationRunning =
-                                false // 콜백함수를 sendmessage에 넣어서 메시지 전송이 완료되면 애니메이션을 멈추게 함
+                        geminiChatViewModel.sendMessage(input, title, user?.uid ?: "ERROR", uuid) {
+                            isAnimationRunning = false
                         }
                     }
                 }
@@ -529,30 +529,4 @@ private fun ChatbotResponse(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewChatbotResponse() {
-    // 미리보기를 위한 GeminiChatMessage 객체 생성
-    val previewMessage = GeminiChatMessage(
-        message = "Hello, this is a preview message!",
-        userName = GeminiChatParticipant.MODEL,
-        userId = "preview_user_id",
-        uploadDate = "12:00"
-    )
-
-    // 미리보기를 위한 말풍선 모양 생성
-    val previewBubbleShape = RoundedCornerShape(
-        topEnd = 28.dp,
-        topStart = 28.dp,
-        bottomEnd = 28.dp,
-        bottomStart = 28.dp
-    )
-
-    // ChatbotResponse 함수 호출
-    ChatbotResponse(
-        message = previewMessage,
-        bubbleShape = previewBubbleShape
-    )
 }
