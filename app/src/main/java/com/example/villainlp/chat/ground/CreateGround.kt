@@ -2,7 +2,6 @@
 
 package com.example.villainlp.chat.ground
 
-import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -346,15 +345,14 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                 IconButton(
                     onClick = {
                         scope.launch {
-                            val currentDate =
-                                SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
-                                    Date()
-                                )
+                            val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+                            val currentUUID = UUID.randomUUID().toString() // 여기서 랜덤값 생성
                             val novelInfo =
                                 NovelInfo(
                                     title = dialogTitle,
                                     userID = user!!.uid,
-                                    createdDate = currentDate
+                                    createdDate = currentDate,
+                                    uuid = currentUUID
                                 )
                             saveNovelInfo(novelInfo)
                         }
