@@ -305,6 +305,7 @@ object FirebaseTools {
                                 novelInfo.threadId,
                                 novelInfo.userID,
                                 novelInfo.createdDate,
+                                novelInfo.uuid,
                                 novelInfoId
                             )
                             result.add(bookWithId)
