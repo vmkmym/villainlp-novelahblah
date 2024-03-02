@@ -62,11 +62,7 @@ class ChatModel {
     }
 
     @OptIn(BetaOpenAI::class)
-    fun loadChatBotMessages(
-        listener: (List<ChatbotMessage>) -> Unit,
-        title: String,
-        threadId: ThreadId?,
-    ) {
+    fun loadChatBotMessages(listener: (List<ChatbotMessage>) -> Unit, title: String, threadId: ThreadId?) {
         val database = Firebase.database
         val chatRef = database.getReference("gpt35/$title")
 
