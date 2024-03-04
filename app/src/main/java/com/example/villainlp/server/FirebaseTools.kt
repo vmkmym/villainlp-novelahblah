@@ -9,6 +9,7 @@ import com.example.villainlp.novel.library.comment.Comment
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -16,6 +17,7 @@ import kotlin.coroutines.suspendCoroutine
 
 object FirebaseTools {
 
+    // ReadMyNovel
     fun saveBook(book: Book) {
         val db = FirebaseFirestore.getInstance()
 
@@ -31,7 +33,7 @@ object FirebaseTools {
             }
     }
 
-
+    // Rating
     fun updateBookRating(documentId: String, totalRate: Float, starCount: Int) {
         val db = FirebaseFirestore.getInstance()
         // 업데이트할 문서의 참조 가져오기
@@ -62,6 +64,7 @@ object FirebaseTools {
         }
     }
 
+    // Rating
     suspend fun getLibraryBookFromFirestore(documentId: String): List<Book> =
         suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
@@ -81,22 +84,22 @@ object FirebaseTools {
                 }
         }
 
-    suspend fun getRatingFromFirestore(documentId: String): Float? =
-        suspendCoroutine { continuation ->
-            val db = FirebaseFirestore.getInstance()
+    // Library
+    fun deleteLibraryBookFromFirestore(documentId: String) {
+        val db = FirebaseFirestore.getInstance()
 
-            db.collection("Library").document(documentId)
-                .get()
-                .addOnSuccessListener { documentSnapshot ->
-                    val rating = documentSnapshot.getDouble("rating")?.toFloat()
-                    continuation.resume(rating)
-                }
-                .addOnFailureListener { e ->
-                    Log.w(ContentValues.TAG, "Error getting document", e)
-                    continuation.resumeWithException(e)
-                }
-        }
+        db.collection("Library").document(documentId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(
+                    ContentValues.TAG,
+                    "DocumentSnapshot successfully deleted!"
+                )
+            }
+            .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
+    }
 
+    // Library, ReadBook
     suspend fun getCommentCount(documentId: String): Int {
         val db = FirebaseFirestore.getInstance()
         val commentCollection = db.collection("Library").document(documentId).collection("comment")
@@ -105,6 +108,7 @@ object FirebaseTools {
         return snapshot.size()
     }
 
+    // ReadBook
     fun updateBookViews(documentId: String, views: Int) {
         val db = FirebaseFirestore.getInstance()
         // 업데이트할 문서의 참조 가져오기
@@ -128,6 +132,24 @@ object FirebaseTools {
             }
     }
 
+    // ReadBook
+    suspend fun getRatingFromFirestore(documentId: String): Float? =
+        suspendCoroutine { continuation ->
+            val db = FirebaseFirestore.getInstance()
+
+            db.collection("Library").document(documentId)
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+                    val rating = documentSnapshot.getDouble("rating")?.toFloat()
+                    continuation.resume(rating)
+                }
+                .addOnFailureListener { e ->
+                    Log.w(ContentValues.TAG, "Error getting document", e)
+                    continuation.resumeWithException(e)
+                }
+        }
+
+    // Comment
     fun updateCommentCount(documentId: String, commentCount: Int) {
         val db = FirebaseFirestore.getInstance()
         // 업데이트할 문서의 참조 가져오기
@@ -151,6 +173,7 @@ object FirebaseTools {
             }
     }
 
+    // Comment
     fun uploadComment(documentId: String, comment: Comment) {
         val db = FirebaseFirestore.getInstance()
         // 업데이트할 문서의 참조 가져오기
@@ -173,6 +196,7 @@ object FirebaseTools {
             }
     }
 
+    // Comment
     suspend fun fetchCommentsFromFirestore(documentId: String): List<Comment> =
         suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
@@ -192,6 +216,24 @@ object FirebaseTools {
                 }
         }
 
+    // Comment
+    fun deleteCommentFromFirestore(documentId: String, commentDocumentId: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("Library").document(documentId).collection("comment")
+            .document(commentDocumentId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(
+                    ContentValues.TAG,
+                    "DocumentSnapshot successfully deleted!"
+                )
+            }
+            .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
+    }
+
+
+    // CreateYard
     fun saveNovelInfo(novelInfo: NovelInfo) {
         val db = FirebaseFirestore.getInstance()
 
@@ -214,6 +256,7 @@ object FirebaseTools {
             }
     }
 
+    // Gemini, chat
     fun saveChatToNovel(relayChatToNovel: RelayChatToNovelBook) {
         val db = FirebaseFirestore.getInstance()
         val newDocRef = db.collection("MyBookData").document()
@@ -228,21 +271,28 @@ object FirebaseTools {
             }
     }
 
-
-    fun deleteBookFromFirestore(documentId: String) {
+    // ChattingList
+    suspend fun fetchNovelInfoDataFromFirestore(userId: String): List<NovelInfo> = coroutineScope {
         val db = FirebaseFirestore.getInstance()
 
-        db.collection("MyBookData").document(documentId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d(
-                    ContentValues.TAG,
-                    "DocumentSnapshot successfully deleted!"
-                )
-            }
-            .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
+        try {
+            db.collection("NovelInfo")
+                .orderBy("createdDate", Query.Direction.DESCENDING)
+                .get().await().documents.mapNotNull { document ->
+                    val novelInfo = document.toObject(NovelInfo::class.java)
+                    if (novelInfo?.userID == userId) {
+                        novelInfo
+                    } else {
+                        null
+                    }
+                }
+        } catch (e: Exception) {
+            println("Error getting documents: $e")
+            emptyList()
+        }
     }
 
+    // ChattingList
     fun deleteChattingFromFirestore(documentId: String) {
         val db = FirebaseFirestore.getInstance()
 
@@ -257,67 +307,7 @@ object FirebaseTools {
             .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
     }
 
-    fun deleteLibraryBookFromFirestore(documentId: String) {
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("Library").document(documentId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d(
-                    ContentValues.TAG,
-                    "DocumentSnapshot successfully deleted!"
-                )
-            }
-            .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
-    }
-
-    fun deleteCommentFromFirestore(documentId: String, commentDocumentId: String) {
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("Library").document(documentId).collection("comment")
-            .document(commentDocumentId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d(
-                    ContentValues.TAG,
-                    "DocumentSnapshot successfully deleted!"
-                )
-            }
-            .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
-    }
-
-
-    suspend fun fetchNovelInfoDataFromFirestore(userId: String): List<NovelInfo> =
-        suspendCoroutine { continuation ->
-            val db = FirebaseFirestore.getInstance()
-            val result = mutableListOf<NovelInfo>()
-
-            db.collection("NovelInfo")
-                .orderBy("createdDate", Query.Direction.DESCENDING)
-                .get().addOnSuccessListener { querySnapshot ->
-                    for (document in querySnapshot) {
-                        val novelInfoId = document.id
-                        val novelInfo = document.toObject(NovelInfo::class.java)
-                        if (novelInfo.userID == userId) {
-                            val bookWithId = NovelInfo(
-                                novelInfo.title,
-                                novelInfo.assistId,
-                                novelInfo.threadId,
-                                novelInfo.userID,
-                                novelInfo.createdDate,
-                                novelInfo.uuid,
-                                novelInfoId
-                            )
-                            result.add(bookWithId)
-                        }
-                    }
-                    continuation.resume(result)
-                }.addOnFailureListener { exception ->
-                    println("Error getting documents: $exception")
-                    continuation.resumeWithException(exception)
-                }
-        }
-
+    // MyNovel
     suspend fun myNovelDataFromFirestore(userId: String): List<RelayChatToNovelBook> =
         suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
@@ -349,6 +339,7 @@ object FirebaseTools {
                 }
         }
 
+    // MyNovel
     suspend fun novelDataSortingByRatingFromFirestore(): List<Book> =
         suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
@@ -368,6 +359,7 @@ object FirebaseTools {
                 }
         }
 
+    // MyNovel
     suspend fun novelDataSortingByUploadDateFromFirestore(): List<Book> =
         suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
@@ -388,6 +380,7 @@ object FirebaseTools {
         }
 
 
+    // MyNovel
     suspend fun novelDataSortingByViewsFromFirestore(): List<Book> =
         suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
@@ -407,6 +400,23 @@ object FirebaseTools {
                 }
         }
 
+    // Mybook
+    fun deleteBookFromFirestore(documentId: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("MyBookData").document(documentId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(
+                    ContentValues.TAG,
+                    "DocumentSnapshot successfully deleted!"
+                )
+            }
+            .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error deleting document", e) }
+    }
+
+
+    // ???
     private fun convertDocumentToBook(document: DocumentSnapshot): Book {
         val bookData = document.toObject(Book::class.java)!!
         return Book(
