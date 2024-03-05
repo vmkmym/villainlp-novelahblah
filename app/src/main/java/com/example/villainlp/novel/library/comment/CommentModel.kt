@@ -1,5 +1,10 @@
 package com.example.villainlp.novel.library.comment
 
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.tasks.await
+
 data class Comment(
     val author: String = "",
     val uploadDate: String = "",
@@ -16,4 +21,47 @@ enum class BottomText(val text: String){
 
 enum class LimitChar(var n: Int){
     Max(500)
+}
+
+class CommentModel {
+    // Comment
+    fun updateCommentCount(documentId: String, commentCount: Int) {
+        val db = FirebaseFirestore.getInstance()
+        val documentReference = db.collection("Library").document(documentId)
+        val updates = hashMapOf<String, Any>("commentCount" to commentCount)
+        documentReference.update(updates)
+    }
+
+    // Comment
+    fun saveComment(documentId: String, comment: Comment) {
+        val db = FirebaseFirestore.getInstance()
+        val newDocRef = db.collection("Library").document(documentId).collection("comment").document()
+        val commentDocumentId = newDocRef.id
+        val updateComment = comment.copy(documentID = commentDocumentId)
+        newDocRef.set(updateComment)
+    }
+
+    // Comment
+    suspend fun getComments(documentId: String): List<Comment> =
+        coroutineScope {
+            val db = FirebaseFirestore.getInstance()
+
+            try {
+                db.collection("Library").document(documentId).collection("comment")
+                    .orderBy("uploadDate", Query.Direction.ASCENDING)
+                    .get().await().documents.mapNotNull { document ->
+                        val comments = document.toObject(Comment::class.java)
+                        comments
+                    }
+            } catch (e: Exception){
+                println("Error getting documents: $e")
+                emptyList()
+            }
+        }
+
+    // Comment
+    fun deleteDocument(documentId: String, commentDocumentId: String) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("Library").document(documentId).collection("comment").document(commentDocumentId).delete()
+    }
 }

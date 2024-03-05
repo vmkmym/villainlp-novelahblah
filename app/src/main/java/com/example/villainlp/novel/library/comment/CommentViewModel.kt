@@ -2,7 +2,6 @@ package com.example.villainlp.novel.library.comment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.villainlp.server.FirebaseTools
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +11,8 @@ import java.util.Date
 import java.util.Locale
 
 class CommentViewModel : ViewModel() {
+    private val commentModel = CommentModel()
+
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val user = auth.currentUser
 
@@ -32,7 +33,7 @@ class CommentViewModel : ViewModel() {
     // 처음 Comment를 로드하는 부분
     fun loadComments(documentId: String) {
         viewModelScope.launch {
-            _commentList.value = FirebaseTools.fetchCommentsFromFirestore(documentId)
+            _commentList.value = commentModel.getComments(documentId)
             _commentCount.value = _commentList.value.size
         }
     }
@@ -45,11 +46,11 @@ class CommentViewModel : ViewModel() {
     // Comment 삭제
     fun deleteComment(documentId: String, comment: Comment) {
         _commentDocumentId.value = comment.documentID ?: "ERROR"
-        FirebaseTools.deleteCommentFromFirestore(documentId, _commentDocumentId.value)
+        commentModel.deleteDocument(documentId, _commentDocumentId.value)
         viewModelScope.launch {
-            _commentList.value = FirebaseTools.fetchCommentsFromFirestore(documentId)
+            _commentList.value = commentModel.getComments(documentId)
             _commentCount.value = _commentList.value.size
-            FirebaseTools.updateCommentCount(documentId, _commentList.value.size)
+            commentModel.updateCommentCount(documentId, _commentList.value.size)
         }
     }
 
@@ -71,7 +72,7 @@ class CommentViewModel : ViewModel() {
             script = commentText.value,
             userID = user?.uid ?: "ERROR"
         )
-        FirebaseTools.uploadComment(documentId, myComment)
+        commentModel.saveComment(documentId, myComment)
         loadComments(documentId)
         initComment()
     }

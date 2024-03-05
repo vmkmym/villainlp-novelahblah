@@ -3,7 +3,6 @@ package com.example.villainlp.server
 import com.example.villainlp.novel.Book
 import com.example.villainlp.novel.NovelInfo
 import com.example.villainlp.novel.RelayChatToNovelBook
-import com.example.villainlp.novel.library.comment.Comment
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.coroutineScope
@@ -17,47 +16,6 @@ object FirebaseTools {
         val snapshot = commentCollection.get().await()
 
         return snapshot.size()
-    }
-
-    // Comment
-    fun updateCommentCount(documentId: String, commentCount: Int) {
-        val db = FirebaseFirestore.getInstance()
-        val documentReference = db.collection("Library").document(documentId)
-        val updates = hashMapOf<String, Any>("commentCount" to commentCount)
-        documentReference.update(updates)
-    }
-
-    // Comment
-    fun uploadComment(documentId: String, comment: Comment) {
-        val db = FirebaseFirestore.getInstance()
-        val newDocRef = db.collection("Library").document(documentId).collection("comment").document()
-        val commentDocumentId = newDocRef.id
-        val updateComment = comment.copy(documentID = commentDocumentId)
-        newDocRef.set(updateComment)
-    }
-
-    // Comment
-    suspend fun fetchCommentsFromFirestore(documentId: String): List<Comment> =
-        coroutineScope {
-            val db = FirebaseFirestore.getInstance()
-
-            try {
-                db.collection("Library").document(documentId).collection("comment")
-                    .orderBy("uploadDate", Query.Direction.ASCENDING)
-                    .get().await().documents.mapNotNull { document ->
-                        val comments = document.toObject(Comment::class.java)
-                        comments
-                    }
-            } catch (e: Exception){
-                println("Error getting documents: $e")
-                emptyList()
-            }
-        }
-
-    // Comment
-    fun deleteCommentFromFirestore(documentId: String, commentDocumentId: String) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("Library").document(documentId).collection("comment").document(commentDocumentId).delete()
     }
 
     // ChattingList
