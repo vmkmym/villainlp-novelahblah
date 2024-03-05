@@ -60,7 +60,7 @@ fun RatingScreen(
 // 별 모양이 있는 Column
 @Composable
 fun RatingColumn(
-    ratingViewState: RatingModel,
+    ratingViewState: RatingOption,
     viewModel: RatingViewModel,
     navController: NavHostController,
     documentId: String,

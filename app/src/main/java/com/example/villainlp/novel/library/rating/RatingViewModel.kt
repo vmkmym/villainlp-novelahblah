@@ -2,15 +2,15 @@ package com.example.villainlp.novel.library.rating
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.villainlp.server.FirebaseTools
-import com.example.villainlp.server.FirebaseTools.updateBookRating
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class RatingViewModel : ViewModel() {
-    private val _ratingViewState = MutableStateFlow(RatingModel(0, 0, 0, 0, 0))
-    val ratingViewState: StateFlow<RatingModel> = _ratingViewState
+    private val ratingModel = RatingModel()
+
+    private val _ratingViewState = MutableStateFlow(RatingOption(0, 0, 0, 0, 0))
+    val ratingViewState: StateFlow<RatingOption> = _ratingViewState
 
     private val _artistryRate = MutableStateFlow(0)
     private val artistryRate: StateFlow<Int> = _artistryRate
@@ -39,7 +39,7 @@ class RatingViewModel : ViewModel() {
 
     fun submitRating(documentId: String) {
         viewModelScope.launch {
-            val book = FirebaseTools.getLibraryBookFromFirestore(documentId)
+            val book = ratingModel.getLibraryBookFromFirestore(documentId)
             var averageRate = book[0].totalRate
             var starCount = book[0].starCount
             val currentState = ratingViewState.value.copy(
@@ -57,7 +57,7 @@ class RatingViewModel : ViewModel() {
 
             starCount += 1
 
-            updateBookRating(documentId, averageRate, starCount)
+            ratingModel.updateBookRating(documentId, averageRate, starCount)
         }
     }
 }
