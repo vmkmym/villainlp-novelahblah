@@ -1,6 +1,6 @@
 package com.example.villainlp.novel.myNovel
 
-import com.example.villainlp.novel.RelayChatToNovelBook
+import com.example.villainlp.shared.RelayChatToNovelBook
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.coroutineScope

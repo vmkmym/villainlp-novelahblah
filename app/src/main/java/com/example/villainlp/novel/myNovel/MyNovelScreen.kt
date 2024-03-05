@@ -31,12 +31,12 @@ import com.example.villainlp.novel.AuthorText
 import com.example.villainlp.novel.DeleteNovelCard
 import com.example.villainlp.novel.DescriptionText
 import com.example.villainlp.novel.FrontArrowImage
-import com.example.villainlp.novel.RelayChatToNovelBook
 import com.example.villainlp.novel.SwipeableBox
 import com.example.villainlp.novel.TitleText
 import com.example.villainlp.novel.TopBarTitle
 import com.example.villainlp.novel.deleteContents
 import com.example.villainlp.shared.MyScaffold
+import com.example.villainlp.shared.RelayChatToNovelBook
 import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("CoroutineCreationDuringComposition")

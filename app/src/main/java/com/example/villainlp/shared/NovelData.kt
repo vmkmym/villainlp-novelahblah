@@ -1,6 +1,6 @@
-package com.example.villainlp.novel
+package com.example.villainlp.shared
 
-// Chatting, MyNovel에서 사용중
+// Chat, GeminiChat, MyNovel(Model,view,viewModel), FirebaseTools 에서 사용중
 data class RelayChatToNovelBook(
     val title: String = "",
     val author: String = "",

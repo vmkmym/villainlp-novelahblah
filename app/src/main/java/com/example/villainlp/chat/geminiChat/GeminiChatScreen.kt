@@ -71,9 +71,9 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.novel.RelayChatToNovelBook
 import com.example.villainlp.novel.library.comment.addFocusCleaner
 import com.example.villainlp.server.FirebaseTools
+import com.example.villainlp.shared.RelayChatToNovelBook
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Primary
 import com.example.villainlp.ui.theme.TextGray
