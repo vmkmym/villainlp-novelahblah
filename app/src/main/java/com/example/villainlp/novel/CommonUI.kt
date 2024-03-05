@@ -2,6 +2,7 @@ package com.example.villainlp.novel
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -193,6 +194,8 @@ fun ReadScreenTopBar(
     onClicked: () -> Unit = {},
     hasIcon: Boolean = false
 ) {
+    val isDarkTheme = isSystemInDarkTheme()
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -210,7 +213,7 @@ fun ReadScreenTopBar(
                 style = TextStyle(
                     fontSize = 22.sp,
                     fontWeight = FontWeight(600),
-                    color = Color(0xFF212121),
+                    color = if (isDarkTheme) Color.White else Color.DarkGray,
                 )
             )
             if (hasIcon){
@@ -221,7 +224,7 @@ fun ReadScreenTopBar(
                 Spacer(modifier = Modifier.size(15.dp))
             }
         }
-        Divider(color = Color(0xFF9E9E9E))
+        Divider(color = if (isDarkTheme) Color.LightGray else Color.LightGray)
     }
 }
 
