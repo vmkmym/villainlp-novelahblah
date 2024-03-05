@@ -19,30 +19,30 @@ object FirebaseTools {
     // ReadMyNovel : Save Book
     fun saveAtFirebase(book: Book) {
         val db = FirebaseFirestore.getInstance()
-
         val newDocRef = db.collection("Library").document()
         val documentId = newDocRef.id
         val updateBook = book.copy(documentID = documentId)
+
         newDocRef.set(updateBook)
     }
 
     // CreateYard : Save NovelInfo
     fun saveAtFirebase(book: NovelInfo) {
         val db = FirebaseFirestore.getInstance()
-
         val newDocRef = db.collection("NovelInfo").document()
         val documentId = newDocRef.id
         val updateBook = book.copy(documentID = documentId)
+
         newDocRef.set(updateBook)
     }
 
     // Gemini, chat : Save ChatToNovel
     fun saveAtFirebase(book: RelayChatToNovelBook) {
         val db = FirebaseFirestore.getInstance()
-
         val newDocRef = db.collection("MyBookData").document()
         val documentId = newDocRef.id
         val updateBook = book.copy(documentID = documentId)
+
         newDocRef.set(updateBook)
     }
 
