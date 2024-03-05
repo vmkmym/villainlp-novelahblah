@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ChatListViewModel(private val auth: FirebaseAuth) : ViewModel() {
+    private val chatListModel = ChatListModel()
 
     // 현재 선택된 채팅의 문서 ID를 관리하는 StateFlow
     private val _documentID = MutableStateFlow("")
@@ -28,7 +29,7 @@ class ChatListViewModel(private val auth: FirebaseAuth) : ViewModel() {
     // Firestore에서 소설 정보를 가져오는 함수
     private fun fetchNovelInfoDataFromFirestore() {
         viewModelScope.launch {
-            _novelInfo.value = FirebaseTools.fetchNovelInfoDataFromFirestore(auth.currentUser?.uid ?: "")
+            _novelInfo.value = chatListModel.getNovels(auth.currentUser?.uid ?: "")
         }
     }
 
@@ -42,7 +43,7 @@ class ChatListViewModel(private val auth: FirebaseAuth) : ViewModel() {
     // Firestore에서 채팅 목록을 불러오는 함수
     private fun fetchChatList() {
         viewModelScope.launch {
-            _novelInfo.value = FirebaseTools.fetchNovelInfoDataFromFirestore(auth.currentUser?.uid ?: "")
+            _novelInfo.value = chatListModel.getNovels(auth.currentUser?.uid ?: "")
         }
     }
 }

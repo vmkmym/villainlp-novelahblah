@@ -559,6 +559,7 @@ fun ChatItemBubble(message: ChatMessage, userId: String?) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun UserResponse(
     message: ChatMessage,
