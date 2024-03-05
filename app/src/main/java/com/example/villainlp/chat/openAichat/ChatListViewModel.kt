@@ -35,7 +35,7 @@ class ChatListViewModel(private val auth: FirebaseAuth) : ViewModel() {
     // Firestore에서 채팅을 삭제하는 함수
     fun deleteChatting(novelInfo: NovelInfo) {
         _documentID.value = novelInfo.documentID?:"ERROR"
-        FirebaseTools.deleteChattingFromFirestore(_documentID.value)
+        FirebaseTools.deleteDocument("NovelInfo", _documentID.value)
         fetchChatList()
     }
 

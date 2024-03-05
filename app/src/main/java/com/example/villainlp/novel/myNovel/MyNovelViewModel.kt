@@ -24,7 +24,7 @@ class MyNovelViewModel: ViewModel() {
 
     fun onDeleteClicked(selectedNovel: RelayChatToNovelBook, auth: FirebaseAuth){
         _documentId.value = selectedNovel.documentID ?: "ERROR"
-        FirebaseTools.deleteBookFromFirestore(documentId.value)
+        FirebaseTools.deleteDocument("MyBookData", _documentId.value)
         loadNovels(auth)
     }
 }
