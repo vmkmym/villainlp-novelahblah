@@ -3,12 +3,13 @@ package com.example.villainlp.novel.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.villainlp.novel.Book
-import com.example.villainlp.server.FirebaseTools
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LibraryViewModel:ViewModel() {
+    private val libraryModel = LibraryModel()
+
     private val _novelList = MutableStateFlow<List<Book>>(emptyList())
     val novelList: StateFlow<List<Book>> = _novelList
 
@@ -28,16 +29,16 @@ class LibraryViewModel:ViewModel() {
         viewModelScope.launch {
             when {
                 isRateClicked.value -> {
-                    _novelList.value = FirebaseTools.novelSort("rating")
+                    _novelList.value = libraryModel.novelSort("rating")
                 }
                 isViewClicked.value -> {
-                    _novelList.value = FirebaseTools.novelSort("views")
+                    _novelList.value = libraryModel.novelSort("views")
                 }
                 isUpdateClicked.value -> {
-                    _novelList.value = FirebaseTools.novelSort("uploadDate")
+                    _novelList.value = libraryModel.novelSort("uploadDate")
                 }
                 else -> {
-                    _novelList.value = FirebaseTools.novelSort("uploadDate")
+                    _novelList.value = libraryModel.novelSort("uploadDate")
                 }
             }
         }
@@ -64,7 +65,7 @@ class LibraryViewModel:ViewModel() {
     fun onDeleteClicked(selectedNovel: Book){
         _documentId.value = selectedNovel.documentID ?: "ERROR"
         viewModelScope.launch {
-            FirebaseTools.deleteLibraryBookFromFirestore(documentId.value)
+            libraryModel.deleteLibraryBookFromFirestore(documentId.value)
         }
         loadNovels()
     }
