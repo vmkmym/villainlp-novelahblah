@@ -9,7 +9,7 @@ import com.example.villainlp.chat.ground.CreativeYardScreen
 import com.example.villainlp.chat.openAichat.ChatListScreen
 import com.example.villainlp.chat.openAichat.ChatScreen
 import com.example.villainlp.novel.library.LibraryScreen
-import com.example.villainlp.novel.library.ReadLibraryBookScreen
+import com.example.villainlp.novel.library.readBook.ReadLibraryBookScreen
 import com.example.villainlp.novel.library.comment.CommentScreen
 import com.example.villainlp.novel.library.rating.RatingScreen
 import com.example.villainlp.novel.myNovel.MyBookScreen

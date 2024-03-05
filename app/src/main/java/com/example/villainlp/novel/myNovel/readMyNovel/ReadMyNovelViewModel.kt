@@ -2,7 +2,7 @@ package com.example.villainlp.novel.myNovel.readMyNovel
 
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
-import com.example.villainlp.novel.Book
+import com.example.villainlp.novel.common.Book
 import com.example.villainlp.server.FirebaseTools
 import com.example.villainlp.shared.Screen
 import com.google.firebase.auth.FirebaseAuth

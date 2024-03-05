@@ -2,7 +2,7 @@ package com.example.villainlp.novel.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.villainlp.novel.Book
+import com.example.villainlp.novel.common.Book
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

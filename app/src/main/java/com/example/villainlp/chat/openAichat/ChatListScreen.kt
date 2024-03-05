@@ -43,10 +43,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
-import com.example.villainlp.novel.DeleteNovelCard
-import com.example.villainlp.novel.FrontArrowImage
-import com.example.villainlp.novel.SwipeableBox
-import com.example.villainlp.novel.deleteContents
+import com.example.villainlp.novel.common.DeleteNovelCard
+import com.example.villainlp.novel.common.FrontArrowImage
+import com.example.villainlp.novel.common.SwipeableBox
+import com.example.villainlp.novel.common.deleteContents
 import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.shared.NovelInfo
 import com.example.villainlp.shared.Screen

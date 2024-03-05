@@ -1,6 +1,6 @@
 package com.example.villainlp.novel.library.rating
 
-import com.example.villainlp.novel.Book
+import com.example.villainlp.novel.common.Book
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await

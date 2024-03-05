@@ -1,6 +1,6 @@
 package com.example.villainlp.server
 
-import com.example.villainlp.novel.Book
+import com.example.villainlp.novel.common.Book
 import com.example.villainlp.shared.NovelInfo
 import com.example.villainlp.shared.RelayChatToNovelBook
 import com.google.firebase.firestore.FirebaseFirestore

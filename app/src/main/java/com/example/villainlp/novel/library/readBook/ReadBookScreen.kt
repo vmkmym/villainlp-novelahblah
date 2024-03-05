@@ -1,4 +1,4 @@
-package com.example.villainlp.novel.library
+package com.example.villainlp.novel.library.readBook
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
@@ -45,7 +45,7 @@ import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import com.example.villainlp.R
-import com.example.villainlp.novel.ReadScreenTopBar
+import com.example.villainlp.novel.common.ReadScreenTopBar
 
 @Composable
 fun ReadLibraryBookScreen(

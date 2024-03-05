@@ -1,8 +1,8 @@
-package com.example.villainlp.novel.library
+package com.example.villainlp.novel.library.readBook
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.villainlp.novel.formatRating
+import com.example.villainlp.novel.common.formatRating
 import com.example.villainlp.server.FirebaseTools
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

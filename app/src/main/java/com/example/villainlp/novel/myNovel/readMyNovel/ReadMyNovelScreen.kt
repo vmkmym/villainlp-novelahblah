@@ -14,8 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.villainlp.novel.AlertPopup
-import com.example.villainlp.novel.ReadScreenTopBar
+import com.example.villainlp.novel.common.AlertPopup
+import com.example.villainlp.novel.common.ReadScreenTopBar
 
 @Composable
 fun ReadMyBookScreen(

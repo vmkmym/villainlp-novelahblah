@@ -1,6 +1,6 @@
 package com.example.villainlp.novel.library
 
-import com.example.villainlp.novel.Book
+import com.example.villainlp.novel.common.Book
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.coroutineScope

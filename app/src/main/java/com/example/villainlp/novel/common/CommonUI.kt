@@ -1,4 +1,4 @@
-package com.example.villainlp.novel
+package com.example.villainlp.novel.common
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image

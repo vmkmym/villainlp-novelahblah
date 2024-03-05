@@ -62,9 +62,9 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.novel.SwipeableBox
-import com.example.villainlp.novel.TopBarTitle
-import com.example.villainlp.novel.deleteContents
+import com.example.villainlp.novel.common.SwipeableBox
+import com.example.villainlp.novel.common.TopBarTitle
+import com.example.villainlp.novel.common.deleteContents
 import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("CoroutineCreationDuringComposition")
