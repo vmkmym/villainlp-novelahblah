@@ -4,8 +4,6 @@ import com.example.villainlp.novel.Book
 import com.example.villainlp.novel.NovelInfo
 import com.example.villainlp.novel.RelayChatToNovelBook
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 
 object FirebaseTools {
@@ -16,27 +14,6 @@ object FirebaseTools {
         val snapshot = commentCollection.get().await()
 
         return snapshot.size()
-    }
-
-    // MyNovel
-    suspend fun myNovelDataFromFirestore(userId: String): List<RelayChatToNovelBook> = coroutineScope {
-        val db = FirebaseFirestore.getInstance()
-
-        try {
-            db.collection("MyBookData")
-                .orderBy("createdDate", Query.Direction.DESCENDING)
-                .get().await().documents.mapNotNull { document ->
-                    val myNovels = document.toObject(RelayChatToNovelBook::class.java)
-                    if (myNovels?.userID == userId) {
-                        myNovels
-                    } else {
-                        null
-                    }
-                }
-        } catch (e: Exception) {
-            println("Error getting documents: $e")
-            emptyList()
-        }
     }
 
     // ReadMyNovel : Save Book

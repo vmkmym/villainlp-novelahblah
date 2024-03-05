@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MyNovelViewModel: ViewModel() {
+    private val myNovelModel = MyNovelModel()
+
     private val _novelList = MutableStateFlow<List<RelayChatToNovelBook>>(emptyList())
     val novelList: StateFlow<List<RelayChatToNovelBook>> = _novelList
 
@@ -18,7 +20,7 @@ class MyNovelViewModel: ViewModel() {
 
     fun loadNovels(auth: FirebaseAuth){
         viewModelScope.launch {
-            _novelList.value = FirebaseTools.myNovelDataFromFirestore(auth.currentUser?.uid ?: "")
+            _novelList.value = myNovelModel.getNovels(auth.currentUser?.uid ?: "")
         }
     }
 
