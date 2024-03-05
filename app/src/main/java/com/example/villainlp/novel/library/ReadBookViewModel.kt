@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ReadBookViewModel: ViewModel() {
+    private val readBookModel = ReadBookModel()
+
     private val _commentCount = MutableStateFlow(0)
     val commentCount: StateFlow<Int> = _commentCount
 
@@ -21,7 +23,7 @@ class ReadBookViewModel: ViewModel() {
     fun reloadCommentRating(documentId: String){
         viewModelScope.launch {
             _commentCount.value = FirebaseTools.getCommentCount(documentId)
-            _rating.value = formatRating(FirebaseTools.getRatingFromFirestore(documentId)!!)
+            _rating.value = formatRating(readBookModel.getRatingFromFirestore(documentId)!!)
         }
     }
 
@@ -31,6 +33,6 @@ class ReadBookViewModel: ViewModel() {
 
     fun viewsPlus(documentId: String, views: String){
         val updateView = views.toInt() + 1
-        FirebaseTools.updateBookViews(documentId, updateView)
+        readBookModel.updateBookViews(documentId, updateView)
     }
 }
