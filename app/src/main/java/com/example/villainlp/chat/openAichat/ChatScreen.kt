@@ -89,7 +89,7 @@ import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
 import com.example.villainlp.novel.library.comment.addFocusCleaner
 import com.example.villainlp.server.FirebaseTools.saveAtFirebase
-import com.example.villainlp.shared.RelayChatToNovelBook
+import com.example.villainlp.shared.RelayNovel
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Primary
 import com.example.villainlp.ui.theme.TextGray
@@ -275,7 +275,7 @@ private fun RelayNovelSaveButton(
                             SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(
                                 Date()
                             )
-                        val myRelayNovel = RelayChatToNovelBook(
+                        val myRelayNovel = RelayNovel(
                             title = title,
                             author = user?.displayName ?: "ERROR",
                             script = response,

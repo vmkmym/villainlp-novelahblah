@@ -2,7 +2,7 @@ package com.example.villainlp.server
 
 import com.example.villainlp.novel.common.Book
 import com.example.villainlp.shared.NovelInfo
-import com.example.villainlp.shared.RelayChatToNovelBook
+import com.example.villainlp.shared.RelayNovel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -37,7 +37,7 @@ object FirebaseTools {
     }
 
     // Gemini, chat : Save ChatToNovel
-    fun saveAtFirebase(book: RelayChatToNovelBook) {
+    fun saveAtFirebase(book: RelayNovel) {
         val db = FirebaseFirestore.getInstance()
         val newDocRef = db.collection("MyBookData").document()
         val documentId = newDocRef.id

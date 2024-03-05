@@ -36,7 +36,7 @@ import com.example.villainlp.novel.common.TitleText
 import com.example.villainlp.novel.common.TopBarTitle
 import com.example.villainlp.novel.common.deleteContents
 import com.example.villainlp.shared.MyScaffold
-import com.example.villainlp.shared.RelayChatToNovelBook
+import com.example.villainlp.shared.RelayNovel
 import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -63,7 +63,7 @@ fun MyNovels(
     modifier: Modifier,
     navController: NavHostController,
     auth: FirebaseAuth,
-    myBooks: List<RelayChatToNovelBook>, // TODO : myBooks와 viewModel이 RelayChatToNovelBook과 MyNovelViewModel로 고정되어 있는데
+    myBooks: List<RelayNovel>, // TODO : myBooks와 viewModel이 RelayChatToNovelBook과 MyNovelViewModel로 고정되어 있는데
     viewModel: MyNovelViewModel,         // TODO : 이를 통합되게 관리하면 이 코드를 비슷한 부분에서 다같이 사용할 수 있음(재사용성 증진)
 ) {
     LazyColumn(
@@ -94,7 +94,7 @@ fun MyNovels(
 @Composable
 private fun NovelCard(
     navController: NavHostController,
-    book: RelayChatToNovelBook,
+    book: RelayNovel,
 ) {
     Card(
         modifier = Modifier
@@ -119,7 +119,7 @@ private fun NovelCard(
 
 // 소설 제목, 내용 부분의 Row
 @Composable
-fun NovelTitleAndScript(book: RelayChatToNovelBook) {
+fun NovelTitleAndScript(book: RelayNovel) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -134,7 +134,7 @@ fun NovelTitleAndScript(book: RelayChatToNovelBook) {
 
 // 소설 저자를 나타내는 Row
 @Composable
-fun NovelAuthor(book: RelayChatToNovelBook) {
+fun NovelAuthor(book: RelayNovel) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
