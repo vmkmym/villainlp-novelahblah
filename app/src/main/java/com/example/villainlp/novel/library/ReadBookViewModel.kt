@@ -23,7 +23,7 @@ class ReadBookViewModel: ViewModel() {
     fun reloadCommentRating(documentId: String){
         viewModelScope.launch {
             _commentCount.value = FirebaseTools.getCommentCount(documentId)
-            _rating.value = formatRating(readBookModel.getRatingFromFirestore(documentId)!!)
+            _rating.value = formatRating(readBookModel.getRating(documentId)!!)
         }
     }
 
@@ -33,6 +33,6 @@ class ReadBookViewModel: ViewModel() {
 
     fun viewsPlus(documentId: String, views: String){
         val updateView = views.toInt() + 1
-        readBookModel.updateBookViews(documentId, updateView)
+        readBookModel.viewsUpdate(documentId, updateView)
     }
 }

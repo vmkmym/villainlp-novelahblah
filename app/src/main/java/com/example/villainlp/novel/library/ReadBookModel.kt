@@ -13,7 +13,7 @@ enum class BottomBarString(val string: String){
 class ReadBookModel {
 
     // ReadBook
-    fun updateBookViews(documentId: String, views: Int) {
+    fun viewsUpdate(documentId: String, views: Int) {
         val db = FirebaseFirestore.getInstance()
         val documentReference = db.collection("Library").document(documentId)
         val updates = hashMapOf<String, Any>("views" to views)
@@ -22,7 +22,7 @@ class ReadBookModel {
     }
 
     // ReadBook
-    suspend fun getRatingFromFirestore(documentId: String): Float? =
+    suspend fun getRating(documentId: String): Float? =
         suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
 
