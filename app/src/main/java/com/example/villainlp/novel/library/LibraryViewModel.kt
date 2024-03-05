@@ -28,16 +28,16 @@ class LibraryViewModel:ViewModel() {
         viewModelScope.launch {
             when {
                 isRateClicked.value -> {
-                    _novelList.value = FirebaseTools.novelDataSortingByRatingFromFirestore()
+                    _novelList.value = FirebaseTools.novelSort("rating")
                 }
                 isViewClicked.value -> {
-                    _novelList.value = FirebaseTools.novelDataSortingByViewsFromFirestore()
+                    _novelList.value = FirebaseTools.novelSort("views")
                 }
                 isUpdateClicked.value -> {
-                    _novelList.value = FirebaseTools.novelDataSortingByUploadDateFromFirestore()
+                    _novelList.value = FirebaseTools.novelSort("uploadDate")
                 }
                 else -> {
-                    _novelList.value = FirebaseTools.novelDataSortingByUploadDateFromFirestore()
+                    _novelList.value = FirebaseTools.novelSort("uploadDate")
                 }
             }
         }
@@ -63,7 +63,9 @@ class LibraryViewModel:ViewModel() {
 
     fun onDeleteClicked(selectedNovel: Book){
         _documentId.value = selectedNovel.documentID ?: "ERROR"
-        FirebaseTools.deleteLibraryBookFromFirestore(documentId.value)
+        viewModelScope.launch {
+            FirebaseTools.deleteLibraryBookFromFirestore(documentId.value)
+        }
         loadNovels()
     }
 }
