@@ -256,7 +256,7 @@ internal fun GeminiChatScreen(
                                 userID = user?.uid ?: "ERROR",
                                 createdDate = currentDate
                             )
-                            FirebaseTools.saveChatToNovel(myRelayNovel)
+                            FirebaseTools.saveAtFirebase(myRelayNovel)
                         }
                         showDialog = false
                         navController.navigate(Screen.MyBook.route)

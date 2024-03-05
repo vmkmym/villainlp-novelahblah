@@ -49,7 +49,7 @@ class ReadMyNovelViewModel : ViewModel() {
             userID = user?.uid ?: "ERROR",
             uploadDate = currentDate
         )
-        FirebaseTools.saveBook(book)
+        FirebaseTools.saveAtFirebase(book)
         _showDialog.value = false
         navController.navigate(Screen.Library.route)
     }

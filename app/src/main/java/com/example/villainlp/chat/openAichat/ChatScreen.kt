@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -88,11 +87,11 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
-import com.example.villainlp.server.FirebaseTools.saveChatToNovel
 import com.example.villainlp.novel.RelayChatToNovelBook
+import com.example.villainlp.novel.library.comment.addFocusCleaner
+import com.example.villainlp.server.FirebaseTools.saveAtFirebase
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Primary
-import com.example.villainlp.novel.library.comment.addFocusCleaner
 import com.example.villainlp.ui.theme.TextGray
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -283,7 +282,7 @@ private fun RelayNovelSaveButton(
                             userID = user?.uid ?: "ERROR",
                             createdDate = currentDate
                         )
-                        saveChatToNovel(myRelayNovel)
+                        saveAtFirebase(myRelayNovel)
                     }
                     showDialog(false)
                     navController.navigate(Screen.MyBook.route)
