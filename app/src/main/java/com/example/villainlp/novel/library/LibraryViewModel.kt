@@ -65,7 +65,7 @@ class LibraryViewModel:ViewModel() {
     fun onDeleteClicked(selectedNovel: Book){
         _documentId.value = selectedNovel.documentID ?: "ERROR"
         viewModelScope.launch {
-            libraryModel.deleteLibraryBookFromFirestore(documentId.value)
+            libraryModel.deleteDocument(documentId.value)
         }
         loadNovels()
     }

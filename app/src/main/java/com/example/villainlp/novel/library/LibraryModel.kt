@@ -8,7 +8,7 @@ import kotlinx.coroutines.tasks.await
 
 class LibraryModel{
     // Library
-    suspend fun deleteLibraryBookFromFirestore(documentId: String) {
+    suspend fun deleteDocument(documentId: String) {
         val db = FirebaseFirestore.getInstance()
 
         try {
