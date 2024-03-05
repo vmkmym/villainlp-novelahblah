@@ -1,6 +1,6 @@
 package com.example.villainlp.chat.openAichat
 
-import com.example.villainlp.novel.NovelInfo
+import com.example.villainlp.shared.NovelInfo
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.coroutineScope

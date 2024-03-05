@@ -45,10 +45,10 @@ import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
 import com.example.villainlp.novel.DeleteNovelCard
 import com.example.villainlp.novel.FrontArrowImage
-import com.example.villainlp.novel.NovelInfo
 import com.example.villainlp.novel.SwipeableBox
 import com.example.villainlp.novel.deleteContents
 import com.example.villainlp.shared.MyScaffold
+import com.example.villainlp.shared.NovelInfo
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.BasicWhite
 import com.google.firebase.auth.FirebaseAuth

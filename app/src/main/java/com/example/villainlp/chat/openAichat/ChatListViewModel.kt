@@ -2,8 +2,8 @@ package com.example.villainlp.chat.openAichat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.villainlp.novel.NovelInfo
 import com.example.villainlp.server.FirebaseTools
+import com.example.villainlp.shared.NovelInfo
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

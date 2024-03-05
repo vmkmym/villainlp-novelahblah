@@ -60,9 +60,9 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.novel.NovelInfo
 import com.example.villainlp.server.FirebaseTools.saveAtFirebase
 import com.example.villainlp.shared.MyScaffold
+import com.example.villainlp.shared.NovelInfo
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.LightBlack
 import com.example.villainlp.ui.theme.Primary
