@@ -16,16 +16,6 @@ import kotlin.coroutines.suspendCoroutine
 
 object FirebaseTools {
 
-    // ReadMyNovel
-    fun saveBook(book: Book) {
-        val db = FirebaseFirestore.getInstance()
-
-        val newDocRef = db.collection("Library").document()
-        val documentId = newDocRef.id
-        val updateBook = book.copy(documentID = documentId)
-        newDocRef.set(updateBook)
-    }
-
     // Rating
     fun updateBookRating(documentId: String, totalRate: Float, starCount: Int) {
         val db = FirebaseFirestore.getInstance()
@@ -173,27 +163,6 @@ object FirebaseTools {
         db.collection("Library").document(documentId).collection("comment").document(commentDocumentId).delete()
     }
 
-
-    // CreateYard
-    fun saveNovelInfo(novelInfo: NovelInfo) {
-        val db = FirebaseFirestore.getInstance()
-        val newDocRef = db.collection("NovelInfo").document()
-        val documentId = newDocRef.id
-        val updatedNovelInfo = novelInfo.copy(documentID = documentId)
-
-        newDocRef.set(updatedNovelInfo)
-    }
-
-    // Gemini, chat
-    fun saveChatToNovel(relayChatToNovel: RelayChatToNovelBook) {
-        val db = FirebaseFirestore.getInstance()
-        val newDocRef = db.collection("MyBookData").document()
-        val documentId = newDocRef.id
-        val updateRelayChatToNovel = relayChatToNovel.copy(documentID = documentId)
-
-        newDocRef.set(updateRelayChatToNovel)
-    }
-
     // ChattingList
     suspend fun fetchNovelInfoDataFromFirestore(userId: String): List<NovelInfo> = coroutineScope {
         val db = FirebaseFirestore.getInstance()
@@ -213,13 +182,6 @@ object FirebaseTools {
             println("Error getting documents: $e")
             emptyList()
         }
-    }
-
-    // ChattingList
-    fun deleteChattingFromFirestore(documentId: String) {
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("NovelInfo").document(documentId).delete()
     }
 
     // MyNovel
@@ -243,11 +205,40 @@ object FirebaseTools {
         }
     }
 
-
-    // Mybook
-    fun deleteBookFromFirestore(documentId: String) {
+    // ReadMyNovel : Save Book
+    fun saveAtFirebase(book: Book) {
         val db = FirebaseFirestore.getInstance()
 
-        db.collection("MyBookData").document(documentId).delete()
+        val newDocRef = db.collection("Library").document()
+        val documentId = newDocRef.id
+        val updateBook = book.copy(documentID = documentId)
+        newDocRef.set(updateBook)
+    }
+
+    // CreateYard : Save NovelInfo
+    fun saveAtFirebase(book: NovelInfo) {
+        val db = FirebaseFirestore.getInstance()
+
+        val newDocRef = db.collection("NovelInfo").document()
+        val documentId = newDocRef.id
+        val updateBook = book.copy(documentID = documentId)
+        newDocRef.set(updateBook)
+    }
+
+    // Gemini, chat : Save ChatToNovel
+    fun saveAtFirebase(book: RelayChatToNovelBook) {
+        val db = FirebaseFirestore.getInstance()
+
+        val newDocRef = db.collection("MyBookData").document()
+        val documentId = newDocRef.id
+        val updateBook = book.copy(documentID = documentId)
+        newDocRef.set(updateBook)
+    }
+
+    // Delete : MyNovel, ChatList
+    fun deleteDocument(collectionPath: String, documentId: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection(collectionPath).document(documentId).delete()
     }
 }
