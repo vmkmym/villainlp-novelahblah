@@ -11,42 +11,6 @@ import kotlinx.coroutines.tasks.await
 
 object FirebaseTools {
 
-    // Rating
-    fun updateBookRating(documentId: String, totalRate: Float, starCount: Int) {
-        val db = FirebaseFirestore.getInstance()
-        val documentReference = db.collection("Library").document(documentId)
-
-        documentReference.get().addOnSuccessListener {
-            val rate = totalRate / starCount
-
-            val updates = hashMapOf<String, Any>(
-                "totalRate" to totalRate,
-                "starCount" to starCount,
-                "rating" to rate
-            )
-            documentReference.update(updates)
-        }
-    }
-
-    // Rating
-    suspend fun getLibraryBookFromFirestore(documentId: String): List<Book> = coroutineScope {
-            val db = FirebaseFirestore.getInstance()
-
-            try {
-                val documentSnapShot = db.collection("Library").document(documentId).get().await()
-                val book = documentSnapShot.toObject(Book::class.java)
-                if(book != null){
-                    listOf(book)
-                }else{
-                    emptyList()
-                }
-
-            } catch (e: Exception){
-                println("Error getting documents: $e")
-                emptyList()
-            }
-        }
-
     // Library
     suspend fun deleteLibraryBookFromFirestore(documentId: String) {
         val db = FirebaseFirestore.getInstance()
