@@ -1,7 +1,5 @@
 package com.example.villainlp.server
 
-import android.content.ContentValues
-import android.util.Log
 import com.example.villainlp.novel.Book
 import com.example.villainlp.novel.NovelInfo
 import com.example.villainlp.novel.RelayChatToNovelBook
@@ -10,9 +8,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 object FirebaseTools {
 
@@ -21,7 +16,7 @@ object FirebaseTools {
         val db = FirebaseFirestore.getInstance()
         val documentReference = db.collection("Library").document(documentId)
 
-        documentReference.get().addOnSuccessListener { _ ->
+        documentReference.get().addOnSuccessListener {
             val rate = totalRate / starCount
 
             val updates = hashMapOf<String, Any>(
@@ -71,15 +66,6 @@ object FirebaseTools {
         }
     }
 
-    // Library, ReadBook
-    suspend fun getCommentCount(documentId: String): Int {
-        val db = FirebaseFirestore.getInstance()
-        val commentCollection = db.collection("Library").document(documentId).collection("comment")
-
-        val snapshot = commentCollection.get().await()
-        return snapshot.size()
-    }
-
     // Library
     suspend fun novelSort(sortOption: String): List<Book> = coroutineScope {
         val db = FirebaseFirestore.getInstance()
@@ -97,30 +83,14 @@ object FirebaseTools {
         }
     }
 
-    // ReadBook
-    fun updateBookViews(documentId: String, views: Int) {
+    // Library, ReadBook
+    suspend fun getCommentCount(documentId: String): Int {
         val db = FirebaseFirestore.getInstance()
-        val documentReference = db.collection("Library").document(documentId)
-        val updates = hashMapOf<String, Any>("views" to views)
-        documentReference.update(updates)
+        val commentCollection = db.collection("Library").document(documentId).collection("comment")
+        val snapshot = commentCollection.get().await()
+
+        return snapshot.size()
     }
-
-    // ReadBook
-    suspend fun getRatingFromFirestore(documentId: String): Float? =
-        suspendCoroutine { continuation ->
-            val db = FirebaseFirestore.getInstance()
-
-            db.collection("Library").document(documentId)
-                .get()
-                .addOnSuccessListener { documentSnapshot ->
-                    val rating = documentSnapshot.getDouble("rating")?.toFloat()
-                    continuation.resume(rating)
-                }
-                .addOnFailureListener { e ->
-                    Log.w(ContentValues.TAG, "Error getting document", e)
-                    continuation.resumeWithException(e)
-                }
-        }
 
     // Comment
     fun updateCommentCount(documentId: String, commentCount: Int) {
