@@ -23,7 +23,7 @@ enum class StarFactors(val factor: String){
 
 class RatingModel {
     // Rating
-    fun updateBookRating(documentId: String, totalRate: Float, starCount: Int) {
+    fun updateRating(documentId: String, totalRate: Float, starCount: Int) {
         val db = FirebaseFirestore.getInstance()
         val documentReference = db.collection("Library").document(documentId)
 
@@ -40,7 +40,7 @@ class RatingModel {
     }
 
     // Rating
-    suspend fun getLibraryBookFromFirestore(documentId: String): List<Book> = coroutineScope {
+    suspend fun getBook(documentId: String): List<Book> = coroutineScope {
         val db = FirebaseFirestore.getInstance()
 
         try {

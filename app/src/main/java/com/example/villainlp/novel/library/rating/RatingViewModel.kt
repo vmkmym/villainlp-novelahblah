@@ -39,7 +39,7 @@ class RatingViewModel : ViewModel() {
 
     fun submitRating(documentId: String) {
         viewModelScope.launch {
-            val book = ratingModel.getLibraryBookFromFirestore(documentId)
+            val book = ratingModel.getBook(documentId)
             var averageRate = book[0].totalRate
             var starCount = book[0].starCount
             val currentState = ratingViewState.value.copy(
@@ -57,7 +57,7 @@ class RatingViewModel : ViewModel() {
 
             starCount += 1
 
-            ratingModel.updateBookRating(documentId, averageRate, starCount)
+            ratingModel.updateRating(documentId, averageRate, starCount)
         }
     }
 }
