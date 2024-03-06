@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,8 +31,8 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.shared.Screen
 import com.example.villainlp.chat.openAichat.TextContent
+import com.example.villainlp.shared.Screen
 import com.example.villainlp.ui.theme.Primary
 import com.google.firebase.auth.FirebaseAuth
 
@@ -146,11 +145,9 @@ fun CustomText(
 ) {
     Text(
         text = text,
-        style = TextStyle(
-            fontSize = fontSize.sp,
-            lineHeight = lineHeight.sp,
-            fontWeight = FontWeight(fontWeight),
-            color = color,
-        )
+        fontSize = fontSize.sp,
+        lineHeight = lineHeight.sp,
+        fontWeight = FontWeight(fontWeight),
+        color = color,
     )
 }
