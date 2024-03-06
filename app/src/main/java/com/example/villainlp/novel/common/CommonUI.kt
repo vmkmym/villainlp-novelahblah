@@ -294,11 +294,9 @@ fun DeleteNovelCard(color: Color, text: String, cardHeight: Dp, imageVector: Ima
                 Text(
                     modifier = Modifier.padding(end = 15.dp),
                     text = text,
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight(600),
-                        color = Color.White,
-                    ),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight(600),
+                    color = Color.White,
                 )
                 Icon(
                     modifier = Modifier.padding(end = 15.dp),
