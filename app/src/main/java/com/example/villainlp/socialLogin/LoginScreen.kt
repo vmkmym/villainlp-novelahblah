@@ -32,7 +32,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,13 +90,11 @@ fun LoginScreen(
             // 헤더
             Text(
                 text = "노블라블라 서비스 이용을 위한 로그인을 해주세요",
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight(500),
-                    color = Color(0xFF17C3CE),
-                    letterSpacing = 0.28.sp,
-                )
+                fontSize = 14.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight(500),
+                color = Color(0xFF17C3CE),
+                letterSpacing = 0.28.sp,
             )
 
             CustomOutlinedTextField(
@@ -131,12 +128,10 @@ fun LoginScreen(
                     text = "Sign in",
                     modifier = Modifier
                         .align(Alignment.Center),
-                    style = TextStyle(
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight(700),
-                        color = Color(0xFFFFFFFF),
-                        letterSpacing = 0.48.sp,
-                    )
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight(700),
+                    color = Color(0xFFFFFFFF),
+                    letterSpacing = 0.48.sp,
                 )
             }
 
@@ -149,13 +144,11 @@ fun LoginScreen(
                         start = windowWidth * 0.3f, // fraction을 사용하여 padding 값을 설정합니다.
                         end = windowWidth * 0.3f // fraction을 사용하여 padding 값을 설정합니다.
                     ),
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight(500),
-                    color = Color(0xFF17C3CE),
-                    letterSpacing = 0.28.sp,
-                )
+                fontSize = 14.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight(500),
+                color = Color(0xFF17C3CE),
+                letterSpacing = 0.28.sp,
             )
 
             Row {
@@ -165,26 +158,22 @@ fun LoginScreen(
                         top = windowHeight * 0.02f,
                         end = windowWidth * 0.02f
                     ),
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        lineHeight = 22.sp,
-                        fontWeight = FontWeight(500),
-                        color = textColor,
-                        letterSpacing = 0.28.sp,
-                    )
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight(500),
+                    color = textColor,
+                    letterSpacing = 0.28.sp,
                 )
                 Text(
                     text = "Sign up",
                     modifier = Modifier
                         .padding(top = windowHeight * 0.02f)
                         .clickable { navController.navigate(Screen.SignUp.route) },
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        lineHeight = 22.sp,
-                        fontWeight = FontWeight(500),
-                        color = Color(0xFF17C3CE),
-                        letterSpacing = 0.28.sp,
-                    )
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight(500),
+                    color = Color(0xFF17C3CE),
+                    letterSpacing = 0.28.sp,
                 )
             }
             // 소셜 로그인 (구글)
@@ -195,13 +184,11 @@ fun LoginScreen(
                         top = windowHeight * 0.02f,
                         bottom = windowHeight * 0.02f
                     ),
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight(500),
-                    color = Color(0xFF9EAFB0),
-                    letterSpacing = 0.32.sp,
-                )
+                fontSize = 16.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight(500),
+                color = Color(0xFF9EAFB0),
+                letterSpacing = 0.32.sp,
             )
             Image(
                 painter = painterResource(id = R.drawable.google_login),
