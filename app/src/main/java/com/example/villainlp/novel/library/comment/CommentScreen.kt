@@ -108,7 +108,11 @@ fun CommentScreen(
                 viewModel = viewModel,
                 onFocusChanged = { isTextFieldFocused = it.isFocused },
                 onCommentChanged = { if (it.length <= LimitChar.Max.n) viewModel.onCommentChanged(it) },
-                onPlaceholder = { if (!isTextFieldFocused) FocuseText(BottomText.On.text) else FocuseText(BottomText.Off.text) },
+                onPlaceholder = {
+                    if (!isTextFieldFocused) FocuseText(BottomText.On.text) else FocuseText(
+                        BottomText.Off.text
+                    )
+                },
                 onSubmitClicked = {
                     viewModel.onCommentSubmit(documentId)
                     keyboardController?.hide()
@@ -294,11 +298,9 @@ fun FocuseText(
 ) {
     Text(
         text = text,
-        style = TextStyle(
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Light,
-            color = Color(0xFFBBBBBB)
-        )
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Light,
+        color = Color(0xFFBBBBBB)
     )
 }
 
@@ -312,11 +314,9 @@ fun CommentLength(
         Spacer(modifier = Modifier.size(12.dp))
         Text(
             text = "${comment.length}/${maxCharacterCount}",
-            style = TextStyle(
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Light,
-                color = Color(0xFFBBBBBB)
-            )
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Light,
+            color = Color(0xFFBBBBBB)
         )
     }
     Spacer(modifier = Modifier.size(12.dp))
@@ -326,10 +326,11 @@ fun CommentLength(
 @Composable
 fun SubmitButton(
     viewModel: CommentViewModel,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val commentText by viewModel.commentText.collectAsState()
-    val textColor = if (commentText != "") MaterialTheme.colorScheme.onSurface else Color(0xFFBBBBBB)
+    val textColor =
+        if (commentText != "") MaterialTheme.colorScheme.onSurface else Color(0xFFBBBBBB)
 
     Button(
         onClick = { onClick() },
@@ -431,20 +432,16 @@ fun CommentInfo(comment: Comment) {
     ) {
         Text(
             text = comment.author,
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.size(20.dp))
         Text(
             text = comment.uploadDate,
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Light,
-                color = Color(0xFFBBBBBB)
-            )
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Light,
+            color = Color(0xFFBBBBBB)
         )
     }
 }
@@ -459,11 +456,9 @@ fun CommentScript(comment: Comment) {
     ) {
         Text(
             text = comment.script,
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
