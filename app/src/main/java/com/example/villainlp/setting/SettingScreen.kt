@@ -42,6 +42,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -149,6 +151,7 @@ fun DisplaySignOutButton(signOutClicked: () -> Unit) {
             modifier = Modifier
                 .align(Alignment.Center),
             style = TextStyle(
+                fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
                 fontSize = 22.sp,
                 fontWeight = FontWeight(600),
                 color = Color(0xFFFFFFFF),
@@ -185,15 +188,12 @@ fun DisplayCustomerInquiry(url: String, context: Context) {
             // 고객 문의 텍스트
             Text(
                 text = NOTION_INQUIRY,
-                modifier = Modifier
-                    .padding(start = windowSize * 0.003f, end = windowSize * 0.012f),
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    lineHeight = 20.sp,
-                    fontWeight = FontWeight(500),
-                    color = if (isDarkTheme) Color.White else Color.DarkGray,
-                    letterSpacing = 0.28.sp,
-                )
+                modifier = Modifier.padding(start = windowSize * 0.003f, end = windowSize * 0.012f),
+                fontSize = 16.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight(500),
+                color = if (isDarkTheme) Color.White else Color.DarkGray,
+                letterSpacing = 0.28.sp,
             )
         }
     }
