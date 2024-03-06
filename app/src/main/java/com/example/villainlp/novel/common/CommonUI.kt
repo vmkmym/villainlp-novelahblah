@@ -51,6 +51,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
+import com.example.villainlp.shared.TopBarTitleText
 import com.example.villainlp.ui.theme.Primary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -208,14 +209,7 @@ fun ReadScreenTopBar(
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "back")
             }
-            Text(
-                text = title,
-                style = TextStyle(
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight(600),
-                    color = if (isDarkTheme) Color.White else Color.DarkGray,
-                )
-            )
+            TopBarTitleText(title, isDarkTheme)
             if (hasIcon){
                 IconButton(onClick = { onClicked() }) {
                     Icon(imageVector = Icons.Default.Share, contentDescription = "upload")

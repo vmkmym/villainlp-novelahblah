@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -128,18 +130,12 @@ fun MyScaffoldTopBar(title: String) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = title,
-                style = TextStyle(
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight(600),
-                    color = if (isDarkTheme) Color.White else Color.DarkGray
-                )
-            )
+            TopBarTitleText(title, isDarkTheme)
         }
         Divider(color = if (isDarkTheme) Color.LightGray else Color.LightGray)
     }
 }
+
 
 // MyScaffoldBottomBar랑 연결
 @Composable
@@ -168,11 +164,28 @@ fun CustomIconButton(
             contentDescription = null,
         )
         Text(
-            modifier = Modifier.height(17.dp), text = iconText, style = TextStyle(
+            modifier = Modifier.height(17.dp),
+            text = iconText,
+            style = TextStyle(
+                fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
                 fontSize = 10.sp,
                 fontWeight = FontWeight(500),
                 color = textColor,
             )
         )
     }
+}
+
+// MyScaffoldTopBar, CommonUI(ReadScreenTopBar)
+@Composable
+fun TopBarTitleText(title: String, isDarkTheme: Boolean) {
+    Text(
+        text = title,
+        style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+            fontSize = 22.sp,
+            fontWeight = FontWeight(600),
+            color = if (isDarkTheme) Color.White else Color.DarkGray
+        )
+    )
 }
