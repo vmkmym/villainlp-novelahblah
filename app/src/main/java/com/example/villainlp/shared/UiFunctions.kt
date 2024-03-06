@@ -22,6 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -178,5 +181,61 @@ fun TopBarTitleText(title: String, isDarkTheme: Boolean) {
         fontSize = 22.sp,
         fontWeight = FontWeight(600),
         color = if (isDarkTheme) Color.White else Color.DarkGray
+    )
+}
+
+// CreateGround, ChatScreen, GeminiScreen, ReadMyNovel
+@Composable
+fun AlertConfirmText(confirmText: String = "확인") {
+    Text(
+        text = confirmText,
+        style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Primary
+        )
+    )
+}
+
+// CreateGround, ChatScreen, GeminiScreen, ReadMyNovel
+@Composable
+fun AlertCancelText(dismissText: String = "취소") {
+    Text(
+        text = dismissText,
+        style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Primary
+        )
+    )
+}
+
+// Gemini, Chat, CommonUI(Novel)
+@Composable
+fun AlertTitle(title: String) {
+    Text(
+        text = title,
+        style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.Black
+        )
+    )
+}
+
+// Gemini, Chat, CommonUI(Novel)
+@Composable
+fun AlertText(message: String = "작성한 소설을 저장하시겠습니까?") {
+    Text(
+        text = message,
+        style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.Black
+        )
     )
 }

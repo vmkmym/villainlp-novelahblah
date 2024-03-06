@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,6 +53,10 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
+import com.example.villainlp.shared.AlertCancelText
+import com.example.villainlp.shared.AlertConfirmText
+import com.example.villainlp.shared.AlertText
+import com.example.villainlp.shared.AlertTitle
 import com.example.villainlp.shared.TopBarTitleText
 import com.example.villainlp.ui.theme.Primary
 import kotlinx.coroutines.CoroutineScope
@@ -88,17 +94,7 @@ fun AlertPopup(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = title,
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        lineHeight = 28.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-            }
+            ) { AlertTitle(title) }
         },
         text = {
             if (hasTextField) {
@@ -106,8 +102,8 @@ fun AlertPopup(
                     Text(
                         text = "\"${novelTitle}\"$warningMessage",
                         style = TextStyle(
+                            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
                             fontSize = 15.sp,
-                            lineHeight = 24.sp,
                             fontWeight = FontWeight.Normal,
                             color = Color.Black
                         )
@@ -133,49 +129,18 @@ fun AlertPopup(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = message,
-                        style = TextStyle(
-                            fontSize = 15.sp,
-                            lineHeight = 24.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color.Black
-                        )
-                    )
-                }
-
+                ) { AlertText(message) }
             }
         },
         confirmButton = {
             IconButton(
                 onClick = { onConfirm() }
-            ) {
-                Text(
-                    text = confirmButtonText,
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        lineHeight = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Primary
-                    )
-                )
-            }
+            ) { AlertConfirmText(confirmButtonText) }
         },
         dismissButton = {
             IconButton(
                 onClick = { onDismiss() }
-            ) {
-                Text(
-                    text = dismissButtonText,
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        lineHeight = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Primary
-                    )
-                )
-            }
+            ) { AlertCancelText(dismissButtonText) }
         },
         modifier = Modifier.padding(16.dp)
     )

@@ -62,9 +62,9 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
-import com.example.villainlp.chat.common.AlertCancelText
-import com.example.villainlp.chat.common.AlertConfirmText
 import com.example.villainlp.server.FirebaseTools.saveAtFirebase
+import com.example.villainlp.shared.AlertCancelText
+import com.example.villainlp.shared.AlertConfirmText
 import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.shared.NovelInfo
 import com.example.villainlp.shared.Screen
