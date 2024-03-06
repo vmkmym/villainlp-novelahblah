@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -243,9 +245,10 @@ fun TitleText(title: String){
             .height(30.dp),
         text = title,
         style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
             fontSize = 20.sp,
             fontWeight = FontWeight(600),
-            color = Color(0xFF212121),
+            color = Color.DarkGray,
         ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
@@ -261,9 +264,10 @@ fun DescriptionText(description: String){
             .height(45.dp),
         text = description,
         style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
             fontSize = 14.sp,
             fontWeight = FontWeight(500),
-            color = Color(0xFF2C2C2C),
+            color = Color.DarkGray,
         ),
         maxLines = 2,
         overflow = TextOverflow.Ellipsis
@@ -276,10 +280,11 @@ fun AuthorText(author: String){
     Text(
         text = author,
         style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
             fontSize = 12.sp,
             fontWeight = FontWeight(500),
-            color = Color(0xFF9E9E9E),
             textAlign = TextAlign.Start,
+            color = Color.DarkGray,
         )
     )
 }
