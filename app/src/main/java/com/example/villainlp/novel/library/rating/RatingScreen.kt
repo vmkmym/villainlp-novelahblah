@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -160,6 +162,7 @@ fun RatingButtonRow(
             Text(
                 text = "취소",
                 style = TextStyle(
+                    fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
                     fontSize = 18.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.Bold,
@@ -174,6 +177,7 @@ fun RatingButtonRow(
             Text(
                 text = "제출",
                 style = TextStyle(
+                    fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
                     fontSize = 18.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.Bold,
