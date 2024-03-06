@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -97,13 +96,11 @@ fun SignUpScreen(
                 // 헤더
                 Text(
                     text = "노블라블라 서비스 이용을 위한 회원가입을 해주세요",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        lineHeight = 22.sp,
-                        fontWeight = FontWeight(400),
-                        color = Primary,
-                        letterSpacing = 0.28.sp,
-                    )
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight(400),
+                    color = Primary,
+                    letterSpacing = 0.28.sp,
                 )
 
                 CustomOutlinedTextField(
@@ -169,12 +166,10 @@ fun SignUpScreen(
                         text = "Sign up",
                         modifier = Modifier
                             .align(Alignment.Center),
-                        style = TextStyle(
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight(700),
-                            color = Color(0xFFFFFFFF),
-                            letterSpacing = 0.48.sp,
-                        )
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight(700),
+                        color = Color(0xFFFFFFFF),
+                        letterSpacing = 0.48.sp,
                     )
                 }
                 if (showWarning) {
@@ -190,12 +185,10 @@ fun Message(message: String) {
     Text(
         text = message,
         modifier = Modifier.padding(10.dp),
-        style = TextStyle(
-            fontSize = 14.sp,
-            lineHeight = 22.sp,
-            fontWeight = FontWeight(400),
-            color = Color(0xFFCE172C),
-            letterSpacing = 0.28.sp,
-        )
+        fontSize = 14.sp,
+        lineHeight = 22.sp,
+        fontWeight = FontWeight(400),
+        color = Color(0xFFCE172C),
+        letterSpacing = 0.28.sp,
     )
 }
