@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -87,11 +88,14 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
+import com.example.villainlp.chat.common.AlertCancelText
+import com.example.villainlp.chat.common.AlertConfirmText
+import com.example.villainlp.chat.common.AlertText
+import com.example.villainlp.chat.common.AlertTitle
 import com.example.villainlp.novel.library.comment.addFocusCleaner
 import com.example.villainlp.server.FirebaseTools.saveAtFirebase
 import com.example.villainlp.shared.RelayNovel
 import com.example.villainlp.shared.Screen
-import com.example.villainlp.ui.theme.Primary
 import com.example.villainlp.ui.theme.TextGray
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -237,28 +241,8 @@ private fun RelayNovelSaveButton(
         },
         onDismissRequest = { showDialog(false) },
         containerColor = Color.White,
-        title = {
-            Text(
-                text = title,
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    lineHeight = 28.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.Black
-                )
-            )
-        },
-        text = {
-            Text(
-                text = "작성한 소설을 저장하시겠습니까?",
-                style = TextStyle(
-                    fontSize = 15.sp,
-                    lineHeight = 24.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.Black
-                )
-            )
-        },
+        title = { AlertTitle(title) },
+        text = { AlertText() },
         confirmButton = {
             IconButton(
                 onClick = {
@@ -287,32 +271,12 @@ private fun RelayNovelSaveButton(
                     showDialog(false)
                     navController.navigate(Screen.MyBook.route)
                 }
-            ) {
-                Text(
-                    text = "확인",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        lineHeight = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Primary
-                    )
-                )
-            }
+            ) { AlertConfirmText() }
         },
         dismissButton = {
             IconButton(
                 onClick = { showDialog(false) }
-            ) {
-                Text(
-                    text = "취소",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        lineHeight = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Primary
-                    )
-                )
-            }
+            ) { AlertCancelText() }
         },
         modifier = Modifier
             .padding(16.dp)
@@ -424,7 +388,7 @@ private fun TopBar(
                 text = title,
                 textAlign = TextAlign.Center,
                 fontSize = 18.sp,
-                fontFamily = FontFamily.SansSerif
+                fontFamily = FontFamily(Font(R.font.yeongdeok_sea))
             )
         },
         navigationIcon = {
@@ -505,6 +469,7 @@ fun CustomTextField(
                     Text(
                         text = placeholderText,
                         style = TextStyle(
+                            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Light,
                             color = Color(0xFFBBBBBB)

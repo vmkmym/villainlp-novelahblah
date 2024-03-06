@@ -47,6 +47,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,6 +62,8 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
+import com.example.villainlp.chat.common.AlertCancelText
+import com.example.villainlp.chat.common.AlertConfirmText
 import com.example.villainlp.server.FirebaseTools.saveAtFirebase
 import com.example.villainlp.shared.MyScaffold
 import com.example.villainlp.shared.NovelInfo
@@ -121,6 +125,7 @@ fun HeaderText() {
                 .align(Alignment.CenterStart)
                 .offset(x = with(LocalDensity.current) { (offset * 1000).toDp() }),
             style = TextStyle(
+                fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
                 fontSize = 14.sp,
                 fontWeight = FontWeight(500),
                 color = Color.White,
@@ -200,16 +205,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                 )
             },
             onDismissRequest = { showDialog = false },
-            title = {
-                Text(
-                    text = "$alertMessage 채팅방을 생성하시겠습니까?",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-            },
+            title = { AlertTitleText(alertMessage) },
             text = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -222,16 +218,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             .width(300.dp)
                             .height(80.dp)
                             .padding(8.dp),
-                        label = {
-                            Text(
-                                text = "채팅방 이름을 입력해주세요.",
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Black
-                                )
-                            )
-                        },
+                        label = { AlertLabelText() },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Primary,
                             unfocusedBorderColor = Primary
@@ -262,32 +249,12 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         showDialog = false
                         navController.navigate(Screen.ChattingList.route)
                     }
-                ) {
-                    Text(
-                        text = "확인",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Primary
-                        )
-                    )
-                }
+                ) { AlertConfirmText() }
             },
             dismissButton = {
                 IconButton(
                     onClick = { showDialog = false }
-                ) {
-                    Text(
-                        text = "취소",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Primary
-                        )
-                    )
-                }
+                ) { AlertCancelText() }
             },
             containerColor = Color.White
         )
@@ -302,16 +269,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                 )
             },
             onDismissRequest = { showDialog = false },
-            title = {
-                Text(
-                    text = "$alertMessage 채팅방을 생성하시겠습니까?",
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-            },
+            title = { AlertTitleText(alertMessage) },
             text = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -324,16 +282,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             .fillMaxWidth(1f)
                             .height(80.dp)
                             .padding(8.dp),
-                        label = {
-                            Text(
-                                text = "채팅방 이름을 입력해주세요.",
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Black
-                                )
-                            )
-                        },
+                        label = { AlertLabelText() },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Primary,
                             unfocusedBorderColor = Primary
@@ -359,35 +308,44 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         showGeminiDialog = false
                         navController.navigate(Screen.ChattingList.route)
                     }
-                ) {
-                    Text(
-                        text = "확인",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Primary
-                        )
-                    )
-                }
+                ) { AlertConfirmText() }
             },
             dismissButton = {
                 IconButton(
                     onClick = { showGeminiDialog = false }
-                ) {
-                    Text(
-                        text = "취소",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Primary
-                        )
-                    )
-                }
+                ) { AlertCancelText() }
             },
             containerColor = Color.White
         )
     }
 }
+
+@Composable
+private fun AlertTitleText(alertMessage: String) {
+    Text(
+        text = "$alertMessage 채팅방을 생성하시겠습니까?",
+        style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.Black
+        )
+    )
+}
+
+@Composable
+private fun AlertLabelText() {
+    Text(
+        text = "채팅방 이름을 입력해주세요.",
+        style = TextStyle(
+            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.Black
+        )
+    )
+}
+
 
 @Composable
 fun CreativeCard(
