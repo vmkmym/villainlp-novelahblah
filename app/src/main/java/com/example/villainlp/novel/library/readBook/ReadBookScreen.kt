@@ -36,9 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -126,8 +123,8 @@ fun ReadLibraryBookScaffold(
 fun ReadBookTopBar(
     barVisible: Boolean,
     title: String,
-    navController: NavHostController
-){
+    navController: NavHostController,
+) {
     AnimatedVisibility(
         visible = barVisible,
         enter = slideInVertically(),
@@ -144,8 +141,8 @@ fun ReadBookBottomBar(
     rating: Float,
     commentCount: Int,
     onCommentBoxClicked: () -> Unit,
-    onGiveStarRatingClicked: () -> Unit
-){
+    onGiveStarRatingClicked: () -> Unit,
+) {
     AnimatedVisibility(
         visible = barVisible,
         enter = slideInVertically(initialOffsetY = { it }),
@@ -157,7 +154,13 @@ fun ReadBookBottomBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(65.dp)
-                    .background(color = if (isSystemInDarkTheme()) { Color(0xFF181c1f) } else { Color.White })
+                    .background(
+                        color = if (isSystemInDarkTheme()) {
+                            Color(0xFF181c1f)
+                        } else {
+                            Color.White
+                        }
+                    )
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -177,7 +180,7 @@ fun ReadBookBottomBar(
 
 // 별점표시 속성들
 @Composable
-fun StarRating(rating: Float){
+fun StarRating(rating: Float) {
     Image(
         painter = painterResource(id = R.drawable.star),
         contentDescription = BottomBarString.StarImageDescription.string
@@ -194,8 +197,8 @@ fun StarRating(rating: Float){
 @Composable
 fun CommentBox(
     commentCount: Int,
-    onClicked: () -> Unit
-){
+    onClicked: () -> Unit,
+) {
     Row(
         modifier = Modifier.clickable { onClicked() },
         verticalAlignment = Alignment.CenterVertically
@@ -207,10 +210,8 @@ fun CommentBox(
         Spacer(modifier = Modifier.size(10.dp))
         Text(
             text = "$commentCount",
-            style = TextStyle(
-                color = Color(0xFFAFAFAF),
-                fontSize = 18.sp
-            )
+            color = Color(0xFFAFAFAF),
+            fontSize = 18.sp
         )
     }
 }
@@ -219,8 +220,8 @@ fun CommentBox(
 @Composable
 fun GiveStarRating(
     modifier: Modifier,
-    onClicked: () -> Unit
-){
+    onClicked: () -> Unit,
+) {
     Box(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -238,12 +239,9 @@ fun GiveStarRating(
         ) {
             Text(
                 text = BottomBarString.RatingText.string,
-                style = TextStyle(
-                    fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }

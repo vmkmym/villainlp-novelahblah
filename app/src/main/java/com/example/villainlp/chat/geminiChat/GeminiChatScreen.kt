@@ -57,7 +57,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -310,12 +309,9 @@ fun CustomTextField(
                     }
                     Text(
                         text = placeholderText,
-                        style = TextStyle(
-                            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
-                            color = Color(0xFFBBBBBB)
-                        )
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Light,
+                        color = Color(0xFFBBBBBB)
                     )
                 },
                 colors = TextFieldDefaults.colors(
@@ -415,6 +411,7 @@ private fun UserResponse(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatbotResponse(
     message: GeminiChatMessage,

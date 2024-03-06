@@ -39,8 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,8 +71,8 @@ fun AlertPopup(
     tfLabel: String = "", // TextField 라벨
     onTextFieldValueChange: (String) -> Unit = {}, // textField onChange
     confirmButtonText: String = "확인", // 확인버튼 텍스트
-    dismissButtonText: String = "취소" // 취소버튼 텍스트
-){
+    dismissButtonText: String = "취소", // 취소버튼 텍스트
+) {
     val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
     AlertDialog(
         icon = {
@@ -103,7 +101,7 @@ fun AlertPopup(
             }
         },
         text = {
-            if (hasTextField){
+            if (hasTextField) {
                 Column {
                     Text(
                         text = "\"${novelTitle}\"$warningMessage",
@@ -195,7 +193,7 @@ fun ReadScreenTopBar(
     title: String,
     navController: NavHostController,
     onClicked: () -> Unit = {},
-    hasIcon: Boolean = false
+    hasIcon: Boolean = false,
 ) {
     val isDarkTheme = isSystemInDarkTheme()
 
@@ -212,7 +210,7 @@ fun ReadScreenTopBar(
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "back")
             }
             TopBarTitleText(title, isDarkTheme)
-            if (hasIcon){
+            if (hasIcon) {
                 IconButton(onClick = { onClicked() }) {
                     Icon(imageVector = Icons.Default.Share, contentDescription = "upload")
                 }
@@ -226,7 +224,7 @@ fun ReadScreenTopBar(
 
 // MyNovel, Library (Card에 화살표 이미지)
 @Composable
-fun FrontArrowImage(){
+fun FrontArrowImage() {
     Image(
         modifier = Modifier
             .size(33.dp)
@@ -238,18 +236,15 @@ fun FrontArrowImage(){
 
 // MyNovel, Library (제목 Text 속성)
 @Composable
-fun TitleText(title: String){
+fun TitleText(title: String) {
     Text(
         modifier = Modifier
             .wrapContentWidth()
             .height(30.dp),
         text = title,
-        style = TextStyle(
-            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
-            fontSize = 20.sp,
-            fontWeight = FontWeight(600),
-            color = Color.DarkGray,
-        ),
+        fontSize = 20.sp,
+        fontWeight = FontWeight(600),
+        color = Color.DarkGray,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
     )
@@ -257,18 +252,16 @@ fun TitleText(title: String){
 
 // MyNovel, Library (요약 Text 속성)
 @Composable
-fun DescriptionText(description: String){
+fun DescriptionText(description: String) {
     Text(
         modifier = Modifier
             .wrapContentWidth()
             .height(45.dp),
         text = description,
-        style = TextStyle(
-            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
-            fontSize = 14.sp,
-            fontWeight = FontWeight(500),
-            color = Color.DarkGray,
-        ),
+
+        fontSize = 14.sp,
+        fontWeight = FontWeight(500),
+        color = Color.DarkGray,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis
     )
@@ -276,16 +269,14 @@ fun DescriptionText(description: String){
 
 // MyNovel, Library (저자 Text 속성)
 @Composable
-fun AuthorText(author: String){
+fun AuthorText(author: String) {
     Text(
         text = author,
-        style = TextStyle(
-            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
-            fontSize = 12.sp,
-            fontWeight = FontWeight(500),
-            textAlign = TextAlign.Start,
-            color = Color.DarkGray,
-        )
+
+        fontSize = 12.sp,
+        fontWeight = FontWeight(500),
+        textAlign = TextAlign.Start,
+        color = Color.DarkGray,
     )
 }
 
@@ -296,8 +287,8 @@ fun SwipeableBox(
     modifier: Modifier,
     onConfirmValueChange: (SwipeToDismissBoxValue) -> Boolean,
     backgroundContent: @Composable (Color) -> Unit,
-    content: @Composable () -> Unit
-){
+    content: @Composable () -> Unit,
+) {
     val dismissState = rememberSwipeToDismissBoxState( // SwipeToDismissBoxState로 변경됨
         positionalThreshold = { it * 0.50f },
         confirmValueChange = { onConfirmValueChange(it) }
@@ -359,7 +350,7 @@ fun DeleteNovelCard(color: Color, text: String, cardHeight: Dp, imageVector: Ima
 @OptIn(ExperimentalMaterial3Api::class)
 fun deleteContents(
     it: SwipeToDismissBoxValue,
-    onConfirmValueChanged: () -> Unit
+    onConfirmValueChanged: () -> Unit,
 ): Boolean {
     if (it == SwipeToDismissBoxValue.EndToStart) { // DismissValue는 사용 불가 -> SwipeToDismissBoxValue로 변경, ToStart는 EndToStart와 동일
         CoroutineScope(Dispatchers.Main).launch {

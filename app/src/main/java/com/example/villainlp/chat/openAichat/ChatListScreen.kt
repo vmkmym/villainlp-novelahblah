@@ -33,9 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -58,7 +55,8 @@ import com.google.firebase.auth.FirebaseAuth
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ChatListScreen(navController: NavHostController, auth: FirebaseAuth) {
-    val chatListViewModel: ChatListViewModel = viewModel(factory = GenNovelViewModelFactory(auth, ChatModel()))
+    val chatListViewModel: ChatListViewModel =
+        viewModel(factory = GenNovelViewModelFactory(auth, ChatModel()))
     val novelInfo by chatListViewModel.novelInfo.collectAsState()
 
     MyScaffold("내 작업 공간", navController) {
@@ -179,12 +177,9 @@ fun NovelChatCards(
                 Text(
                     modifier = Modifier.wrapContentWidth(), // 반응형
                     text = novelInfo.title,
-                    style = TextStyle(
-                        fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight(600),
-                        color = DarkGray,
-                    ),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight(600),
+                    color = DarkGray,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -196,12 +191,9 @@ fun NovelChatCards(
                             R.string.assistant_key_for_novelist
                         )
                     ) "작가의 마당에서 작업 중..." else "꿈의 마당에서 작업 중...",
-                    style = TextStyle(
-                        fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight(500),
-                        color = DarkGray,
-                    )
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight(500),
+                    color = DarkGray,
                 )
             }
             FrontArrowImage()

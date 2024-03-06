@@ -22,9 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -166,12 +163,9 @@ fun CustomIconButton(
         Text(
             modifier = Modifier.height(17.dp),
             text = iconText,
-            style = TextStyle(
-                fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
-                fontSize = 10.sp,
-                fontWeight = FontWeight(500),
-                color = textColor,
-            )
+            fontSize = 10.sp,
+            fontWeight = FontWeight(500),
+            color = textColor,
         )
     }
 }
@@ -181,11 +175,8 @@ fun CustomIconButton(
 fun TopBarTitleText(title: String, isDarkTheme: Boolean) {
     Text(
         text = title,
-        style = TextStyle(
-            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
-            fontSize = 22.sp,
-            fontWeight = FontWeight(600),
-            color = if (isDarkTheme) Color.White else Color.DarkGray
-        )
+        fontSize = 22.sp,
+        fontWeight = FontWeight(600),
+        color = if (isDarkTheme) Color.White else Color.DarkGray
     )
 }
