@@ -121,7 +121,9 @@ fun LoginScreen(
                     .width(320.dp)
                     .height(60.dp)
                     .background(color = Color(0xFF17C3CE), shape = RoundedCornerShape(size = 17.dp))
-                    .clickable {
+                    .clickable(
+                        enabled = emailValue != "" && pwValue != ""
+                    ) {
                         signIn(emailValue, pwValue)
                     },
                 contentAlignment = Alignment.Center
