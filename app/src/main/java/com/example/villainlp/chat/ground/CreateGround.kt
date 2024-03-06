@@ -218,6 +218,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             .width(300.dp)
                             .height(80.dp)
                             .padding(8.dp),
+                        textStyle = TextStyle(fontFamily = FontFamily(Font(R.font.yeongdeok_sea))),
                         label = { AlertLabelText() },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Primary,
@@ -282,6 +283,7 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             .fillMaxWidth(1f)
                             .height(80.dp)
                             .padding(8.dp),
+                        textStyle = TextStyle(fontFamily = FontFamily(Font(R.font.yeongdeok_sea))),
                         label = { AlertLabelText() },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Primary,

@@ -118,7 +118,8 @@ fun AlertPopup(
                             .width(300.dp)
                             .height(80.dp)
                             .padding(8.dp),
-                        label = { Text(text = tfLabel) },
+                        textStyle = TextStyle(fontFamily = FontFamily(Font(R.font.yeongdeok_sea))),
+                        label = { Text(text = tfLabel, fontFamily = FontFamily(Font(R.font.yeongdeok_sea))) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Primary,
                             unfocusedBorderColor = Primary
