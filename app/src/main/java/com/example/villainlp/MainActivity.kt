@@ -115,7 +115,7 @@ class MainActivity : ComponentActivity() {
         googleSignInClient.signOut().addOnCompleteListener {
             if (it.isSuccessful) {
                 Toast.makeText(this, "로그아웃 성공", Toast.LENGTH_SHORT).show()
-                navController.navigate(Screen.Login.route)
+                navController.navigate(Screen.Login.route) { popUpTo(navController.graph.id) { inclusive = true } }
             } else {
                 Toast.makeText(this, "로그아웃 실패", Toast.LENGTH_SHORT).show()
             }
