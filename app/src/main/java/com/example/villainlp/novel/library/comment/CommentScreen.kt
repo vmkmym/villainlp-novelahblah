@@ -445,28 +445,16 @@ fun MyCommentColumn(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }) {
                 if (isCurrentUser){
-                    DropdownMenuItem(
-                        contentPadding = PaddingValues(vertical = 2.dp, horizontal = 8.dp),
-                        text = {
-                            Text(
-                                text = "삭제",
-                                fontFamily = FontFamily(Font(R.font.yeongdeok_sea))
-                            )
-                        },
+                    Items(
+                        text = "삭제",
                         onClick = {
                             onDelete()
                             expanded = false
                         }
                     )
                 } else {
-                    DropdownMenuItem(
-                        contentPadding = PaddingValues(vertical = 2.dp, horizontal = 8.dp),
-                        text = {
-                            Text(
-                                text = "신고/차단",
-                                fontFamily = FontFamily(Font(R.font.yeongdeok_sea))
-                            )
-                        },
+                    Items(
+                        text = "신고/차단",
                         onClick = {
                             onClicked()
                             expanded = false
@@ -477,6 +465,20 @@ fun MyCommentColumn(
         }
     }
     Divider()
+}
+
+@Composable
+fun Items(text: String, onClick: () -> Unit){
+    DropdownMenuItem(
+        contentPadding = PaddingValues(vertical = 2.dp, horizontal = 8.dp),
+        text = {
+            Text(
+                text = text,
+                fontFamily = FontFamily(Font(R.font.yeongdeok_sea))
+            )
+        },
+        onClick = { onClick() }
+    )
 }
 
 // 댓글 Text 구성
