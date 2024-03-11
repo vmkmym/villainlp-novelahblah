@@ -105,7 +105,7 @@ fun VillainNavigation(
         composable(Screen.SignUp.route) { SignUpScreen(navController, signUpClicked) }
 
         // 신고-삭제하기 화면
-        composable(Screen.SignUp.route) { ReportScreen(navController) }
+        composable("Report") { ReportScreen(navController) }
     }
 }
 

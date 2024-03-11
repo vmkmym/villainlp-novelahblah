@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +24,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,6 +55,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -130,7 +136,8 @@ fun CommentScreen(
             auth = auth,
             documentId = documentId,
             commentList = commentList,
-            viewModel = viewModel
+            viewModel = viewModel,
+            onClicked = { navController.navigate("Report") }
         )
     }
 }
@@ -356,6 +363,7 @@ fun Comments(
     documentId: String,
     commentList: List<Comment>,
     viewModel: CommentViewModel,
+    onClicked: () -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -389,8 +397,15 @@ fun Comments(
                         )
                     }
                 },
-                content = { MyCommentColumn(comment) })
-
+                content = {
+                    MyCommentColumn(
+                        comment = comment,
+                        isCurrentUser = isCurrentUser,
+                        onClicked = { onClicked() },
+                        onDelete = { viewModel.deleteComment(documentId, comment) }
+                    )
+                }
+            )
         }
     }
 }
@@ -399,8 +414,13 @@ fun Comments(
 @Composable
 fun MyCommentColumn(
     comment: Comment,
+    isCurrentUser: Boolean,
+    onClicked: () -> Unit,
+    onDelete: () -> Unit
 ) {
-    Column(
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(
@@ -410,9 +430,51 @@ fun MyCommentColumn(
                     Color.White
                 }
             )
-            .padding(12.dp)
+            .padding(12.dp),
     ) {
-        CommentInfoAndScript(comment)
+        Column {
+            CommentInfoAndScript(comment)
+        }
+        Box(modifier = Modifier.align(Alignment.TopEnd)) {
+            IconButton(
+                onClick = { expanded = true }
+            ) {
+                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "신고/차단")
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }) {
+                if (isCurrentUser){
+                    DropdownMenuItem(
+                        contentPadding = PaddingValues(vertical = 2.dp, horizontal = 8.dp),
+                        text = {
+                            Text(
+                                text = "삭제",
+                                fontFamily = FontFamily(Font(R.font.yeongdeok_sea))
+                            )
+                        },
+                        onClick = {
+                            onDelete()
+                            expanded = false
+                        }
+                    )
+                } else {
+                    DropdownMenuItem(
+                        contentPadding = PaddingValues(vertical = 2.dp, horizontal = 8.dp),
+                        text = {
+                            Text(
+                                text = "신고/차단",
+                                fontFamily = FontFamily(Font(R.font.yeongdeok_sea))
+                            )
+                        },
+                        onClick = {
+                            onClicked()
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
     Divider()
 }
