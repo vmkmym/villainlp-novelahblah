@@ -27,9 +27,10 @@ fun ReadMyBookScreen(
     val showDialog by viewModel.showDialog.collectAsState()
     val description by viewModel.description.collectAsState()
 
-    ReadMyBookScaffold(
+    OnlyTopBarScaffold(
         title = title,
         navController = navController,
+        hasIcon = true,
         content = {
             LazyColumn(
                 modifier = it,
@@ -64,9 +65,10 @@ fun ReadMyBookScreen(
 
 // ReadMyNovel
 @Composable
-fun ReadMyBookScaffold(
+fun OnlyTopBarScaffold(
     title: String,
     navController: NavHostController,
+    hasIcon: Boolean,
     content: @Composable (Modifier) -> Unit,
     onClicked: () -> Unit,
 ) {
@@ -76,7 +78,7 @@ fun ReadMyBookScaffold(
                 title = title,
                 navController = navController,
                 onClicked = { onClicked() },
-                hasIcon = true
+                hasIcon = hasIcon
             )
         },
     ) {

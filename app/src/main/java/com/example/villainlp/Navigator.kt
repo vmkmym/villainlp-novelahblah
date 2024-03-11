@@ -9,11 +9,12 @@ import com.example.villainlp.chat.ground.CreativeYardScreen
 import com.example.villainlp.chat.openAichat.ChatListScreen
 import com.example.villainlp.chat.openAichat.ChatScreen
 import com.example.villainlp.novel.library.LibraryScreen
-import com.example.villainlp.novel.library.readBook.ReadLibraryBookScreen
 import com.example.villainlp.novel.library.comment.CommentScreen
 import com.example.villainlp.novel.library.rating.RatingScreen
+import com.example.villainlp.novel.library.readBook.ReadLibraryBookScreen
 import com.example.villainlp.novel.myNovel.MyBookScreen
 import com.example.villainlp.novel.myNovel.readMyNovel.ReadMyBookScreen
+import com.example.villainlp.novel.report.ReportScreen
 import com.example.villainlp.setting.SettingScreen
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.socialLogin.LoginScreen
@@ -102,6 +103,9 @@ fun VillainNavigation(
 
         // 회원가입화면
         composable(Screen.SignUp.route) { SignUpScreen(navController, signUpClicked) }
+
+        // 신고-삭제하기 화면
+        composable(Screen.SignUp.route) { ReportScreen(navController) }
     }
 }
 
