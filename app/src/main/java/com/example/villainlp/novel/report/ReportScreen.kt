@@ -1,6 +1,7 @@
 package com.example.villainlp.novel.report
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,7 +59,13 @@ fun ReportScreen(navController: NavHostController) {
             )
         },
         bottomBar = {
-            ReportBottomBar(isDarkTheme)
+            ReportBottomBar(
+                isDarkTheme = isDarkTheme,
+                navController = navController,
+                modifier = Modifier
+                    .clickable(enabled = selectedOption.isNotEmpty()) { }
+                    .background(if (selectedOption.isNotEmpty()) Primary else Color.LightGray)
+            )
         },
     ) { paddingValues ->
         LazyColumn(
@@ -67,7 +74,9 @@ fun ReportScreen(navController: NavHostController) {
                 .padding(paddingValues)
         ) {
             item {
-                Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)) {
                     Text(
                         text = "신고/차단 사유",
                         fontSize = 20.sp,
@@ -106,11 +115,17 @@ fun ReportScreen(navController: NavHostController) {
                         .height(240.dp),
                     value = text,
                     onValueChange = { text = it },
-                    enabled = selectedOption == "기타"
+                    maxLines = 500,
+                    enabled = selectedOption == "기타",
+                    placeholder = {
+                        Text(text = "500자 이내로 신고/차단 내용을 써 주세요.",)
+                    }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Divider()
-                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)) {
                     Text(text = "• 신고/차단시 해당 사용자의 작품/코멘트는 더 이상 보이지 않습니다.")
                     Text(text = "• 신고 내역은 관리자 내부 검토 후 내부정책에 의거하여 조치가 진행됩니다.")
                     Text(text = "• 설정-차단목록에서 차단 목록을 확인 하실 수 있습니다.")
@@ -122,20 +137,33 @@ fun ReportScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun ReportBottomBar(isDarkTheme: Boolean) {
+private fun ReportBottomBar(
+    isDarkTheme: Boolean,
+    navController: NavHostController,
+    modifier: Modifier,
+) {
     Divider(color = if (isDarkTheme) Color.LightGray else Color.LightGray)
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .height(60.dp)) {
-        Box(modifier = Modifier
-            .fillMaxHeight()
-            .weight(1f), contentAlignment = Alignment.Center) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+                .clickable { navController.popBackStack() },
+            contentAlignment = Alignment.Center
+        )
+        {
             Text(text = "취소")
         }
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .weight(1f)
-            .background(Primary), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
             Text(text = "확인", color = Color.White)
         }
     }
@@ -166,7 +194,7 @@ private fun ReportTopBar(title: String, navController: NavHostController, isDark
 fun RadioButtonOption(
     text: String,
     selectedOption: String,
-    onOptionSelected: (String) -> Unit
+    onOptionSelected: (String) -> Unit,
 ) {
     Row(
         modifier = Modifier
