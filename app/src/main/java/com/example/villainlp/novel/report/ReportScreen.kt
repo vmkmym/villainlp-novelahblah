@@ -31,29 +31,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.villainlp.shared.TopBarTitleText
 import com.example.villainlp.ui.theme.Primary
-import com.example.villainlp.ui.theme.VillainlpTheme
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
-fun ReportScreen(navController: NavHostController) {
+fun ReportScreen(auth: FirebaseAuth, navController: NavHostController) {
     var selectedOption by remember { mutableStateOf("") }
     var text by remember { mutableStateOf("") }
     val isDarkTheme = isSystemInDarkTheme()
+    val userID = auth.currentUser?.uid
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
             ReportTopBar(
-                title = "신고/차단",
                 navController = navController,
                 isDarkTheme = isDarkTheme
             )
@@ -63,7 +68,24 @@ fun ReportScreen(navController: NavHostController) {
                 isDarkTheme = isDarkTheme,
                 navController = navController,
                 modifier = Modifier
-                    .clickable(enabled = selectedOption.isNotEmpty()) { }
+                    .clickable(enabled = selectedOption.isNotEmpty()) {
+                        // 신고 내용 collections을 만들기
+                        // DocumentID는 신고당한 userID
+                        // 내부는 신고 라디오 목록을 카운트
+                        // 기타는 기타내용이라는 collections를 만들기
+
+                        // BlackList 만들기
+                        // DocumentID는 신고하는 userID
+                        // 필드값으로는 신고하는 userID가 추가됨
+                        val blackList = BlackList(
+                            user = userID ?: "ERROR",
+                            blackedUser = "Test2" // todo: 이값은 신고/차단 버튼을 누른곳에서 userID를 전달받아야 함
+                        )
+                        scope.launch {
+                            blackList(blackList)
+                        }
+                        navController.popBackStack()
+                    }
                     .background(if (selectedOption.isNotEmpty()) Primary else Color.LightGray)
             )
         },
@@ -118,7 +140,7 @@ fun ReportScreen(navController: NavHostController) {
                     maxLines = 500,
                     enabled = selectedOption == "기타",
                     placeholder = {
-                        Text(text = "500자 이내로 신고/차단 내용을 써 주세요.",)
+                        Text(text = "500자 이내로 신고/차단 내용을 써 주세요.")
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -170,7 +192,7 @@ private fun ReportBottomBar(
 }
 
 @Composable
-private fun ReportTopBar(title: String, navController: NavHostController, isDarkTheme: Boolean) {
+private fun ReportTopBar(navController: NavHostController, isDarkTheme: Boolean) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -183,7 +205,7 @@ private fun ReportTopBar(title: String, navController: NavHostController, isDark
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "back")
             }
-            TopBarTitleText(title, isDarkTheme)
+            TopBarTitleText("신고/차단", isDarkTheme)
             Spacer(modifier = Modifier.size(15.dp))
         }
         Divider(color = if (isDarkTheme) Color.LightGray else Color.LightGray)
@@ -217,11 +239,47 @@ fun RadioButtonOption(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    VillainlpTheme {
-        val navController = rememberNavController()
-        ReportScreen(navController = navController)
+data class BlackList(
+    val user: String = "",
+    val blackedUser: String = ""
+)
+
+suspend fun blackList(blackList: BlackList) {
+    val db = FirebaseFirestore.getInstance()
+    val blackRef = db.collection("BlackList").document(blackList.user)
+    val snapshot = blackRef.get().await()
+
+    if (snapshot.exists()) {
+        // 문서가 이미 존재하는 경우 업데이트합니다
+        updateBlackList(blackList, blackRef, snapshot)
+    } else {
+        // 문서가 존재하지 않는 경우 추가합니다
+        addBlackList(blackList, blackRef)
     }
 }
+
+fun addBlackList(blackList: BlackList, blackRef: DocumentReference){
+    val data = hashMapOf("0" to blackList.blackedUser)
+    blackRef.set(data)
+}
+
+suspend fun updateBlackList(blackList: BlackList, blackRef: DocumentReference, snapshot: DocumentSnapshot){
+    // 기존 필드의 개수를 가져옵니다
+    val currentFieldCount = snapshot.data?.size ?: 0
+
+    // 새로운 필드 이름을 생성합니다 (기존 필드 개수를 기준으로)
+    val newField = currentFieldCount.toString()
+
+    // 필드를 추가합니다
+    val updates = hashMapOf<String, Any>(newField to blackList.blackedUser)
+    blackRef.update(updates).await()
+}
+
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    VillainlpTheme {
+//        val navController = rememberNavController()
+//        ReportScreen(navController = navController)
+//    }
+//}
