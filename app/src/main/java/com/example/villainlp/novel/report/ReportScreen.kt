@@ -3,7 +3,6 @@ package com.example.villainlp.novel.report
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,52 +12,39 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.villainlp.shared.TopBarTitleText
+import com.example.villainlp.shared.DefaultTopBar
 import com.example.villainlp.ui.theme.Primary
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 @Composable
 fun ReportScreen(
-    auth: FirebaseAuth,
     navController: NavHostController,
     blackID: String,
-    blackedName: String
+    blackedName: String,
+    viewModel: ReportViewModel = viewModel(),
 ) {
-    var selectedOption by remember { mutableStateOf("") }
-    var text by remember { mutableStateOf("") }
+    val selectedOption by viewModel.selectedOption.collectAsState()
+    val text by viewModel.text.collectAsState()
+
     val isDarkTheme = isSystemInDarkTheme()
-    val userID = auth.currentUser?.uid
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -74,22 +60,7 @@ fun ReportScreen(
                 navController = navController,
                 modifier = Modifier
                     .clickable(enabled = selectedOption.isNotEmpty()) {
-                        // 신고 내용 collections을 만들기
-                        // DocumentID는 신고당한 userID
-                        // 내부는 신고 라디오 목록을 카운트
-                        // 기타는 기타내용이라는 collections를 만들기
-
-                        // BlackList 만들기
-                        // DocumentID는 신고하는 userID
-                        // 필드값으로는 신고하는 userID가 추가됨
-                        val blackList = BlackList(
-                            user = userID ?: "ERROR",
-                            blackedID = blackID,
-                            blackedName = blackedName
-                        )
-                        scope.launch {
-                            blackList(blackList)
-                        }
+                        viewModel.submitReport(blackID, blackedName)
                         navController.popBackStack()
                     }
                     .background(if (selectedOption.isNotEmpty()) Primary else Color.LightGray)
@@ -113,27 +84,27 @@ fun ReportScreen(
                 RadioButtonOption(
                     text = "도용",
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it }
+                    onOptionSelected = { viewModel.onSeleceted(it) }
                 )
                 RadioButtonOption(
                     text = "상업적인 내용이 포함",
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it }
+                    onOptionSelected = { viewModel.onSeleceted(it) }
                 )
                 RadioButtonOption(
                     text = "욕설/생명경시/혐오/차별적 표현",
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it }
+                    onOptionSelected = { viewModel.onSeleceted(it) }
                 )
                 RadioButtonOption(
                     text = "불쾌한 표현",
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it }
+                    onOptionSelected = { viewModel.onSeleceted(it) }
                 )
                 RadioButtonOption(
                     text = "기타",
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it }
+                    onOptionSelected = { viewModel.onSeleceted(it) }
                 )
                 OutlinedTextField(
                     textStyle = LocalTextStyle.current,
@@ -142,7 +113,7 @@ fun ReportScreen(
                         .fillMaxWidth()
                         .height(240.dp),
                     value = text,
-                    onValueChange = { text = it },
+                    onValueChange = { viewModel.onTextChange(it) },
                     maxLines = 500,
                     enabled = selectedOption == "기타",
                     placeholder = {
@@ -197,28 +168,6 @@ private fun ReportBottomBar(
     }
 }
 
-// Report, BlockManage
-@Composable
-fun DefaultTopBar(title: String, navController: NavHostController, isDarkTheme: Boolean) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp)
-                .padding(start = 4.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "back")
-            }
-            TopBarTitleText(title, isDarkTheme)
-            Spacer(modifier = Modifier.size(15.dp))
-        }
-        Divider(color = if (isDarkTheme) Color.LightGray else Color.LightGray)
-    }
-}
-
 @Composable
 fun RadioButtonOption(
     text: String,
@@ -246,33 +195,3 @@ fun RadioButtonOption(
     }
 }
 
-data class BlackList(
-    val user: String = "",
-    val blackedID: String = "",
-    val blackedName: String = ""
-)
-
-suspend fun blackList(blackList: BlackList) {
-    val db = FirebaseFirestore.getInstance()
-    val blackRef = db.collection("BlackList").document(blackList.user)
-    val snapshot = blackRef.get().await()
-
-    if (snapshot.exists()) {
-        // 문서가 이미 존재하는 경우 업데이트합니다
-        updateBlackList(blackList, blackRef)
-    } else {
-        // 문서가 존재하지 않는 경우 추가합니다
-        addBlackList(blackList, blackRef)
-    }
-}
-
-fun addBlackList(blackList: BlackList, blackRef: DocumentReference){
-    val data = hashMapOf(blackList.blackedName to blackList.blackedID)
-    blackRef.set(data)
-}
-
-suspend fun updateBlackList(blackList: BlackList, blackRef: DocumentReference){
-    // 필드를 추가합니다
-    val updates = hashMapOf<String, Any>(blackList.blackedName to blackList.blackedID)
-    blackRef.update(updates).await()
-}
