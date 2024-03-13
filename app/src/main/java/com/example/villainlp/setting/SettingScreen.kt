@@ -106,7 +106,11 @@ fun SettingScreen(
                 onUserEmailChange = {}
             )
             Button(onClick = { navController.navigate("BlockScreen") }) {
-                Text(text = "차단 관리")
+                Text(
+                    text = "차단 관리",
+                    fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+                    color = Color.White
+                )
             }
             Spacer(modifier = Modifier.padding(vertical = windowHeight * 0.01f))
             // 로그아웃 버튼
