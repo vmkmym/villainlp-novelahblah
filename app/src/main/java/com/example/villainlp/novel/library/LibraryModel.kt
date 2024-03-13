@@ -1,6 +1,7 @@
 package com.example.villainlp.novel.library
 
 import com.example.villainlp.novel.common.Book
+import com.example.villainlp.server.FirebaseTools.getBlackedIDs
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.coroutineScope
@@ -27,15 +28,20 @@ class LibraryModel{
     }
 
     // Library
-    suspend fun novelSort(sortOption: String): List<Book> = coroutineScope {
+    suspend fun novelSort(sortOption: String, currentUser: String): List<Book> = coroutineScope {
         val db = FirebaseFirestore.getInstance()
+        val blackedIDs = getBlackedIDs(currentUser)
 
         try {
             db.collection("Library")
                 .orderBy(sortOption, Query.Direction.DESCENDING)
                 .get().await().documents.mapNotNull { document ->
-                    val novelInfo = document.toObject(Book::class.java)
-                    novelInfo
+                    val book = document.toObject(Book::class.java)
+                    if (book != null && book.userID !in blackedIDs){
+                        book
+                    } else {
+                        null
+                    }
                 }
         } catch (e: Exception) {
             println("Error getting documents: $e")

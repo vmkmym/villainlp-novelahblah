@@ -3,12 +3,15 @@ package com.example.villainlp.novel.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.villainlp.novel.common.Book
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LibraryViewModel:ViewModel() {
     private val libraryModel = LibraryModel()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val user = auth.currentUser?.uid?:"ERROR"
 
     private val _novelList = MutableStateFlow<List<Book>>(emptyList())
     val novelList: StateFlow<List<Book>> = _novelList
@@ -29,16 +32,16 @@ class LibraryViewModel:ViewModel() {
         viewModelScope.launch {
             when {
                 isRateClicked.value -> {
-                    _novelList.value = libraryModel.novelSort("rating")
+                    _novelList.value = libraryModel.novelSort("rating", user)
                 }
                 isViewClicked.value -> {
-                    _novelList.value = libraryModel.novelSort("views")
+                    _novelList.value = libraryModel.novelSort("views", user)
                 }
                 isUpdateClicked.value -> {
-                    _novelList.value = libraryModel.novelSort("uploadDate")
+                    _novelList.value = libraryModel.novelSort("uploadDate", user)
                 }
                 else -> {
-                    _novelList.value = libraryModel.novelSort("uploadDate")
+                    _novelList.value = libraryModel.novelSort("uploadDate", user)
                 }
             }
         }
