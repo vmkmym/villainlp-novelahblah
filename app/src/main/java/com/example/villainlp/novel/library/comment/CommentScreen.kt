@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,10 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,8 +51,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,6 +62,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.R
+import com.example.villainlp.novel.common.DropDownBox
 import com.example.villainlp.novel.common.SwipeableBox
 import com.example.villainlp.novel.common.TopBarTitle
 import com.example.villainlp.novel.common.deleteContents
@@ -420,8 +415,6 @@ fun MyCommentColumn(
     onClicked: () -> Unit,
     onDelete: () -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -437,51 +430,69 @@ fun MyCommentColumn(
         Column {
             CommentInfoAndScript(comment)
         }
-        Box(modifier = Modifier.align(Alignment.TopEnd)) {
-            IconButton(
-                onClick = { expanded = true }
-            ) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "신고/차단")
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }) {
-                if (isCurrentUser){
-                    Items(
-                        text = "삭제",
-                        onClick = {
-                            onDelete()
-                            expanded = false
-                        }
-                    )
-                } else {
-                    Items(
-                        text = "신고/차단",
-                        onClick = {
-                            onClicked()
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
+        DropDownBox(
+            modifier = Modifier.align(Alignment.TopEnd),
+            isCurrentUser = isCurrentUser,
+            onClicked = { onClicked() },
+            onDelete = { onDelete() }
+        )
     }
     Divider()
 }
 
-@Composable
-fun Items(text: String, onClick: () -> Unit){
-    DropdownMenuItem(
-        contentPadding = PaddingValues(vertical = 2.dp, horizontal = 8.dp),
-        text = {
-            Text(
-                text = text,
-                fontFamily = FontFamily(Font(R.font.yeongdeok_sea))
-            )
-        },
-        onClick = { onClick() }
-    )
-}
+//@Composable
+//fun DropDownBox(
+//    modifier: Modifier,
+//    isCurrentUser: Boolean,
+//    onClicked: () -> Unit,
+//    onDelete: () -> Unit
+//){
+//    var expanded by remember { mutableStateOf(false) }
+//
+//    Box(modifier = modifier) {
+//        IconButton(
+//            onClick = { expanded = true }
+//        ) {
+//            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "신고/차단")
+//        }
+//        DropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false }) {
+//            if (isCurrentUser){
+//                Items(
+//                    text = "삭제",
+//                    onClick = {
+//                        onDelete()
+//                        expanded = false
+//                    }
+//                )
+//            } else {
+//                Items(
+//                    text = "신고/차단",
+//                    onClick = {
+//                        onClicked()
+//                        expanded = false
+//                    }
+//                )
+//            }
+//        }
+//    }
+//
+//}
+//
+//@Composable
+//fun Items(text: String, onClick: () -> Unit){
+//    DropdownMenuItem(
+//        contentPadding = PaddingValues(vertical = 2.dp, horizontal = 8.dp),
+//        text = {
+//            Text(
+//                text = text,
+//                fontFamily = FontFamily(Font(R.font.yeongdeok_sea))
+//            )
+//        },
+//        onClick = { onClick() }
+//    )
+//}
 
 // 댓글 Text 구성
 @Composable
