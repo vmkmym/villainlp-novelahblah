@@ -33,7 +33,7 @@ class CommentViewModel : ViewModel() {
     // 처음 Comment를 로드하는 부분
     fun loadComments(documentId: String) {
         viewModelScope.launch {
-            _commentList.value = commentModel.getComments(documentId)
+            _commentList.value = commentModel.getComments(documentId, user?.uid?:"ERROR")
             _commentCount.value = _commentList.value.size
         }
     }
@@ -48,7 +48,7 @@ class CommentViewModel : ViewModel() {
         _commentDocumentId.value = comment.documentID ?: "ERROR"
         commentModel.deleteDocument(documentId, _commentDocumentId.value)
         viewModelScope.launch {
-            _commentList.value = commentModel.getComments(documentId)
+            _commentList.value = commentModel.getComments(documentId, user?.uid?:"ERROR")
             _commentCount.value = _commentList.value.size
             commentModel.updateCommentCount(documentId, _commentList.value.size)
         }

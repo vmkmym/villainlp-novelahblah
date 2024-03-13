@@ -42,19 +42,45 @@ class CommentModel {
     }
 
     // Comment
-    suspend fun getComments(documentId: String): List<Comment> =
+    suspend fun getComments(documentId: String, currentUser: String): List<Comment> =
         coroutineScope {
             val db = FirebaseFirestore.getInstance()
+            val blackedIDs = getBlackedIDs(currentUser)
 
             try {
                 db.collection("Library").document(documentId).collection("comment")
                     .orderBy("uploadDate", Query.Direction.ASCENDING)
                     .get().await().documents.mapNotNull { document ->
-                        val comments = document.toObject(Comment::class.java)
-                        comments
+                        val comment = document.toObject(Comment::class.java)
+                        // 만약 blackedIDs에 해당하는 사용자가 아니라면 해당 코멘트를 반환합니다
+                        if (comment != null && comment.userID !in blackedIDs) {
+                            comment
+                        } else {
+                            null
+                        }
                     }
             } catch (e: Exception){
                 println("Error getting documents: $e")
+                emptyList()
+            }
+        }
+
+    // Comment
+    private suspend fun getBlackedIDs(user: String): List<String> =
+        coroutineScope {
+            val db = FirebaseFirestore.getInstance()
+
+            try {
+                val snapshot = db.collection("BlackList").document(user).get().await()
+                if (snapshot.exists()) {
+                    val data = snapshot.data
+                    // 문서의 각 필드의 값을 가져와서 리스트로 반환합니다.
+                    data?.values?.mapNotNull { it as? String } ?: emptyList()
+                } else {
+                    emptyList()
+                }
+            } catch (e: Exception) {
+                println("Error getting blacked IDs: $e")
                 emptyList()
             }
         }
@@ -64,4 +90,5 @@ class CommentModel {
         val db = FirebaseFirestore.getInstance()
         db.collection("Library").document(documentId).collection("comment").document(commentDocumentId).delete()
     }
+
 }
