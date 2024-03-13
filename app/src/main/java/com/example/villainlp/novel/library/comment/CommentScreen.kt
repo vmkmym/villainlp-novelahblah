@@ -137,7 +137,8 @@ fun CommentScreen(
             documentId = documentId,
             commentList = commentList,
             viewModel = viewModel,
-            onClicked = { navController.navigate("Report") }
+            navController = navController,
+//            onClicked = { navController.navigate("Report") }
         )
     }
 }
@@ -363,7 +364,8 @@ fun Comments(
     documentId: String,
     commentList: List<Comment>,
     viewModel: CommentViewModel,
-    onClicked: () -> Unit
+    navController: NavHostController,
+//    onClicked: () -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -401,7 +403,7 @@ fun Comments(
                     MyCommentColumn(
                         comment = comment,
                         isCurrentUser = isCurrentUser,
-                        onClicked = { onClicked() },
+                        onClicked = { navController.navigate("Report/${comment.userID}/${comment.author}") },
                         onDelete = { viewModel.deleteComment(documentId, comment) }
                     )
                 }

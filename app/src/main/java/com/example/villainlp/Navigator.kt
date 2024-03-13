@@ -105,7 +105,11 @@ fun VillainNavigation(
         composable(Screen.SignUp.route) { SignUpScreen(navController, signUpClicked) }
 
         // 신고-삭제하기 화면
-        composable("Report") { ReportScreen(auth, navController) }
+        composable("Report/{blackedID}/{blackedName}") {
+            val blackedID = it.arguments?.getString("blackedID") ?: "ERROR"
+            val blackedName = it.arguments?.getString("blackedName") ?: "ERROR"
+            ReportScreen(auth, navController, blackedID, blackedName)
+        }
     }
 }
 

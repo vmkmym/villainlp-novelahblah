@@ -43,13 +43,17 @@ import com.example.villainlp.shared.TopBarTitleText
 import com.example.villainlp.ui.theme.Primary
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 @Composable
-fun ReportScreen(auth: FirebaseAuth, navController: NavHostController) {
+fun ReportScreen(
+    auth: FirebaseAuth,
+    navController: NavHostController,
+    blackID: String,
+    blackedName: String
+) {
     var selectedOption by remember { mutableStateOf("") }
     var text by remember { mutableStateOf("") }
     val isDarkTheme = isSystemInDarkTheme()
@@ -79,7 +83,8 @@ fun ReportScreen(auth: FirebaseAuth, navController: NavHostController) {
                         // 필드값으로는 신고하는 userID가 추가됨
                         val blackList = BlackList(
                             user = userID ?: "ERROR",
-                            blackedUser = "Test2" // todo: 이값은 신고/차단 버튼을 누른곳에서 userID를 전달받아야 함
+                            blackedID = blackID,
+                            blackedName = blackedName
                         )
                         scope.launch {
                             blackList(blackList)
@@ -241,7 +246,8 @@ fun RadioButtonOption(
 
 data class BlackList(
     val user: String = "",
-    val blackedUser: String = ""
+    val blackedID: String = "",
+    val blackedName: String = ""
 )
 
 suspend fun blackList(blackList: BlackList) {
@@ -251,7 +257,7 @@ suspend fun blackList(blackList: BlackList) {
 
     if (snapshot.exists()) {
         // 문서가 이미 존재하는 경우 업데이트합니다
-        updateBlackList(blackList, blackRef, snapshot)
+        updateBlackList(blackList, blackRef)
     } else {
         // 문서가 존재하지 않는 경우 추가합니다
         addBlackList(blackList, blackRef)
@@ -259,27 +265,12 @@ suspend fun blackList(blackList: BlackList) {
 }
 
 fun addBlackList(blackList: BlackList, blackRef: DocumentReference){
-    val data = hashMapOf("0" to blackList.blackedUser)
+    val data = hashMapOf(blackList.blackedName to blackList.blackedID)
     blackRef.set(data)
 }
 
-suspend fun updateBlackList(blackList: BlackList, blackRef: DocumentReference, snapshot: DocumentSnapshot){
-    // 기존 필드의 개수를 가져옵니다
-    val currentFieldCount = snapshot.data?.size ?: 0
-
-    // 새로운 필드 이름을 생성합니다 (기존 필드 개수를 기준으로)
-    val newField = currentFieldCount.toString()
-
+suspend fun updateBlackList(blackList: BlackList, blackRef: DocumentReference){
     // 필드를 추가합니다
-    val updates = hashMapOf<String, Any>(newField to blackList.blackedUser)
+    val updates = hashMapOf<String, Any>(blackList.blackedName to blackList.blackedID)
     blackRef.update(updates).await()
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun GreetingPreview() {
-//    VillainlpTheme {
-//        val navController = rememberNavController()
-//        ReportScreen(navController = navController)
-//    }
-//}
