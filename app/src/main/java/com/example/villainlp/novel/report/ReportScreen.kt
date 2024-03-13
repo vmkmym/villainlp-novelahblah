@@ -62,7 +62,8 @@ fun ReportScreen(
 
     Scaffold(
         topBar = {
-            ReportTopBar(
+            DefaultTopBar(
+                title = "신고/차단",
                 navController = navController,
                 isDarkTheme = isDarkTheme
             )
@@ -196,13 +197,14 @@ private fun ReportBottomBar(
     }
 }
 
+// Report, BlockManage
 @Composable
-private fun ReportTopBar(navController: NavHostController, isDarkTheme: Boolean) {
+fun DefaultTopBar(title: String, navController: NavHostController, isDarkTheme: Boolean) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(60.dp)
+                .height(70.dp)
                 .padding(start = 4.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -210,7 +212,7 @@ private fun ReportTopBar(navController: NavHostController, isDarkTheme: Boolean)
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "back")
             }
-            TopBarTitleText("신고/차단", isDarkTheme)
+            TopBarTitleText(title, isDarkTheme)
             Spacer(modifier = Modifier.size(15.dp))
         }
         Divider(color = if (isDarkTheme) Color.LightGray else Color.LightGray)
