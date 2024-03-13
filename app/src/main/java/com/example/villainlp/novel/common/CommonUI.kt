@@ -29,6 +29,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SwipeToDismissBox
@@ -336,6 +337,7 @@ fun deleteContents(
 fun DropDownBox(
     modifier: Modifier,
     isCurrentUser: Boolean,
+    tint: Color = LocalContentColor.current,
     onClicked: () -> Unit,
     onDelete: () -> Unit
 ){
@@ -345,7 +347,7 @@ fun DropDownBox(
         IconButton(
             onClick = { expanded = true }
         ) {
-            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "신고/차단")
+            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "신고/차단", tint = tint)
         }
         DropdownMenu(
             expanded = expanded,

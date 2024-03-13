@@ -242,6 +242,7 @@ fun NovelCard(
             DropDownBox(
                 modifier = Modifier.align(Alignment.TopEnd),
                 isCurrentUser = isCurrentUser,
+                tint = Color.Black,
                 onClicked = { onClicked() },
                 onDelete = { onDelete() }
             )
