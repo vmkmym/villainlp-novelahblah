@@ -50,6 +50,7 @@ import com.example.villainlp.novel.common.AuthorText
 import com.example.villainlp.novel.common.Book
 import com.example.villainlp.novel.common.DeleteNovelCard
 import com.example.villainlp.novel.common.DescriptionText
+import com.example.villainlp.novel.common.DropDownBox
 import com.example.villainlp.novel.common.FrontArrowImage
 import com.example.villainlp.novel.common.SwipeableBox
 import com.example.villainlp.novel.common.TitleText
@@ -173,7 +174,9 @@ fun NovelLists(
             val user = auth.currentUser
             val isCurrentUser = user?.uid == book.userID
             var commentCount by remember { mutableStateOf(0) }
-            scope.launch { commentCount = FirebaseTools.getCommentCount(book.documentID?:"ERROR") }
+            scope.launch {
+                commentCount = FirebaseTools.getCommentCount(book.documentID ?: "ERROR")
+            }
 
             SwipeableBox(
                 modifier = Modifier.animateItemPlacement(),
@@ -205,7 +208,10 @@ fun NovelLists(
                     NovelCard(
                         book = book,
                         commentCount = commentCount,
-                        navController = navController
+                        navController = navController,
+                        isCurrentUser = isCurrentUser,
+                        onClicked = { navController.navigate("Report/${book.userID}/${book.author}") },
+                        onDelete = { viewModel.onDeleteClicked(book) }
                     )
                 }
             )
@@ -221,6 +227,9 @@ fun NovelCard(
     book: Book,
     commentCount: Int,
     navController: NavHostController,
+    isCurrentUser: Boolean,
+    onClicked: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -229,11 +238,19 @@ fun NovelCard(
             .clickable { navController.navigate("ReadLibraryBookScreen/${book.title}/${book.script}/${book.documentID}/${book.views}") },
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            TitleAndDescription(book)
-            AuthorAndRatingIcons(book, commentCount)
+        Box(modifier = Modifier.fillMaxWidth()) {
+            DropDownBox(
+                modifier = Modifier.align(Alignment.TopEnd),
+                isCurrentUser = isCurrentUser,
+                onClicked = { onClicked() },
+                onDelete = { onDelete() }
+            )
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                TitleAndDescription(book)
+                AuthorAndRatingIcons(book, commentCount)
+            }
         }
     }
 }
