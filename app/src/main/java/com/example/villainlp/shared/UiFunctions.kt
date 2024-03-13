@@ -7,12 +7,18 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -238,4 +244,26 @@ fun AlertText(message: String = "작성한 소설을 저장하시겠습니까?")
             color = Color.Black
         )
     )
+}
+
+// Report, BlockManage
+@Composable
+fun DefaultTopBar(title: String, navController: NavHostController, isDarkTheme: Boolean) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(70.dp)
+                .padding(start = 4.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "back")
+            }
+            TopBarTitleText(title, isDarkTheme)
+            Spacer(modifier = Modifier.size(15.dp))
+        }
+        Divider(color = if (isDarkTheme) Color.LightGray else Color.LightGray)
+    }
 }

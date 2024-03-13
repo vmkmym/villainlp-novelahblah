@@ -441,60 +441,6 @@ fun MyCommentColumn(
     Divider()
 }
 
-//@Composable
-//fun DropDownBox(
-//    modifier: Modifier,
-//    isCurrentUser: Boolean,
-//    onClicked: () -> Unit,
-//    onDelete: () -> Unit
-//){
-//    var expanded by remember { mutableStateOf(false) }
-//
-//    Box(modifier = modifier) {
-//        IconButton(
-//            onClick = { expanded = true }
-//        ) {
-//            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "신고/차단")
-//        }
-//        DropdownMenu(
-//            expanded = expanded,
-//            onDismissRequest = { expanded = false }) {
-//            if (isCurrentUser){
-//                Items(
-//                    text = "삭제",
-//                    onClick = {
-//                        onDelete()
-//                        expanded = false
-//                    }
-//                )
-//            } else {
-//                Items(
-//                    text = "신고/차단",
-//                    onClick = {
-//                        onClicked()
-//                        expanded = false
-//                    }
-//                )
-//            }
-//        }
-//    }
-//
-//}
-//
-//@Composable
-//fun Items(text: String, onClick: () -> Unit){
-//    DropdownMenuItem(
-//        contentPadding = PaddingValues(vertical = 2.dp, horizontal = 8.dp),
-//        text = {
-//            Text(
-//                text = text,
-//                fontFamily = FontFamily(Font(R.font.yeongdeok_sea))
-//            )
-//        },
-//        onClick = { onClick() }
-//    )
-//}
-
 // 댓글 Text 구성
 @Composable
 fun CommentInfoAndScript(comment: Comment) {

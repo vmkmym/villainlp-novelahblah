@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
-import com.example.villainlp.novel.report.DefaultTopBar
+import com.example.villainlp.shared.DefaultTopBar
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
