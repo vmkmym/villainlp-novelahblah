@@ -54,6 +54,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
@@ -74,7 +75,7 @@ fun CommentScreen(
     navController: NavHostController,
     auth: FirebaseAuth,
     documentId: String,
-    viewModel: CommentViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: CommentViewModel = viewModel(),
 ) {
     // VM에서 관리할 변수들 UI들과 분리되어 관리할 대상
     val commentList by viewModel.commentList.collectAsState()

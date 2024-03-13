@@ -63,8 +63,8 @@ fun MyNovels(
     modifier: Modifier,
     navController: NavHostController,
     auth: FirebaseAuth,
-    myBooks: List<RelayNovel>, // TODO : myBooks와 viewModel이 RelayChatToNovelBook과 MyNovelViewModel로 고정되어 있는데
-    viewModel: MyNovelViewModel,         // TODO : 이를 통합되게 관리하면 이 코드를 비슷한 부분에서 다같이 사용할 수 있음(재사용성 증진)
+    myBooks: List<RelayNovel>,
+    viewModel: MyNovelViewModel,
 ) {
     LazyColumn(
         modifier = modifier.padding(15.dp),

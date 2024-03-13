@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.villainlp.R
 import com.example.villainlp.ui.theme.Primary
@@ -43,7 +44,7 @@ import com.example.villainlp.ui.theme.Primary
 fun RatingScreen(
     navController: NavHostController,
     documentId: String,
-    viewModel: RatingViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: RatingViewModel = viewModel(),
 ) {
     // rating요소 5개의 상태를 나타냄
     val ratingViewState by viewModel.ratingViewState.collectAsState()
