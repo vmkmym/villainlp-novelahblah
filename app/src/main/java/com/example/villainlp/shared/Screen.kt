@@ -1,21 +1,23 @@
 package com.example.villainlp.shared
 
 sealed class Screen(val route: String) {
-    object Profile : Screen("UserProfileScreen")
-    object Lottie : Screen("LottieScreen")
-    object Login : Screen("LoginScreen")
-    object Chatting : Screen("ChattingScreen/{title}/{threadId}/{assistantKey}")
-    object CreativeYard : Screen("CreativeYardScreen")
-    object Library : Screen("LibraryScreen")
-    object MyBook : Screen("MyBookScreen")
-    object ReadMyBook : Screen("ReadMyBookScreen/{title}/{script}")
-    object ReadLibraryBook : Screen("ReadLibraryBookScreen/{title}/{script}/{documentId}/{views}")
-    object Rating : Screen("RatingScreen/{documentId}")
-    object ChattingList : Screen("ChattingScreen")
-    object Comment : Screen("CommentScreen/{documentId}")
-    object GeminiChat : Screen("GeminiChatScreen/{title}/{uuid}")
+    data object Profile : Screen("UserProfileScreen")
+    data object Lottie : Screen("LottieScreen")
+    data object Login : Screen("LoginScreen")
+    data object Chatting : Screen("ChattingScreen/{title}/{threadId}/{assistantKey}")
+    data object CreativeYard : Screen("CreativeYardScreen")
+    data object Library : Screen("LibraryScreen")
+    data object MyBook : Screen("MyBookScreen")
+    data object ReadMyBook : Screen("ReadMyBookScreen/{title}/{script}")
+    data object ReadLibraryBook : Screen("ReadLibraryBookScreen/{title}/{script}/{documentId}/{views}")
+    data object Rating : Screen("RatingScreen/{documentId}")
+    data object ChattingList : Screen("ChattingScreen")
+    data object Comment : Screen("CommentScreen/{documentId}")
+    data object GeminiChat : Screen("GeminiChatScreen/{title}/{uuid}")
 
     //회원가입 화면
-    object SignUp : Screen("SignUpScreen")
+    data object SignUp : Screen("SignUpScreen")
+    data object Report : Screen("Report/{blackedID}/{blackedName}")
+    data object BlockManage : Screen("BlockScreen")
 
 }

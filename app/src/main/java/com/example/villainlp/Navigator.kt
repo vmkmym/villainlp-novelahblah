@@ -15,8 +15,8 @@ import com.example.villainlp.novel.library.readBook.ReadLibraryBookScreen
 import com.example.villainlp.novel.myNovel.MyBookScreen
 import com.example.villainlp.novel.myNovel.readMyNovel.ReadMyBookScreen
 import com.example.villainlp.novel.report.ReportScreen
-import com.example.villainlp.setting.blockManage.BlockManageScreen
 import com.example.villainlp.setting.SettingScreen
+import com.example.villainlp.setting.blockManage.BlockManageScreen
 import com.example.villainlp.shared.Screen
 import com.example.villainlp.socialLogin.LoginScreen
 import com.example.villainlp.socialLogin.LottieScreen
@@ -106,14 +106,14 @@ fun VillainNavigation(
         composable(Screen.SignUp.route) { SignUpScreen(navController, signUpClicked) }
 
         // 신고-삭제하기 화면
-        composable("Report/{blackedID}/{blackedName}") {
+        composable(Screen.Report.route) {
             val blackedID = it.arguments?.getString("blackedID") ?: "ERROR"
             val blackedName = it.arguments?.getString("blackedName") ?: "ERROR"
             ReportScreen(navController, blackedID, blackedName)
         }
 
         // 신고-차단 목록
-        composable("BlockScreen") { BlockManageScreen(navController) }
+        composable(Screen.BlockManage.route) { BlockManageScreen(navController) }
     }
 }
 
