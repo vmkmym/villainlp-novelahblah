@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -104,6 +105,9 @@ fun SettingScreen(
                 userEmail = userEmail ?: "",
                 onUserEmailChange = {}
             )
+            Button(onClick = { navController.navigate("BlockScreen") }) {
+                Text(text = "차단 관리")
+            }
             Spacer(modifier = Modifier.padding(vertical = windowHeight * 0.01f))
             // 로그아웃 버튼
             DisplaySignOutButton { signOutClicked() }
