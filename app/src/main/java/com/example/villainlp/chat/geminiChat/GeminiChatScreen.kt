@@ -2,11 +2,14 @@
 
 package com.example.villainlp.chat.geminiChat
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +31,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,7 +57,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -61,6 +69,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -94,7 +103,7 @@ internal fun GeminiChatScreen(
     navController: NavController,
     auth: FirebaseAuth,
     title: String,
-    uuid: String
+    uuid: String,
 ) {
     val geminiChatViewModel: GeminiChatViewModel = viewModel(factory = GeminiViewModelFactory)
     val (input, setInput) = remember { mutableStateOf("") }
@@ -113,7 +122,11 @@ internal fun GeminiChatScreen(
 
     LaunchedEffect(Unit) {
         geminiChatViewModel.loadChatMessages({ messages -> sentMessages = messages }, title, uuid)
-        geminiChatViewModel.loadChatbotMessages({ botmessages -> sentBotMessages = botmessages }, title, uuid)
+        geminiChatViewModel.loadChatbotMessages(
+            { botmessages -> sentBotMessages = botmessages },
+            title,
+            uuid
+        )
     }
 
     val listState = rememberLazyListState()
@@ -411,13 +424,13 @@ private fun UserResponse(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatbotResponse(
     message: GeminiChatMessage,
     bubbleShape: RoundedCornerShape,
 ) {
-    val clipboardManager = LocalClipboardManager.current
+    var showCopyReportDialog by remember { mutableStateOf(false) }
+    val clipboard = LocalClipboardManager.current
 
     Column {
         Row(
@@ -439,6 +452,18 @@ private fun ChatbotResponse(
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp
             )
+            if (showCopyReportDialog) {
+                CopyOrReport(
+                    onCopyClick = {
+                        clipboard.setText(AnnotatedString(message.message ?: ""))
+                        showCopyReportDialog = false
+                    },
+                    onReportClick = {
+                        FirebaseTools.reportContent(message.message ?: "")
+                        showCopyReportDialog = false
+                    }
+                )
+            }
         }
         // 말풍선
         Column(
@@ -461,12 +486,7 @@ private fun ChatbotResponse(
                             shape = bubbleShape
                         )
                         .padding(6.dp)
-                        .combinedClickable(
-                            onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
-                            onLongClick = { // 클립보드에 텍스트를 복사합니다.
-                                clipboardManager.setText(AnnotatedString(message.message ?: ""))
-                            }
-                        )
+                        .clickable(onClick = { showCopyReportDialog = true })
                 ) {
                     Text(
                         text = message.message ?: "",
@@ -481,6 +501,42 @@ private fun ChatbotResponse(
                     fontSize = 9.sp,
                     modifier = Modifier.padding(end = 3.dp, bottom = 3.dp)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun CopyOrReport(onCopyClick: () -> Unit, onReportClick: () -> Unit) {
+    Box(modifier = Modifier.padding(start = 20.dp)) {
+        Box(
+            modifier = Modifier
+                .background(
+                    color = if (isSystemInDarkTheme()) Color.White else Color.DarkGray,
+                    shape = RoundedCornerShape(28.dp)
+                )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Button(
+                    onClick = { onCopyClick() },
+                    colors = ButtonDefaults.buttonColors(Color.Transparent)
+                ) {
+                    Text("복사", color = if (isSystemInDarkTheme()) Color.DarkGray else Color.White)
+                }
+                VerticalDivider(
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .height(25.dp)
+                )
+                Button(
+                    onClick = { onReportClick() },
+                    colors = ButtonDefaults.buttonColors(Color.Transparent)
+                ) {
+                    Text("신고", color = if (isSystemInDarkTheme()) Color.Black else Color.White)
+                }
             }
         }
     }
