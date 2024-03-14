@@ -7,6 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -27,10 +28,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -46,7 +47,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -64,7 +64,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
@@ -87,7 +86,9 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.villainlp.GenNovelViewModelFactory
 import com.example.villainlp.R
+import com.example.villainlp.chat.geminiChat.CopyOrReport
 import com.example.villainlp.novel.library.comment.addFocusCleaner
+import com.example.villainlp.server.FirebaseTools
 import com.example.villainlp.server.FirebaseTools.saveAtFirebase
 import com.example.villainlp.shared.AlertCancelText
 import com.example.villainlp.shared.AlertConfirmText
@@ -395,7 +396,7 @@ private fun TopBar(
                 navController.navigate(Screen.ChattingList.route)
             }) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "뒤로 가기(홈화면)"
                 )
             }
@@ -429,7 +430,6 @@ private fun GenerateResponse(loadingAnimation: LottieComposition?) {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CustomTextField(
     value: String,
@@ -441,7 +441,7 @@ fun CustomTextField(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column {
-        Divider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
+        HorizontalDivider(thickness = 0.5.dp, color = Color(0xFF9E9E9E))
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -486,7 +486,6 @@ fun CustomTextField(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun SendButton(onSendClick: () -> Unit, keyboardController: SoftwareKeyboardController?) {
     IconButton(
@@ -516,7 +515,7 @@ fun ChatItemBubble(message: ChatMessage, userId: String?) {
     if (isCurrentUserMessage) {
         UserResponse(message, bubbleColor, bubbleShape)
     } else {
-        ChatbotResponse(message, bubbleColor, bubbleShape)
+        ChatbotResponse(message, bubbleShape)
     }
 }
 
@@ -527,8 +526,6 @@ private fun UserResponse(
     bubbleColor: Color,
     bubbleShape: RoundedCornerShape,
 ) {
-    val clipboardManager = LocalClipboardManager.current
-
     Column(
         modifier = Modifier
             .padding(start = 50.dp, end = 15.dp, top = 20.dp, bottom = 20.dp)
@@ -547,16 +544,6 @@ private fun UserResponse(
                 modifier = Modifier
                     .background(color = bubbleColor, shape = bubbleShape)
                     .padding(6.dp)
-                    .combinedClickable(
-                        onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
-                        onLongClick = { // 말풍선을 꾹 누르면 발생하는 이벤트입니다.
-                            clipboardManager.setText(
-                                AnnotatedString(
-                                    message.message ?: ""
-                                )
-                            ) // 클립보드에 텍스트를 복사합니다.
-                        }
-                    )
             ) {
                 Text(
                     text = message.message ?: "",
@@ -569,14 +556,13 @@ private fun UserResponse(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatbotResponse(
     message: ChatMessage,
-    bubbleColor: Color,
     bubbleShape: RoundedCornerShape,
 ) {
-    val clipboardManager = LocalClipboardManager.current
+    var showCopyReportDialog by remember { mutableStateOf(false) }
+    val clipboard = LocalClipboardManager.current
 
     Column {
         Row(
@@ -597,6 +583,18 @@ private fun ChatbotResponse(
                 modifier = Modifier.padding(start = 4.dp),
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp
+            )
+        }
+        if (showCopyReportDialog) {
+            CopyOrReport(
+                onCopyClick = {
+                    clipboard.setText(AnnotatedString(message.message ?: ""))
+                    showCopyReportDialog = false
+                },
+                onReportClick = {
+                    FirebaseTools.reportContent(message.message ?: "")
+                    showCopyReportDialog = false
+                }
             )
         }
         // 말풍선
@@ -620,12 +618,7 @@ private fun ChatbotResponse(
                             shape = bubbleShape
                         )
                         .padding(6.dp)
-                        .combinedClickable(
-                            onClick = { /* 클릭 이벤트를 처리하는 코드를 여기에 작성하세요. */ },
-                            onLongClick = {
-                                clipboardManager.setText(AnnotatedString(message.message ?: ""))
-                            }
-                        )
+                        .clickable(onClick = { showCopyReportDialog = true })
                 ) {
                     Text(
                         text = message.message ?: "",
@@ -642,32 +635,5 @@ private fun ChatbotResponse(
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewChatbotResponse() {
-    Column {
-        ChatbotResponse(
-            message = ChatMessage(
-                message = "How can I help you today?",
-                userId = "chatbot",
-                userName = "Chatbot",
-                uploadDate = "10:00"
-            ),
-            bubbleColor = Color.White,
-            bubbleShape = RoundedCornerShape(17.dp)
-        )
-        ChatbotResponse(
-            message = ChatMessage(
-                message = "안녕하세요. 저는 챗봇입니다. 어떤 것을 도와드릴까요?",
-                userId = "chatbot",
-                userName = "Chatbot",
-                uploadDate = "10:33"
-            ),
-            bubbleColor = Color.White,
-            bubbleShape = RoundedCornerShape(10.dp)
-        )
     }
 }
