@@ -1,9 +1,14 @@
 package com.example.villainlp.server
 
+import android.content.ContentValues
+import android.util.Log
 import com.example.villainlp.novel.common.Book
 import com.example.villainlp.shared.NovelInfo
 import com.example.villainlp.shared.RelayNovel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 
 object FirebaseTools {
@@ -52,4 +57,25 @@ object FirebaseTools {
 
         db.collection(collectionPath).document(documentId).delete()
     }
+
+    // Chat : Report
+    fun reportContent(content: String) {
+    val db = Firebase.firestore
+    val user = Firebase.auth.currentUser
+    val email = user?.email ?: "Unknown User"
+
+    val report = hashMapOf(
+        "userEmail" to email,
+        "AI 생성 컨텐츠" to content
+    )
+
+    db.collection("ChatReport")
+        .add(report)
+        .addOnSuccessListener { documentReference ->
+            Log.d(ContentValues.TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+        }
+        .addOnFailureListener { e ->
+            Log.w(ContentValues.TAG, "Error adding document", e)
+        }
+}
 }
