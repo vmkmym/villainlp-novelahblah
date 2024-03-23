@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.villainlp"
+    namespace = "com.villainlp.novlahvlah"
     compileSdk = 34
 
     buildFeatures {
@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.villainlp"
+        applicationId = "com.villainlp.novlahvlah"
         minSdk = 25
         targetSdk = 34
         versionCode = 1
