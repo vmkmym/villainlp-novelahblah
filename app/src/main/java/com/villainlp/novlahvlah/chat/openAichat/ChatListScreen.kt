@@ -40,7 +40,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.FirebaseAuth
 import com.villainlp.novlahvlah.GenNovelViewModelFactory
+import com.villainlp.novlahvlah.R
 import com.villainlp.novlahvlah.novel.common.DeleteNovelCard
 import com.villainlp.novlahvlah.novel.common.FrontArrowImage
 import com.villainlp.novlahvlah.novel.common.SwipeableBox
@@ -49,8 +51,6 @@ import com.villainlp.novlahvlah.shared.MyScaffold
 import com.villainlp.novlahvlah.shared.NovelInfo
 import com.villainlp.novlahvlah.shared.Screen
 import com.villainlp.novlahvlah.ui.theme.BasicWhite
-import com.google.firebase.auth.FirebaseAuth
-import com.villainlp.novlahvlah.R
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -167,8 +167,17 @@ fun NovelChatCards(
                             context,
                             R.string.assistant_key_for_novelist
                         )
-                    )
-                        R.drawable.creative_yard_1 else R.drawable.creative_yard_2
+                    ) {
+                        R.drawable.creative_yard_1
+                    } else if (novelInfo.assistId == ContextCompat.getString(
+                            context,
+                            R.string.assistant_key_for_general
+                        )
+                    ) {
+                        R.drawable.creative_yard_2
+                    } else {
+                        R.drawable.gemini
+                    }
                 ),
                 contentDescription = "Working On"
             )
