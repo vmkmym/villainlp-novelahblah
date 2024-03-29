@@ -18,8 +18,8 @@ android {
         applicationId = "com.villainlp.novlahvlah"
         minSdk = 25
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.0.2-alpha"
+        versionCode = 5
+        versionName = "1.0.4-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -32,7 +32,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
