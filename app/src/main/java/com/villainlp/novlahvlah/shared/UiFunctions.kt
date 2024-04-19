@@ -35,8 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.villainlp.novlahvlah.ui.theme.Primary
 import com.villainlp.novlahvlah.R
+import com.villainlp.novlahvlah.ui.theme.Primary
 
 // CreateGround, ChatListScreen, MyNovelScreen
 @Composable
@@ -192,14 +192,14 @@ fun TopBarTitleText(title: String, isDarkTheme: Boolean) {
 
 // CreateGround, ChatScreen, GeminiScreen, ReadMyNovel
 @Composable
-fun AlertConfirmText(confirmText: String = "확인") {
+fun AlertConfirmText(confirmText: String = "확인", enabled: Boolean = true) {
     Text(
         text = confirmText,
         style = TextStyle(
             fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = Primary
+            color = if (enabled) Primary else Color.LightGray
         )
     )
 }

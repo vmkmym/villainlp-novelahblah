@@ -151,6 +151,8 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
     val user = auth.currentUser
     val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
 
+    val saveEnable = dialogTitle.isNotEmpty()
+
     Spacer(modifier = Modifier.padding(top = 12.dp))
     Column(
         modifier = Modifier
@@ -252,8 +254,9 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         }
                         showDialog = false
                         navController.navigate(Screen.ChattingList.route)
-                    }
-                ) { AlertConfirmText() }
+                    },
+                    enabled = saveEnable,
+                ) { AlertConfirmText(enabled = saveEnable) }
             },
             dismissButton = {
                 IconButton(
@@ -315,8 +318,9 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         }
                         showGeminiDialog = false
                         navController.navigate(Screen.ChattingList.route)
-                    }
-                ) { AlertConfirmText() }
+                    },
+                    enabled = saveEnable,
+                ) { AlertConfirmText(enabled = saveEnable) }
             },
             dismissButton = {
                 IconButton(
