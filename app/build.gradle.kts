@@ -18,8 +18,8 @@ android {
         applicationId = "com.villainlp.novlahvlah"
         minSdk = 25
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.0.4-alpha"
+        versionCode = 6
+        versionName = "1.0.01-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

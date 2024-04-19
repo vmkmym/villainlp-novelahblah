@@ -61,6 +61,8 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.firebase.auth.FirebaseAuth
+import com.villainlp.novlahvlah.R
 import com.villainlp.novlahvlah.server.FirebaseTools.saveAtFirebase
 import com.villainlp.novlahvlah.shared.AlertCancelText
 import com.villainlp.novlahvlah.shared.AlertConfirmText
@@ -69,8 +71,6 @@ import com.villainlp.novlahvlah.shared.NovelInfo
 import com.villainlp.novlahvlah.shared.Screen
 import com.villainlp.novlahvlah.ui.theme.LightBlack
 import com.villainlp.novlahvlah.ui.theme.Primary
-import com.google.firebase.auth.FirebaseAuth
-import com.villainlp.novlahvlah.R
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -151,6 +151,8 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
     val user = auth.currentUser
     val firePuppleLottie by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.fire_pupple))
 
+    val saveEnable = dialogTitle.isNotEmpty()
+
     Spacer(modifier = Modifier.padding(top = 12.dp))
     Column(
         modifier = Modifier
@@ -218,7 +220,10 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             .width(300.dp)
                             .height(80.dp)
                             .padding(8.dp),
-                        textStyle = TextStyle(fontFamily = FontFamily(Font(R.font.yeongdeok_sea))),
+                        textStyle = TextStyle(
+                            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+                            color = Color.Black
+                        ),
                         label = { AlertLabelText() },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Primary,
@@ -249,8 +254,9 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         }
                         showDialog = false
                         navController.navigate(Screen.ChattingList.route)
-                    }
-                ) { AlertConfirmText() }
+                    },
+                    enabled = saveEnable,
+                ) { AlertConfirmText(enabled = saveEnable) }
             },
             dismissButton = {
                 IconButton(
@@ -283,7 +289,10 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                             .fillMaxWidth(1f)
                             .height(80.dp)
                             .padding(8.dp),
-                        textStyle = TextStyle(fontFamily = FontFamily(Font(R.font.yeongdeok_sea))),
+                        textStyle = TextStyle(
+                            fontFamily = FontFamily(Font(R.font.yeongdeok_sea)),
+                            color = Color.Black
+                        ),
                         label = { AlertLabelText() },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Primary,
@@ -309,8 +318,9 @@ fun CreativeYard(navController: NavHostController, auth: FirebaseAuth) {
                         }
                         showGeminiDialog = false
                         navController.navigate(Screen.ChattingList.route)
-                    }
-                ) { AlertConfirmText() }
+                    },
+                    enabled = saveEnable,
+                ) { AlertConfirmText(enabled = saveEnable) }
             },
             dismissButton = {
                 IconButton(
