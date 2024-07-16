@@ -50,12 +50,11 @@ Explore the [Figma design](https://www.figma.com/file/yLlkNlmPgHXLpMU3t4GYN1/Vil
   - Navigation
   
 - **External Libraries**
-  - OpenAI Client
+  - OpenAI API
+  - Gemini API
   - Lottie
   - Coil (Image loading)
   
-- **Wear OS with Compose**
-  - Compose Material
 
 ---
 ## 앱 시연영상은 링크를 통해 보실 수 있습니다.
